@@ -50,7 +50,7 @@ const Home: React.FC = () => {
               "El Coaching nos da interioridad. El Eneagrama profundidad."
             </h3>
             <p className="text-gray-600 mb-6 leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Método #Eneascoaching: una integración poderosa de Coaching Ontológico y Eneagrama, aplicado con éxito a más de 2000 personas. Descubre tu esencia, transforma tus patrones y vive la vida que deseas.
+              Método #Eneascoaching: una integración poderosa de Coaching Ontológico y Eneagrama, aplicado con éxito a más de 1800 personas. Descubre tu esencia, transforma tus patrones y vive la vida que deseas.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button to="/mentorias/grupal">Comenzar el Viaje</Button>
@@ -63,12 +63,12 @@ const Home: React.FC = () => {
             <div className="relative">
               <div className="absolute inset-0 border-2 border-brand-gold rounded-full transform translate-x-4 translate-y-4"></div>
               <img
-                src="/fotosCecilia/foto_cecilia_home.jpg"
+                src="public/fotosCecilia/foto_cecilia_home.jpg"
                 alt="Cecilia B. Sánchez"
                 className="rounded-full w-80 h-80 md:w-[500px] md:h-[500px] object-cover shadow-2xl relative z-10 transition-all duration-700"
               />
               <div className="absolute -bottom-6 -right-6 bg-white p-4 shadow-lg rounded-sm z-20 hidden md:block">
-                <p className="font-heading font-bold text-brand-dark text-lg">+2000</p>
+                <p className="font-heading font-bold text-brand-dark text-lg">+1800</p>
                 <p className="text-xs text-gray-500 uppercase tracking-wider">Vidas Transformadas</p>
               </div>
             </div>
