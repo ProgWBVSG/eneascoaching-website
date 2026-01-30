@@ -63,7 +63,7 @@ const Home: React.FC = () => {
             <div className="relative">
               <div className="absolute inset-0 border-2 border-brand-gold rounded-full transform translate-x-4 translate-y-4"></div>
               <img
-                src="public/fotosCecilia/foto_cecilia_home.jpg"
+                src="/fotosCecilia/foto_cecilia_home.jpg"
                 alt="Cecilia B. Sánchez"
                 className="rounded-full w-80 h-80 md:w-[500px] md:h-[500px] object-cover shadow-2xl relative z-10 transition-all duration-700"
               />
