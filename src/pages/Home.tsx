@@ -63,7 +63,7 @@ const Home: React.FC = () => {
             <div className="relative">
               <div className="absolute inset-0 border-2 border-brand-gold rounded-full transform translate-x-4 translate-y-4"></div>
               <img
-                src="fotosCecilia/foto_cecilia_home.jpg"
+                src="/fotosCecilia/foto_cecilia_home.jpg"
                 alt="Cecilia B. Sánchez"
                 className="rounded-full w-80 h-80 md:w-[500px] md:h-[500px] object-cover shadow-2xl relative z-10 transition-all duration-700"
               />
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
             <div className="group bg-brand-beige rounded-sm overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-64 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors z-10"></div>
-                <img src="fotosCecilia/foto_cecilia_clase.jpg" alt="Mentoría Grupal" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                <img src="/fotosCecilia/foto_cecilia_clase.jpg" alt="Mentoría Grupal" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute bottom-4 left-4 z-20">
                   <span className="bg-brand-gold text-white text-xs px-3 py-1 uppercase tracking-wider font-bold">Grupal</span>
                 </div>
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
               <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold"></div>
               <div className="h-64 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"></div>
-                <img src="fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Mentoría Premium" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                <img src="/fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Mentoría Premium" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute bottom-4 left-4 z-20">
                   <span className="bg-white text-brand-dark text-xs px-3 py-1 uppercase tracking-wider font-bold">Premium</span>
                 </div>
@@ -137,7 +137,7 @@ const Home: React.FC = () => {
             <div className="group bg-brand-beige rounded-sm overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="h-64 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors z-10"></div>
-                <img src="fotosCecilia/foto_cecilia_diplomatura.jpg" alt="Diplomatura" className="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700" />
+                <img src="/fotosCecilia/foto_cecilia_diplomatura.jpg" alt="Diplomatura" className="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute bottom-4 left-4 z-20">
                   <span className="bg-brand-dark text-white text-xs px-3 py-1 uppercase tracking-wider font-bold">Formación</span>
                 </div>

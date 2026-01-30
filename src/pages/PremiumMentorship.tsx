@@ -57,7 +57,7 @@ const PremiumMentorship: React.FC = () => {
             </div>
           </div>
           <div className="order-1 lg:order-2 h-[500px] overflow-hidden">
-            <img src="fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Premium Mentorship" className="rounded-sm shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-full object-cover object-center scale-110" />
+            <img src="/fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Premium Mentorship" className="rounded-sm shadow-2xl grayscale hover:grayscale-0 transition-all duration-700 w-full h-full object-cover object-center scale-110" />
           </div>
         </div>
       </section>

@@ -13,7 +13,7 @@ const About: React.FC = () => {
               <div className="relative w-80 h-80 md:w-96 md:h-96">
                 <div className="absolute inset-0 bg-brand-gold rounded-full blur-2xl opacity-20 transform translate-x-4 translate-y-4"></div>
                 <img
-                  src="fotosCecilia/foto_cecilia_cara.jpg"
+                  src="/fotosCecilia/foto_cecilia_cara.jpg"
                   alt="Cecilia B. Sánchez"
                   className="rounded-full w-full h-full object-cover shadow-2xl relative z-10 border-4 border-white"
                 />
