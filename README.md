@@ -1,26 +1,86 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# EneasCoaching Website
 
-# Run and deploy your AI Studio app
+Sitio web profesional de EneasCoaching - Mentorías de Eneagrama y Coaching Ontológico por Cecilia B. Sánchez.
 
-This contains everything you need to run your app locally.
+## 🌟 Descripción
 
-View your app in AI Studio: https://ai.studio/apps/drive/1C141dRO030koDegNVlPbjxCfm7Hhc_rm
+Plataforma web moderna y elegante construida con React, TypeScript y Tailwind CSS, diseñada para ofrecer información sobre las mentorías, diplomatura y contenido gratuito de EneasCoaching.
 
-## Run Locally
+## 📁 Estructura del Proyecto
 
-**Prerequisites:**  Node.js
+```
+eneascoaching/
+├── components/          # Componentes reutilizables de React
+├── pages/              # Páginas principales de la aplicación
+├── public/             # Archivos estáticos (imágenes, testimonios)
+├── fotosCecilia/       # Fotografías de Cecilia
+├── scripts/            # Scripts de automatización (PowerShell, Python)
+├── directivas/         # Documentación de procedimientos
+├── docs/               # Documentación del proyecto
+├── .tmp/               # Archivos temporales
+├── App.tsx             # Componente principal
+├── index.tsx           # Punto de entrada
+├── types.ts            # Definiciones de tipos TypeScript
+└── vite.config.ts      # Configuración de Vite
+```
 
+## 🚀 Inicio Rápido
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### Prerrequisitos
+- Node.js (v14 o superior)
+- npm o yarn
 
-## Agentic Workflow
-This project follows a strict agentic workflow:
-- `directivas/`: Contains Standard Operating Procedures (SOPs) for tasks.
-- `scripts/`: Contains Python scripts implementing the logic from directives.
-- `.tmp/`: Temporary files generated during execution.
+### Instalación
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/ProgWBVSG/eneascoaching-website.git
+
+# Entrar al directorio
+cd eneascoaching-website
+
+# Instalar dependencias
+npm install
+
+# Iniciar servidor de desarrollo
+npm run dev
+```
+
+El sitio estará disponible en `http://localhost:3000`
+
+## 🛠️ Tecnologías
+
+- **React** - Librería de interfaz de usuario
+- **TypeScript** - Superset tipado de JavaScript
+- **Tailwind CSS** - Framework de CSS utility-first
+- **Vite** - Build tool y dev server
+- **React Router** - Enrutamiento del lado del cliente
+- **Lucide React** - Iconos
+
+## 📄 Páginas Principales
+
+- **Home** - Página principal con hero, estadísticas y testimonios
+- **Sobre Mí** - Historia y filosofía de Cecilia
+- **Mentorías**
+  - Mentoría Grupal
+  - Mentoría Premium
+- **Diplomatura** - Programa de certificación profesional
+- **Contenido Gratuito** - Videos y recursos
+
+## 🤝 Contribuir
+
+Este es un proyecto privado de EneasCoaching. Para sugerencias o reportar problemas, contacta directamente con el equipo.
+
+## 📞 Contacto
+
+- **WhatsApp**: +54 9 351 563 2496
+- **Instagram**: [@ceciliabsanchez](https://instagram.com/ceciliabsanchez)
+- **YouTube**: [Canal de YouTube](https://www.youtube.com/@CeciliaEneasCoaching)
+
+## 📝 Licencia
+
+© 2025 ENEASCOACHING - Todos los derechos reservados.
+
+---
+
+**Desarrollado con ❤️ para transformar vidas**
