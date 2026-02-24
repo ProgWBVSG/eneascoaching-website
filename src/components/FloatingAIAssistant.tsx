@@ -129,7 +129,7 @@ const FloatingAIAssistant: React.FC = () => {
             <div
                 style={{
                     position: 'fixed',
-                    bottom: '8.5rem',    /* 136px — separated above WhatsApp 64px @ bottom:24px */
+                    bottom: '7.5rem',    /* comfortable gap above WhatsApp */
                     right: '1.5rem',     /* same column, WhatsApp also right:1.5rem */
                     zIndex: 9999,
                     display: 'flex',
@@ -192,7 +192,7 @@ const FloatingAIAssistant: React.FC = () => {
                     className="ai-panel-enter"
                     style={{
                         position: 'fixed',
-                        bottom: 'calc(8.5rem + 64px + 12px)', /* above the button */
+                        bottom: 'calc(7.5rem + 64px + 12px)', /* above the button */
                         right: '1.5rem',
                         zIndex: 9998,
                         width: 'min(360px, calc(100vw - 2rem))',
