@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
-import { Diamond, Users, Star, Award } from 'lucide-react';
+import { Diamond, Users, Star, Award, Mail } from 'lucide-react';
 
 import { useLocation } from 'react-router-dom';
 
@@ -55,6 +55,45 @@ const Home: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button to="/mentorias/grupal">Comenzar el Viaje</Button>
               <Button to="/sobre-mi" variant="outline">Conocer a Cecilia</Button>
+            </div>
+
+            {/* Newsletter micro-CTA */}
+            <div className="mt-3 flex justify-center lg:justify-start">
+              <a
+                href="#newsletter"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById('newsletter')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  color: '#C5A059',
+                  border: '1px solid rgba(197,160,89,0.45)',
+                  borderRadius: '999px',
+                  padding: '6px 14px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  background: 'transparent',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'rgba(197,160,89,0.1)';
+                  el.style.borderColor = '#C5A059';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLAnchorElement;
+                  el.style.background = 'transparent';
+                  el.style.borderColor = 'rgba(197,160,89,0.45)';
+                }}
+              >
+                <Mail size={13} />
+                Únete a la newsletter gratuita ✨
+              </a>
             </div>
           </div>
 

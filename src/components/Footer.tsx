@@ -50,7 +50,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Lead Capture Form */}
-        <div className="mt-16 border-t border-gray-700 pt-12 pb-4">
+        <div id="newsletter" className="mt-16 border-t border-gray-700 pt-12 pb-4">
           <div className="max-w-2xl mx-auto text-center">
             <h4 className="text-brand-gold font-heading font-bold text-lg tracking-wide mb-2">
               ÚNETE A NUESTRA COMUNIDAD
