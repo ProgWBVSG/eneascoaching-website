@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
+import FloatingAIAssistant from './components/FloatingAIAssistant';
 import ScrollToTop from './components/ScrollToTop';
 import LoadingScreen from './components/LoadingScreen';
 
@@ -44,6 +45,7 @@ const App: React.FC = () => {
           </Routes>
         </main>
         <Footer />
+        <FloatingAIAssistant />
         <FloatingWhatsApp />
       </div>
     </HashRouter>
