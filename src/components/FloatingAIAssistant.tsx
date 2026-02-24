@@ -129,8 +129,8 @@ const FloatingAIAssistant: React.FC = () => {
             <div
                 style={{
                     position: 'fixed',
-                    bottom: '7rem',      /* 112px — well-separated above WhatsApp */
-                    right: '1.5rem',    /* same column as WhatsApp */
+                    bottom: '8.5rem',    /* 136px — separated above WhatsApp 64px @ bottom:24px */
+                    right: '1.5rem',     /* same column, WhatsApp also right:1.5rem */
                     zIndex: 9999,
                     display: 'flex',
                     alignItems: 'center',
@@ -156,8 +156,8 @@ const FloatingAIAssistant: React.FC = () => {
                     onClick={() => setIsOpen((o) => !o)}
                     title="Asistente de preguntas frecuentes"
                     style={{
-                        width: '56px',
-                        height: '56px',
+                        width: '64px',
+                        height: '64px',
                         borderRadius: '50%',
                         border: 'none',
                         cursor: 'pointer',
@@ -192,7 +192,7 @@ const FloatingAIAssistant: React.FC = () => {
                     className="ai-panel-enter"
                     style={{
                         position: 'fixed',
-                        bottom: 'calc(7rem + 56px + 12px)', /* above the button */
+                        bottom: 'calc(8.5rem + 64px + 12px)', /* above the button */
                         right: '1.5rem',
                         zIndex: 9998,
                         width: 'min(360px, calc(100vw - 2rem))',
