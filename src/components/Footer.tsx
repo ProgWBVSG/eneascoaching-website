@@ -49,7 +49,36 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-16 pt-8 text-center">
+        {/* Lead Capture Form */}
+        <div className="mt-16 border-t border-gray-700 pt-12 pb-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <h4 className="text-brand-gold font-heading font-bold text-lg tracking-wide mb-2">
+              ÚNETE A NUESTRA COMUNIDAD
+            </h4>
+            <p className="text-gray-400 text-sm mb-6">
+              Recibí contenido exclusivo sobre Eneagrama, Coaching y transformación personal directamente en tu correo.
+            </p>
+            <div style={{ position: 'relative', width: '100%', overflowX: 'hidden' }}>
+              <iframe
+                src="https://7cb1d778.sibforms.com/serve/MUIFAN-D0V0FlzFB42PEGHtOkz1khRHnkPI1ZOohgyZFsVATBRgSX0GUxqV-59fCC0CrXIeJEQ4ReAvyEsLpg2mwTXm6PdLIO6klFhJNDudLWzAgKwjM3euIOgYldPbDI1FnQqwvkc3AjRaFaTaYFTCZ-s7FKEAx0gmhFjzAyvWEPm0dyxmmEgXqAIPqb_mbSEO8HZc-rLYbn4iebQ=="
+                frameBorder="0"
+                scrolling="auto"
+                allowFullScreen
+                title="Formulario de suscripción"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  maxWidth: '100%',
+                  height: '305px',
+                  border: 'none',
+                  margin: '0 auto',
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <Link to="/" className="inline-block mb-4">
             <span className="text-2xl font-heading font-bold tracking-widest text-white">
               ENEASCOACHING
