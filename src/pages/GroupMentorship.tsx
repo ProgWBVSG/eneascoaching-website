@@ -161,7 +161,7 @@ const GroupMentorship: React.FC = () => {
             <div>
               <Calendar className="w-10 h-10 text-brand-gold mx-auto mb-3" />
               <h4 className="font-bold text-lg">Inicio</h4>
-              <p className="text-gray-300">Martes 10 de febrero de 2026</p>
+              <p className="text-gray-300">9, 10, 16 y 17 de marzo de 2026</p>
             </div>
             <div>
               <Users className="w-10 h-10 text-brand-gold mx-auto mb-3" />
@@ -172,9 +172,9 @@ const GroupMentorship: React.FC = () => {
             <div>
               <DollarSign className="w-10 h-10 text-brand-gold mx-auto mb-3" />
               <h4 className="font-bold text-lg">Inversión</h4>
-              <p className="text-gray-300">$49,800 ARS (Total)</p>
-              <p className="text-gray-400 text-sm">o 2 cuotas de $24,900</p>
-              <p className="text-brand-gold font-bold mt-2">USD 55</p>
+              <p className="text-gray-300">$120,000 ARS (Total)</p>
+              <p className="text-gray-400 text-sm">o 2 cuotas de $60,000</p>
+              <p className="text-brand-gold font-bold mt-2">USD 120</p>
             </div>
           </div>
 
