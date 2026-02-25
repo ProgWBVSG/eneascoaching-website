@@ -91,7 +91,7 @@ const PremiumMentorship: React.FC = () => {
           <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">Metodología probada y garantizada</h2>
           <p className="text-xl text-gray-600 mb-10">Este es el espacio donde tu transformación se acelera.</p>
           <Button
-            href="https://calendly.com/ceciliacoachenea/15min"
+            href="https://wa.me/5493515632496?text=Hola%20Cecilia%2C%20quiero%20agendar%20una%20reuni%C3%B3n%20gratuita%20sobre%20la%20Mentor%C3%ADa%20Premium"
             variant="primary"
             className="text-lg px-12 py-4"
           >
