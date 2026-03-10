@@ -24,7 +24,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué mentorías ofrecen?',
         answer:
-            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría Premium 1:1: 12 sesiones personalizadas (USD 850)\n• Diplomatura en Eneagrama: Formación certificada 6 meses (USD 1.500)',
+            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría Premium 1:1: 12 sesiones personalizadas (USD 850)\n• Diplomatura en Eneagrama: Formación certificada 3 meses (USD 1.500)',
     },
     {
         question: '¿La mentoría grupal es online?',
@@ -44,7 +44,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué incluye la Diplomatura?',
         answer:
-            'La Diplomatura en Eneagrama, Liderazgo y Vincularidad Sana es una formación certificada de 6 meses, 100% online, con 3 niveles progresivos. Incluye certificación privada ENEASCOACHING® y te prepara para facilitar y transformar vidas.',
+            'La Diplomatura en Eneagrama, Liderazgo y Vincularidad Sana es una formación certificada de 3 meses, 100% online, con 3 niveles progresivos. Incluye certificación privada ENEASCOACHING® y te prepara para facilitar y transformar vidas.',
     },
     {
         question: '¿Tienen contenido gratuito?',

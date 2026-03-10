@@ -22,7 +22,7 @@ const Diploma: React.FC = () => {
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Formación profesional de 6 meses en modalidad online, diseñada para personas que desean enseñar, facilitar y transformar vidas.
+              Formación profesional de 3 meses en modalidad online, diseñada para personas que desean enseñar, facilitar y transformar vidas.
               Aprende a ser mentor, profundiza en coaching ontológico y Eneagrama, y genera un ingreso extra mientras ayudas a otros a despertar conscientes.
             </p>
             <h3 className="text-xl font-heading font-bold mb-4">¿Para quién es?</h3>
@@ -46,7 +46,7 @@ const Diploma: React.FC = () => {
                 <div className="bg-white p-3 rounded-full shadow-sm"><BookOpen className="text-brand-gold" /></div>
                 <div>
                   <p className="font-bold text-gray-900">Duración</p>
-                  <p className="text-sm text-gray-500">6 Meses</p>
+                  <p className="text-sm text-gray-500">3 Meses</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -61,7 +61,7 @@ const Diploma: React.FC = () => {
             <div className="mt-8 pt-8 border-t border-gray-200">
               <p className="text-3xl font-bold text-brand-gold mb-1">USD 1,500</p>
               <p className="text-sm text-gray-500 mb-2">Argentina: $980,000 ARS Contado</p>
-              <p className="text-xs text-gray-400">O 6 cuotas de $220,000 ARS</p>
+              <p className="text-xs text-gray-400">O 3 cuotas de $385,000 ARS</p>
             </div>
           </div>
         </div>
