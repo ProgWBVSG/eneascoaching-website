@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Youtube, Phone } from 'lucide-react';
+import NewsletterForm from './NewsletterForm';
 
 const Footer: React.FC = () => {
   return (
@@ -49,6 +50,8 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
+
+
         {/* Lead Capture Form */}
         <div id="newsletter" className="mt-16 border-t border-gray-700 pt-12 pb-4">
           <div className="max-w-2xl mx-auto text-center">
@@ -58,39 +61,7 @@ const Footer: React.FC = () => {
             <p className="text-gray-400 text-sm mb-6">
               Recibí contenido exclusivo sobre Eneagrama, Coaching y transformación personal directamente en tu correo.
             </p>
-            {/* Responsive iframe container */}
-            <style>{`
-              @media (max-width: 600px) {
-                .brevo-iframe-wrap { overflow: hidden; height: 320px; }
-                .brevo-iframe-wrap iframe {
-                  transform-origin: top left;
-                  transform: scale(0.8);
-                  width: 125% !important;
-                  height: 125% !important;
-                }
-              }
-            `}</style>
-            <div
-              className="brevo-iframe-wrap"
-              style={{ overflow: 'hidden', width: '100%', maxWidth: '540px', margin: '0 auto' }}
-            >
-              <iframe
-                src="https://7cb1d778.sibforms.com/serve/MUIFAN-D0V0FlzFB42PEGHtOkz1khRHnkPI1ZOohgyZFsVATBRgSX0GUxqV-59fCC0CrXIeJEQ4ReAvyEsLpg2mwTXm6PdLIO6klFhJNDudLWzAgKwjM3euIOgYldPbDI1FnQqwvkc3AjRaFaTaYFTCZ-s7FKEAx0gmhFjzAyvWEPm0dyxmmEgXqAIPqb_mbSEO8HZc-rLYbn4iebQ=="
-                frameBorder="0"
-                scrolling="no"
-                allowFullScreen
-                title="Formulario de suscripción"
-                style={{
-                  display: 'block',
-                  width: '540px',
-                  maxWidth: '100%',
-                  height: '305px',
-                  border: 'none',
-                  margin: '0 auto',
-                  overflow: 'hidden',
-                }}
-              />
-            </div>
+            <NewsletterForm />
           </div>
         </div>
 
