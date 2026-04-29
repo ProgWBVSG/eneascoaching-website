@@ -6,12 +6,24 @@ const Diploma: React.FC = () => {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <div className="bg-brand-dark text-white py-20 px-6">
-        <div className="container mx-auto text-center max-w-5xl">
-          <h1 className="text-3xl md:text-5xl font-heading font-bold mb-4 leading-tight">
-            Diplomatura en Eneagrama de la Personalidad, <br className="hidden md:block" />Liderazgo y Vincularidad Sana
+      <div className="bg-brand-dark text-white py-16 md:py-20 px-4 md:px-8 relative overflow-hidden">
+        {/* Background Enneagram Subtle SVG */}
+        <svg 
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] opacity-[0.03] text-brand-gold pointer-events-none z-0" 
+          viewBox="0 0 200 200" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <polygon points="100,2 186.6,150 13.4,150" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <polygon points="164.3,23.4 134.2,194.0 198.5,82.6 35.7,23.4 65.8,194.0 1.5,82.6" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        </svg>
+
+        <div className="w-full mx-auto text-center max-w-[1400px] relative z-10">
+          <h1 className="text-[1.5rem] sm:text-[1.8rem] md:text-[2.2rem] lg:text-[2.5rem] xl:text-[2.8rem] font-heading font-bold mb-4 leading-snug md:leading-tight">
+            <span className="block w-full">Diplomatura en <span className="text-brand-gold">Eneagrama</span> de la Personalidad,</span>
+            <span className="block w-full mt-1 md:mt-2"><span className="text-brand-gold">Liderazgo</span> y <span className="text-brand-gold">Vincularidad Sana</span></span>
           </h1>
-          <p className="text-brand-gold font-medium tracking-widest uppercase mb-8">Certificación Privada ENEASCOACHING®</p>
+          <p className="text-sm md:text-base text-brand-gold font-medium tracking-widest uppercase mb-8 mt-6">Certificación Privada ENEASCOACHING®</p>
           <div className="w-20 h-1 bg-white mx-auto mb-8"></div>
           <p className="text-xl italic font-light">"Hombre conócete a ti mismo y conocerás el universo" - Oráculo de Delfos</p>
         </div>
@@ -32,36 +44,89 @@ const Diploma: React.FC = () => {
               <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Profesionales del desarrollo personal</li>
             </ul>
           </div>
-          <div className="bg-brand-beige p-8 rounded-sm border border-brand-gold/20">
-            <h3 className="text-2xl font-heading font-bold mb-6 text-brand-dark">Detalles Clave</h3>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-full shadow-sm"><Award className="text-brand-gold" /></div>
-                <div>
-                  <p className="font-bold text-gray-900">Certificación</p>
-                  <p className="text-sm text-gray-500">Privada ENEASCOACHING®</p>
+          <div className="flex flex-col gap-6">
+            {/* Diplomatura Grupal */}
+            <div className="bg-brand-beige p-8 rounded-sm border border-brand-gold/20 relative overflow-hidden shadow-sm">
+              <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                23% OFF
+              </div>
+              <h3 className="text-2xl font-heading font-bold mb-1 text-brand-dark">Diplomatura Grupal</h3>
+              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia 20 de Mayo</p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-white p-2.5 rounded-full shadow-sm"><Award size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Certificación</p>
+                    <p className="text-xs text-gray-500">Privada ENEASCOACHING®</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="bg-white p-2.5 rounded-full shadow-sm"><BookOpen size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Duración</p>
+                    <p className="text-xs text-gray-500">3 Meses</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="bg-white p-2.5 rounded-full shadow-sm"><Globe size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Modalidad</p>
+                    <p className="text-xs text-gray-500">100% Online (En Vivo)</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-full shadow-sm"><BookOpen className="text-brand-gold" /></div>
-                <div>
-                  <p className="font-bold text-gray-900">Duración</p>
-                  <p className="text-sm text-gray-500">3 Meses</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-full shadow-sm"><Globe className="text-brand-gold" /></div>
-                <div>
-                  <p className="font-bold text-gray-900">Modalidad</p>
-                  <p className="text-sm text-gray-500">100% Online</p>
-                </div>
+
+              <div className="mt-6 pt-6 border-t border-brand-gold/20">
+                <a 
+                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura%20Grupal" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block w-full text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-4 rounded transition-colors"
+                >
+                  Consultar precio
+                </a>
               </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <p className="text-3xl font-bold text-brand-gold mb-1">USD 1,500</p>
-              <p className="text-sm text-gray-500 mb-2">Argentina: $980,000 ARS Contado</p>
-              <p className="text-xs text-gray-400">O 3 cuotas de $385,000 ARS</p>
+            {/* Diplomatura Individual */}
+            <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm relative overflow-hidden">
+              <h3 className="text-2xl font-heading font-bold mb-6 text-brand-dark">Diplomatura Individual</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="bg-brand-beige p-2.5 rounded-full"><Award size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Certificación</p>
+                    <p className="text-xs text-gray-500">Privada ENEASCOACHING®</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="bg-brand-beige p-2.5 rounded-full"><BookOpen size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Duración</p>
+                    <p className="text-xs text-gray-500">3 Meses</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="bg-brand-beige p-2.5 rounded-full"><Globe size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Modalidad</p>
+                    <p className="text-xs text-gray-500">100% Online (1 a 1)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <a 
+                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura%20Individual" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block w-full text-center border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white font-bold py-2.5 px-4 rounded transition-colors"
+                >
+                  Consultar precio
+                </a>
+              </div>
             </div>
           </div>
         </div>
