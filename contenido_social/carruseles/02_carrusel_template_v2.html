@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Generador de Carrusel V2 (Dinámico) - Eneas Coaching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #222; 
+            padding: 40px; 
+            font-family: 'Montserrat', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 40px;
+        }
+        
+        .slide { 
+            width: 1080px; 
+            height: 1350px; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            text-align: center; 
+            padding: 120px; 
+            box-sizing: border-box; 
+            background-color: white; 
+            flex-shrink: 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+        
+        .bg-dark { background-color: #1a1a1a; color: white; }
+        .bg-beige { background-color: #f5f0e6; color: #1a1a1a; }
+        
+        .text-gold { color: #d4af37; }
+        
+        .font-heading { 
+            font-weight: 800; 
+            letter-spacing: -1.5px; 
+            line-height: 1.15; 
+        }
+        
+        .shadow-text { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .shadow-gold { text-shadow: 2px 2px 10px rgba(212, 175, 55, 0.4); }
+        
+        .dl-bar { 
+            padding: 20px 40px; 
+            font-size: 22px; 
+            background: #d4af37; 
+            color: #1a1a1a; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            position: sticky; 
+            top: 20px; 
+            z-index: 100; 
+            box-shadow: 0 4px 15px rgba(212,175,55,0.4); 
+            transition: transform 0.2s; 
+        }
+        .dl-bar:hover { 
+            transform: scale(1.05); 
+            background: #c29d2b; 
+        }
+        
+        .enneagram-bg { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 1000px; 
+            height: 1000px; 
+            opacity: 0.05; 
+            color: #d4af37; 
+            z-index: 0; 
+            pointer-events: none; 
+        }
+        
+        .content { position: relative; z-index: 10; }
+        
+        .svg-icon { 
+            width: 160px; 
+            height: 160px; 
+            color: #d4af37; 
+            margin-bottom: 60px; 
+        }
+        
+        .brand-footer { 
+            position: absolute; 
+            bottom: 60px; 
+            left: 0; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 24px; 
+            font-weight: 600; 
+            color: #d4af37; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+            opacity: 0.8; 
+        }
+
+        /* Slide counter */
+        .slide-counter {
+            position: absolute;
+            bottom: 60px;
+            right: 60px;
+            font-size: 24px;
+            font-weight: 700;
+            color: inherit;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <button class="dl-bar" onclick="downloadAll()">⬇️ Descargar Slides (Alta Calidad PNG 2x)</button>
+
+    <!-- Slide 1: Hook -->
+    <div id="slide-1" class="slide bg-dark">
+        <svg class="enneagram-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <polygon points="100,2 186.6,150 13.4,150" fill="none" stroke="currentColor" stroke-width="1.5" />
+            <polygon points="164.3,23.4 134.2,194.0 198.5,82.6 35.7,23.4 65.8,194.0 1.5,82.6" fill="none" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        <div class="content">
+            <h1 class="text-[5.5rem] font-heading shadow-text">El Eneagrama <br><span class="text-gold shadow-gold">NO</span> es un test de personalidad.</h1>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">1/9</div>
+    </div>
+
+    <!-- Slide 2: Problema/Setup -->
+    <div id="slide-2" class="slide bg-beige">
+        <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        <div class="content">
+            <h2 class="text-6xl font-heading mb-10">Pasamos la vida creyendo que somos nuestras reacciones defensivas.</h2>
+            <p class="text-4xl italic text-gray-600 mt-12 leading-[1.8]">“Yo soy ansiosa”,<br>“Yo soy explosivo”,<br>“Yo siempre necesito ayudar”.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">2/9</div>
+    </div>
+
+    <!-- Slide 3: Tesis -->
+    <div id="slide-3" class="slide bg-beige">
+        <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+        <div class="content">
+            <h2 class="text-6xl font-heading mb-12">Pero la realidad es que <br><span class="text-gold shadow-gold">no sos tu personalidad</span>.</h2>
+            <p class="text-5xl mt-10">Sos quien está <strong>debajo</strong> de ella.</p>
+            <p class="text-4xl text-gray-600 mt-12 leading-[1.6]">La personalidad es solo un traje que te sirvió para sobrevivir en tu infancia.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">3/9</div>
+    </div>
+
+    <!-- Slide 4: Insight Clave -->
+    <div id="slide-4" class="slide bg-dark">
+        <svg class="svg-icon text-gold" style="width: 320px; height: 320px; margin-bottom: 80px;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="3" />
+            <polygon points="100,2 186.6,150 13.4,150" fill="none" stroke="currentColor" stroke-width="3" />
+            <polygon points="164.3,23.4 134.2,194.0 198.5,82.6 35.7,23.4 65.8,194.0 1.5,82.6" fill="none" stroke="currentColor" stroke-width="3" />
+        </svg>
+        <div class="content">
+            <h2 class="text-[5rem] font-heading text-gold shadow-gold mb-12">Acá entra el Eneagrama.</h2>
+            <p class="text-[2.8rem] leading-[1.6]">No es un sistema para encasillarte en un número.</p>
+            <p class="text-[2.5rem] text-gray-300 mt-10 leading-[1.6]">Es un mapa que te muestra exactamente en qué "caja" estás atrapado para enseñarte la puerta de salida.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">4/9</div>
+    </div>
+
+    <!-- Slide 5: Beneficio 1 -->
+    <div id="slide-5" class="slide" style="background: white;">
+        <div class="content">
+            <h2 class="text-[4.5rem] font-heading mb-16">¿Por qué cambia<br> <span class="text-gold">cómo te ves a vos mismo</span>?</h2>
+            <p class="text-5xl leading-relaxed text-gray-800 font-bold">Porque dejás de culparte.</p>
+            <p class="text-4xl leading-[1.7] text-gray-600 mt-12">Entendés que tus miedos tienen un origen lógico y que hoy podés elegir no reaccionar en piloto automático.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">5/9</div>
+    </div>
+
+    <!-- Slide 6: Beneficio 2 -->
+    <div id="slide-6" class="slide" style="background: white;">
+        <svg class="svg-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <div class="content">
+            <h2 class="text-[4.5rem] font-heading mb-16">¿Por qué cambia<br> <span class="text-gold">cómo ves a los demás</span>?</h2>
+            <p class="text-5xl leading-relaxed text-gray-800 font-bold">Porque dejás de tomarte todo personal.</p>
+            <p class="text-4xl leading-[1.7] text-gray-600 mt-12">Comprendés que el otro no te ataca; simplemente se está defendiendo desde su propia herida.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">6/9</div>
+    </div>
+
+    <!-- Slide 7: Transformación -->
+    <div id="slide-7" class="slide bg-dark">
+        <svg class="enneagram-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" stroke-width="2" />
+        </svg>
+        <div class="content">
+            <h2 class="text-[4.5rem] font-heading mb-16">El resultado no es<br>"cambiar quién sos".</h2>
+            <p class="text-[3rem] leading-[1.6] text-gold font-bold shadow-gold mt-12">Es dejar de pelearte con vos mismo para empezar a usar tu energía en expandirte.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">7/9</div>
+    </div>
+
+    <!-- Slide 8: Cierre conceptual -->
+    <div id="slide-8" class="slide bg-beige">
+        <div class="content">
+            <h2 class="text-[5rem] font-heading mb-16 text-gray-900">Conocerte no es un lujo.</h2>
+            <p class="text-[3.5rem] leading-[1.6] text-gold font-bold mt-10 shadow-text" style="text-shadow: none;">Es tu responsabilidad si querés construir vínculos sanos.</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">8/9</div>
+    </div>
+
+    <!-- Slide 9: CTA Fuerte -->
+    <div id="slide-9" class="slide bg-dark">
+        <div class="content">
+            <div style="width: 450px; height: 450px; background-color: #333; border-radius: 50%; margin: 0 auto 60px auto; border: 8px solid #d4af37; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                <p class="text-gray-400 text-3xl font-bold">[Foto de Cecilia]</p>
+            </div>
+            <h2 class="text-[3.5rem] font-heading mb-12 leading-[1.5]">¿Querés dar el primer paso para salir del piloto automático?</h2>
+            <p class="text-[2.5rem] text-gold font-bold mt-10">Seguime en @eneascoaching para empezar a desarmar tu armadura. 💛</p>
+        </div>
+        <div class="brand-footer">ENEAS COACHING</div>
+        <div class="slide-counter">9/9</div>
+    </div>
+
+    <script>
+        async function downloadAll() {
+            const btn = document.querySelector('.dl-bar');
+            btn.innerText = "GENERANDO PNGs... (ESTO TOMA UNOS SEGUNDOS)";
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.5";
+
+            const slides = document.querySelectorAll('.slide');
+            for(let i=0; i<slides.length; i++) {
+                // scale: 2 is the big technical upgrade from Carrusel Studio -> Retina export!
+                const canvas = await html2canvas(slides[i], { 
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: null 
+                });
+                
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // Opción 1: Descarga directa al navegador (funciona siempre)
+                const link = document.createElement('a');
+                link.download = `carrusel_v2_slide_0${i+1}.png`;
+                link.href = dataUrl;
+                link.click();
+                
+                /* Opción 2: POST al backend Python (si está levantado)
+                try {
+                    await fetch('http://127.0.0.1:8082/upload', {
+                        method: 'POST',
+                        body: JSON.stringify({ filename: `carrusel_v2_slide_0${i+1}.png`, image: dataUrl }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                } catch(e) {
+                    console.log("No backend detected, defaulting to browser download");
+                } */
+                
+                await new Promise(r => setTimeout(r, 600)); // Pausa entre descargas
+            }
+
+            btn.innerText = "⬇️ Descargar Slides (Alta Calidad PNG 2x)";
+            btn.style.pointerEvents = "auto";
+            btn.style.opacity = "1";
+        }
+    </script>
+</body>
+</html>

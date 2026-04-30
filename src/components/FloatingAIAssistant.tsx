@@ -44,7 +44,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué incluye la Diplomatura?',
         answer:
-            'La Diplomatura en Eneagrama, Liderazgo y Vincularidad Sana es una formación certificada de 3 meses, 100% online, con 3 niveles progresivos. Incluye certificación privada ENEASCOACHING® y te prepara para facilitar y transformar vidas.',
+            'La Diplomatura en Eneagrama, Liderazgo y Vínculos Conscientes es una formación certificada de 3 meses, 100% online, con 3 niveles progresivos. Incluye certificación privada ENEASCOACHING® y te prepara para facilitar y transformar vidas.',
     },
     {
         question: '¿Tienen contenido gratuito?',

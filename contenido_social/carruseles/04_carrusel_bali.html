@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carrusel 04: Retiro Bali - Eneas Coaching</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #1e2622; 
+            padding: 40px; 
+            font-family: 'Montserrat', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 40px;
+        }
+        
+        .slide { 
+            width: 1080px; 
+            height: 1350px; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Move up */
+            align-items: center; 
+            text-align: center; 
+            padding: 150px 80px 100px 80px; /* More padding top to place it nicely */
+            box-sizing: border-box; 
+            flex-shrink: 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+        }
+
+        #slide-1, #slide-8, #slide-10 {
+            justify-content: center;
+            padding-top: 100px;
+        }
+        
+        /* Paleta Naturaleza / Zen */
+        .bg-sand { background-color: #f4f1eb; color: #1c2621; }
+        .bg-sage { background-color: #2c3e35; color: #f4f1eb; }
+        .bg-sage-light { background-color: #3b5246; color: #f4f1eb; }
+        .bg-gold { background-color: #b8905b; color: white; }
+        
+        .text-gold { color: #b8905b; }
+        .text-sand { color: #f4f1eb; }
+        .text-sage { color: #2c3e35; }
+        
+        .font-heading { 
+            font-weight: 800; /* Un poco menos pesado que el Red Flags para dar más "paz" */
+            letter-spacing: -1.5px; 
+            line-height: 1.15; 
+        }
+        
+        .shadow-text { text-shadow: 2px 2px 8px rgba(0,0,0,0.2); }
+        
+        .dl-bar { 
+            padding: 20px 40px; 
+            font-size: 22px; 
+            background: #b8905b; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            position: sticky; 
+            top: 20px; 
+            z-index: 100; 
+            box-shadow: 0 4px 15px rgba(184,144,91,0.4); 
+            transition: transform 0.2s; 
+        }
+        
+        .content { position: relative; z-index: 10; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        
+        .brand-footer { 
+            position: absolute; 
+            bottom: 40px; 
+            left: 0; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 600; 
+            color: #b8905b; 
+            letter-spacing: 6px; 
+            text-transform: uppercase; 
+            opacity: 0.8; 
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 40px;
+            right: 60px;
+            font-size: 20px;
+            font-weight: 600;
+            color: inherit;
+            opacity: 0.4;
+        }
+
+        .paragraph-text {
+            font-size: 2.8rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: inherit;
+            max-width: 95%;
+            margin-top: 20px; /* Reduced from 40px */
+        }
+        
+        .paragraph-bold {
+            font-weight: 700;
+            color: #b8905b;
+        }
+
+        /* Estilo para las imágenes de Bali */
+        .photo-box {
+            width: 800px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            margin: 30px 0; /* Reduced from 40px */
+            border: 1px solid rgba(184, 144, 91, 0.3);
+            background-color: #e5e0d8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c7e6c;
+            font-size: 1.8rem;
+            font-weight: 600;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Estilo para foto en forma de arco (Portada) */
+        .photo-arch {
+            width: 700px;
+            height: 450px;
+            border-radius: 350px 350px 0 0;
+            object-fit: cover;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            border: 2px solid rgba(184, 144, 91, 0.4);
+            background-color: #3b5246; /* Un tono más claro que el fondo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b8905b;
+            font-size: 1.8rem;
+            font-weight: 600;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Number Circle */
+        .step-circle {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-color: #b8905b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px; /* Reduced from 30px */
+            box-shadow: 0 10px 20px rgba(184,144,91,0.3);
+        }
+        
+        /* Deco lines */
+        .deco-line {
+            width: 60px;
+            height: 3px;
+            background-color: #b8905b;
+            margin: 40px auto;
+        }
+    </style>
+</head>
+<body>
+    <button class="dl-bar" onclick="downloadAll()">⬇️ Descargar Carrusel BALI (PNG 2x)</button>
+
+    <!-- Slide 1: Hook -->
+    <div id="slide-1" class="slide bg-sage" style="padding: 0; justify-content: flex-start;">
+        
+        <!-- Header Wavy Photo -->
+        <div class="header-photo" style="position: relative; width: 100%; height: 500px; background-color: #3b5246; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <img src="../../public/carrusel_images/bali_playa.jpg" alt="Bali Playa" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;">
+            
+            <!-- Capas de Degradado Premium (Cinematic Overlay) -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(44,62,53,0.7) 0%, rgba(184,144,91,0.2) 40%, rgba(44,62,53,0.8) 100%); z-index: 2; mix-blend-mode: multiply;"></div>
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 50%, rgba(44,62,53,1) 100%); z-index: 3;"></div>
+
+            <!-- Wavy bottom SVG matched to background #2c3e35 -->
+            <svg style="position: absolute; bottom: -2px; left: 0; width: 100%; height: auto; z-index: 10;" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#2c3e35" fill-opacity="1" d="M0,160L48,176C96,192,192,224,288,208C384,192,480,128,576,133.3C672,139,768,213,864,245.3C960,277,1056,267,1152,240C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            </svg>
+        </div>
+
+        <div class="content" style="padding: 60px 80px 0 80px; flex: 1; align-items: center; justify-content: flex-start;">
+            <h3 class="text-[2.2rem] font-bold text-gold uppercase tracking-[12px] mb-8">El Instante Santo</h3>
+            
+            <h1 class="text-[5.5rem] font-heading leading-[1.1] mb-10 flex items-start justify-center">
+                <span class="text-[12rem] font-black text-gold mr-3" style="line-height: 0.7; text-shadow: 0 15px 30px rgba(184,144,91,0.3); margin-top: -15px;">5</span> 
+                <span style="text-align: left; line-height: 1.1;">señales de que tu alma <br><span class="text-gold italic font-normal">no necesita</span> unas vacaciones...</span>
+            </h1>
+            
+            <div class="bg-gold px-10 py-5 rounded-full shadow-lg border border-white border-opacity-20 mt-4">
+                <h2 class="text-[3.2rem] font-bold text-white uppercase tracking-wider">Necesita un reseteo profundo.</h2>
+            </div>
+        </div>
+        
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">1/10</div>
+    </div>
+
+    <!-- Slide 2: Señal 1 -->
+    <div id="slide-2" class="slide bg-sand">
+        <div class="content">
+            <div class="step-circle">1</div>
+            <h2 class="text-[4.5rem] font-heading text-sage">Vives en la "Autopista"</h2>
+            
+            <div class="photo-box">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Mujer estresada / Reloj / Tráfico]
+            </div>
+
+            <p class="paragraph-text text-sage">Tu agenda está llena, solucionas los problemas de todos, pero sientes que <span class="paragraph-bold">la vida simplemente te está pasando por encima</span> en piloto automático.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">2/10</div>
+    </div>
+
+    <!-- Slide 3: Señal 2 -->
+    <div id="slide-3" class="slide bg-sage-light">
+        <div class="content">
+            <div class="step-circle">2</div>
+            <h2 class="text-[4.5rem] font-heading text-sand">El descanso es superficial</h2>
+            
+            <p class="paragraph-text text-sand" style="margin-top: 10px;">Un fin de semana libre ya no te alcanza.</p>
+            
+            <div class="photo-box" style="background-color: rgba(244,241,235,0.1); border-color: rgba(244,241,235,0.3); color: #f4f1eb;">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Paisaje de Bali / Alguien meditando]
+            </div>
+
+            <p class="paragraph-text text-sand" style="margin-top: 10px;">El cuerpo frena, pero <span class="paragraph-bold">tu mente sigue girando</span> en los mismos patrones y miedos inconscientes de siempre.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">3/10</div>
+    </div>
+
+    <!-- Slide 4: Señal 3 -->
+    <div id="slide-4" class="slide bg-sand">
+        <div class="content">
+            <div class="step-circle">3</div>
+            <h2 class="text-[4.5rem] font-heading text-sage">El peso de tu "Armadura"</h2>
+            
+            <div class="photo-box">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Templo Balinés / Naturaleza]
+            </div>
+
+            <p class="paragraph-text text-sage">Tu personalidad (tu Eneatipo) te salvó en el pasado, pero hoy <span class="paragraph-bold">te pesa y te aleja de tu Yo Verdadero.</span> Sabes que estás operando desde la herida.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">4/10</div>
+    </div>
+
+    <!-- Slide 5: Señal 4 -->
+    <div id="slide-5" class="slide bg-sage-light">
+        <div class="content">
+            <div class="step-circle">4</div>
+            <h2 class="text-[4.5rem] font-heading text-sand">Anhelas el "Instante Santo"</h2>
+            
+            <p class="paragraph-text text-sand" style="margin-top: 10px;">Lejos del ruido y las demandas de tu entorno.</p>
+            
+            <div class="photo-box" style="background-color: rgba(244,241,235,0.1); border-color: rgba(244,241,235,0.3); color: #f4f1eb;">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Mujer conectada con la naturaleza / UCDM vibe]
+            </div>
+
+            <p class="paragraph-text text-sand" style="margin-top: 10px;">Buscas un espacio de <span class="paragraph-bold">verdadera quietud espiritual</span> para escuchar a tu alma con claridad.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">5/10</div>
+    </div>
+
+    <!-- Slide 6: Señal 5 -->
+    <div id="slide-6" class="slide bg-sand">
+        <div class="content">
+            <div class="step-circle">5</div>
+            <h2 class="text-[4.5rem] font-heading text-sage">El Llamado del Héroe</h2>
+            
+            <div class="photo-box">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Aeropuerto / Camino / Aventura Espiritual]
+            </div>
+
+            <p class="paragraph-text text-sage">Sabes que llegó el momento de dar el gran salto. Tienes <span class="paragraph-bold">un llamado interno</span> que ya no puedes silenciar con distracciones diarias.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">6/10</div>
+    </div>
+
+    <!-- Slide 7: Solucion -->
+    <div id="slide-7" class="slide bg-sage">
+        <div class="content">
+            <h3 class="text-[2.2rem] font-bold text-gold uppercase tracking-[8px] mb-6">El Destino</h3>
+            <h2 class="text-[5.5rem] font-heading text-sand mb-8 leading-[1.1]">No es turismo.<br>Es <span class="text-gold italic font-normal">Transformación.</span></h2>
+            
+            <div class="photo-box" style="background-color: rgba(244,241,235,0.1); border-color: rgba(244,241,235,0.3); color: #f4f1eb;">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Grupo de mujeres / Retiro Increíble en Bali]
+            </div>
+
+            <p class="text-[2.4rem] font-semibold text-sand mt-6 leading-[1.6]">
+                • Equilibrio <span class="text-gold opacity-50">|</span> • Conexión <span class="text-gold opacity-50">|</span> • Individuación<br>
+                • Bienestar <span class="text-gold opacity-50">|</span> • Purificación
+            </p>
+            <p class="text-[3.5rem] font-bold text-gold mt-8 uppercase tracking-widest">BALI - OCTUBRE</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">7/10</div>
+    </div>
+
+    <!-- Slide 8: El Puente (Ventana de Avión Real) -->
+    <div id="slide-8" class="slide bg-sand" style="padding: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+        
+        <!-- Imagen de Ventana Real como fondo (multiply para borrar el cielo blanco) -->
+        <img src="../../public/carrusel_images/window.png" style="position: absolute; top: 0; left: 140px; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; z-index: 1; pointer-events: none; opacity: 1; transform: scale(1.65); transform-origin: 60% 35%;" alt="Ventana Avión">
+
+        <!-- Contenido SOBRE la ventana -->
+        <div class="content" style="z-index: 2; position: relative; width: 520px; text-align: center; display: flex; flex-direction: column; align-items: center; margin-left: -30px;">
+            <h2 class="text-[4.5rem] font-heading text-sage leading-[1.1] mb-8" style="text-shadow: 0 10px 30px rgba(44,62,53,0.15);">Pero el viaje no empieza en el avión.</h2>
+            <div class="deco-line" style="margin: 25px auto; box-shadow: 0 5px 10px rgba(184,144,91,0.2);"></div>
+            <h2 class="text-[3.5rem] font-heading text-gold mb-10" style="text-shadow: 0 10px 30px rgba(184,144,91,0.25);">Empieza con una decisión.</h2>
+            
+            <p class="paragraph-text text-sage text-[2.4rem] leading-[1.5]" style="text-shadow: 0 5px 20px rgba(44,62,53,0.1);">Antes de que el avión despegue, hay pasos previos para preparar el alma.</p>
+            
+            <svg style="width: 50px; height: 50px; color: #b8905b; margin-top: 40px; filter: drop-shadow(0 10px 15px rgba(184,144,91,0.3));" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+
+        <div class="brand-footer" style="bottom: 30px; z-index: 3;">ENEASCOACHING</div>
+        <div class="slide-counter" style="bottom: 30px; z-index: 3;">8/10</div>
+    </div>
+
+    <!-- Slide 9: CTA Desayuno -->
+    <div id="slide-9" class="slide bg-sage" style="padding-top: 100px;">
+        <div class="content">
+            <h3 class="text-[2.2rem] font-bold text-sand uppercase tracking-[8px] mb-4 bg-gold px-8 py-3 rounded-full inline-block">1era Parada</h3>
+            <h2 class="text-[4.5rem] font-heading text-gold mb-2 leading-[1.1]">Desayuno de Propósito y Sentido BALI</h2>
+            
+            <div class="photo-box" style="background-color: rgba(244,241,235,0.1); border-color: rgba(244,241,235,0.3); color: #f4f1eb; height: 280px; margin: 20px 0;">
+                <svg style="width: 40px; height: 40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                [Inserta Foto: Café La Comanda / Evento]
+            </div>
+
+            <div class="bg-sand text-sage p-8 rounded-3xl w-full max-w-[85%] mt-2 text-left shadow-lg">
+                <p class="text-[2.2rem] font-bold mb-4 flex items-center">
+                    <svg class="text-gold w-12 h-12 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Viernes 20 de Marzo | 8:30 a 10:00 hs
+                </p>
+                <p class="text-[2.2rem] font-bold mb-4 flex items-center">
+                    <svg class="text-gold w-12 h-12 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    @lacomanda_tejeda (Luis de Tejeda 4230)
+                </p>
+                <p class="text-[2.2rem] font-medium flex items-center mb-0">
+                    <svg class="text-gold w-12 h-12 mr-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Con @noeliaoyola y @newtoursagency
+                </p>
+            </div>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">9/10</div>
+    </div>
+
+    <!-- Slide 10: Cierre -->
+    <div id="slide-10" class="slide bg-sand">
+        <div class="content">
+            <h2 class="text-[5.5rem] font-heading text-sage leading-[1.1] mb-8 mt-10">¿Sientes el llamado?</h2>
+            
+            <p class="text-[3rem] font-semibold text-sage mb-8 leading-[1.5]">Si crees que este es el momento de tu viaje del héroe, te esperamos en el desayuno.</p>
+            
+            <div class="bg-gold text-white p-12 rounded-[40px] w-full max-w-[90%] shadow-xl">
+                <p class="text-[2.8rem] font-bold mb-6 flex items-center justify-center">
+                    <svg class="w-12 h-12 mr-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Atención: Cupos Limitados
+                </p>
+                <p class="text-[2.4rem] font-medium">Déjanos la palabra <span class="font-black text-[2.8rem] underline">BALI</span> en comentarios o escríbenos por privado para enviarte toda la info y reservar tu lugar.</p>
+            </div>
+            
+            <p class="text-[3rem] font-bold text-sage mt-10 italic">No te demores. Tu alma te está esperando.</p>
+        </div>
+        <div class="brand-footer">ENEASCOACHING</div>
+        <div class="slide-counter">10/10</div>
+    </div>
+
+    <script>
+        async function downloadAll() {
+            const btn = document.querySelector('.dl-bar');
+            btn.innerText = "GENERANDO PNGs... (ESTO TOMA UNOS SEGUNDOS)";
+            btn.style.pointerEvents = "none";
+            btn.style.opacity = "0.5";
+
+            const slides = document.querySelectorAll('.slide');
+            for(let i=0; i<slides.length; i++) {
+                const canvas = await html2canvas(slides[i], { 
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: null 
+                });
+                
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                const link = document.createElement('a');
+                const numStr = (i + 1).toString().padStart(2, '0');
+                link.download = `bali_slide_${numStr}.png`;
+                link.href = dataUrl;
+                link.click();
+                
+                await new Promise(r => setTimeout(r, 600)); 
+            }
+
+            btn.innerText = "⬇️ Descargar Carrusel BALI (PNG 2x)";
+            btn.style.pointerEvents = "auto";
+            btn.style.opacity = "1";
+        }
+    </script>
+</body>
+</html>

@@ -21,7 +21,7 @@ const Diploma: React.FC = () => {
         <div className="w-full mx-auto text-center max-w-[1400px] relative z-10">
           <h1 className="text-[1.5rem] sm:text-[1.8rem] md:text-[2.2rem] lg:text-[2.5rem] xl:text-[2.8rem] font-heading font-bold mb-4 leading-snug md:leading-tight">
             <span className="block w-full">Diplomatura en <span className="text-brand-gold">Eneagrama</span> de la Personalidad,</span>
-            <span className="block w-full mt-1 md:mt-2"><span className="text-brand-gold">Liderazgo</span> y <span className="text-brand-gold">Vincularidad Sana</span></span>
+            <span className="block w-full mt-1 md:mt-2"><span className="text-brand-gold">Liderazgo</span> y <span className="text-brand-gold">Vínculos Conscientes</span></span>
           </h1>
           <p className="text-sm md:text-base text-brand-gold font-medium tracking-widest uppercase mb-8 mt-6">Certificación Privada ENEASCOACHING®</p>
           <div className="w-20 h-1 bg-white mx-auto mb-8"></div>
