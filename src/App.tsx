@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
@@ -14,6 +14,20 @@ import GroupMentorship from './pages/GroupMentorship';
 import PremiumMentorship from './pages/PremiumMentorship';
 import Diploma from './pages/Diploma';
 import FreeContent from './pages/FreeContent';
+import EneaTest from './pages/EneaTest';
+import Admin from './pages/Admin';
+
+const MainLayout: React.FC = () => (
+  <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
+    <Navbar />
+    <main className="flex-grow">
+      <Outlet />
+    </main>
+    <Footer />
+    <FloatingAIAssistant />
+    <FloatingWhatsApp />
+  </div>
+);
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -32,22 +46,21 @@ const App: React.FC = () => {
   return (
     <HashRouter>
       <ScrollToTop />
-      <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
-        <Navbar />
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/sobre-mi" element={<About />} />
-            <Route path="/mentorias/grupal" element={<GroupMentorship />} />
-            <Route path="/mentorias/premium" element={<PremiumMentorship />} />
-            <Route path="/diplomatura" element={<Diploma />} />
-            <Route path="/contenido-gratuito" element={<FreeContent />} />
-          </Routes>
-        </main>
-        <Footer />
-        <FloatingAIAssistant />
-        <FloatingWhatsApp />
-      </div>
+      <Routes>
+        {/* Standalone pages — sin navbar ni footer */}
+        <Route path="/enea-test" element={<EneaTest />} />
+        <Route path="/admin" element={<Admin />} />
+
+        {/* Main site with navbar/footer */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/sobre-mi" element={<About />} />
+          <Route path="/mentorias/grupal" element={<GroupMentorship />} />
+          <Route path="/mentorias/premium" element={<PremiumMentorship />} />
+          <Route path="/diplomatura" element={<Diploma />} />
+          <Route path="/contenido-gratuito" element={<FreeContent />} />
+        </Route>
+      </Routes>
     </HashRouter>
   );
 };

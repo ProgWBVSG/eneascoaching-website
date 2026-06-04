@@ -33,3 +33,10 @@ yarn-error.log*
 # Temporary files
 .tmp/
 *.tmp
+
+# Base de datos local
+server/*.db
+server/*.db-journal
+
+# Claude tooling
+.claude/
