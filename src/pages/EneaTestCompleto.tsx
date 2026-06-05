@@ -1,12 +1,49 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { getSigno, calcularEdad } from '../data/zodiaco';
-import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles, Save, RotateCcw } from 'lucide-react';
 
 const PER_PAGE = 10;
 const TOTAL_PAGES = Math.ceil(AFIRMACIONES.length / PER_PAGE);
+const STORAGE_KEY = 'enea_completo_progress';
 
 const ESTADOS_CIVIL = ['Soltera/o', 'Casada/o', 'En pareja', 'De novia/o', 'Viuda/o', 'Divorciada/o'];
+
+// ── Persistencia localStorage ────────────────────────────────────────
+interface SavedState {
+  step: number;
+  name: string;
+  email: string;
+  day: string;
+  month: string;
+  year: string;
+  sexo: string;
+  estadoCivil: string;
+  profesion: string;
+  marked: number[];
+  savedAt: number;
+}
+
+function loadState(): SavedState | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as SavedState;
+    // Validar estructura mínima
+    if (typeof parsed.step !== 'number' || !Array.isArray(parsed.marked)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveState(state: SavedState) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+}
+
+function clearState() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
 
 // Mensajes motivacionales en momentos clave (sin revelar cuántas faltan)
 function getMotivationalMessage(step: number): string | null {
@@ -20,20 +57,25 @@ function getMotivationalMessage(step: number): string | null {
 }
 
 const EneaTestCompleto: React.FC = () => {
-  const [step, setStep] = useState(0); // 0 = datos personales, 1..TOTAL_PAGES = afirmaciones
+  // ── Lazy init: cargar progreso guardado si existe ────────────────
+  const saved = useMemo(() => loadState(), []);
+  const hasSavedProgress = saved !== null && (saved.step > 0 || saved.marked.length > 0);
+
+  const [step, setStep] = useState(saved?.step ?? 0);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [showSaved, setShowSaved] = useState(false);
 
   // Datos personales
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const [sexo, setSexo] = useState('');
-  const [estadoCivil, setEstadoCivil] = useState('');
-  const [profesion, setProfesion] = useState('');
+  const [name, setName] = useState(saved?.name ?? '');
+  const [email, setEmail] = useState(saved?.email ?? '');
+  const [day, setDay] = useState(saved?.day ?? '');
+  const [month, setMonth] = useState(saved?.month ?? '');
+  const [year, setYear] = useState(saved?.year ?? '');
+  const [sexo, setSexo] = useState(saved?.sexo ?? '');
+  const [estadoCivil, setEstadoCivil] = useState(saved?.estadoCivil ?? '');
+  const [profesion, setProfesion] = useState(saved?.profesion ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Refs para auto-jump entre inputs de fecha
@@ -41,7 +83,29 @@ const EneaTestCompleto: React.FC = () => {
   const yearRef = useRef<HTMLInputElement>(null);
 
   // Marcaje de afirmaciones
-  const [marked, setMarked] = useState<Set<number>>(new Set());
+  const [marked, setMarked] = useState<Set<number>>(new Set(saved?.marked ?? []));
+
+  // ── Auto-guardado en localStorage en cada cambio ───────────────────
+  useEffect(() => {
+    if (submitted) return;
+    saveState({
+      step, name, email, day, month, year, sexo, estadoCivil, profesion,
+      marked: Array.from(marked),
+      savedAt: Date.now(),
+    });
+    // Mostrar pista visual "Guardado" brevemente
+    setShowSaved(true);
+    const t = setTimeout(() => setShowSaved(false), 1200);
+    return () => clearTimeout(t);
+  }, [step, name, email, day, month, year, sexo, estadoCivil, profesion, marked, submitted]);
+
+  const handleReset = () => {
+    if (!confirm('¿Borrar todo el progreso y empezar de nuevo?')) return;
+    clearState();
+    setStep(0); setName(''); setEmail(''); setDay(''); setMonth(''); setYear('');
+    setSexo(''); setEstadoCivil(''); setProfesion(''); setMarked(new Set());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const totalMarked = marked.size;
   const totalAfirm = AFIRMACIONES.length;
@@ -161,6 +225,7 @@ const EneaTestCompleto: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al enviar');
+      clearState(); // limpiar progreso guardado al enviar OK
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: unknown) {
@@ -205,9 +270,20 @@ const EneaTestCompleto: React.FC = () => {
           </h1>
         </div>
         {step > 0 && (
-          <div className="text-right ml-3">
-            <p className="text-brand-gold font-bold text-sm">{totalMarked} marcadas</p>
-            <p className="text-xs text-gray-400">{name}</p>
+          <div className="text-right ml-3 flex items-center gap-2">
+            <div>
+              <p className="text-brand-gold font-bold text-sm">{totalMarked} marcadas</p>
+              <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
+                {showSaved ? (
+                  <>
+                    <Save className="w-3 h-3 text-green-400" />
+                    <span className="text-green-400">Guardado</span>
+                  </>
+                ) : (
+                  <span>{name}</span>
+                )}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -235,6 +311,28 @@ const EneaTestCompleto: React.FC = () => {
                   Completá tus datos para empezar. Luego vas a ir marcando una serie de afirmaciones — solo las que sientas que te describen.
                 </p>
               </div>
+
+              {/* Banner cuando hay progreso guardado de una sesión anterior */}
+              {hasSavedProgress && marked.size > 0 && (
+                <div className="bg-brand-gold/10 border-2 border-brand-gold/30 rounded-2xl p-4 mb-5 flex items-start gap-3">
+                  <Save className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-brand-dark text-sm">
+                      Encontramos tu progreso anterior
+                    </p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      Tenés <span className="font-bold text-brand-gold">{marked.size}</span> afirmaciones marcadas. Tus datos siguen completos — podés seguir donde dejaste.
+                    </p>
+                    <button
+                      onClick={handleReset}
+                      className="text-xs text-gray-500 underline mt-2 flex items-center gap-1 hover:text-red-500 transition-colors"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Empezar de cero
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-8 space-y-5">
 
