@@ -15,6 +15,7 @@ import PremiumMentorship from './pages/PremiumMentorship';
 import Diploma from './pages/Diploma';
 import FreeContent from './pages/FreeContent';
 import EneaTest from './pages/EneaTest';
+import EneaTestCompleto from './pages/EneaTestCompleto';
 import Admin from './pages/Admin';
 
 const MainLayout: React.FC = () => (
@@ -49,6 +50,7 @@ const App: React.FC = () => {
       <Routes>
         {/* Standalone pages — sin navbar ni footer */}
         <Route path="/enea-test-juridico" element={<EneaTest />} />
+        <Route path="/enea-test-completo" element={<EneaTestCompleto />} />
         <Route path="/admin" element={<Admin />} />
 
         {/* Main site with navbar/footer */}

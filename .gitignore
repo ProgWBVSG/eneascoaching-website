@@ -41,3 +41,11 @@ server/.env
 
 # Claude tooling
 .claude/
+
+# Archivos de trabajo / fuente
+*.xlsx
+extract_afirmaciones.py
+generate_ts.py
+afirmaciones.json
+
+.vercel
