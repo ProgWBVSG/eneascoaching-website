@@ -131,7 +131,7 @@ const EneaTest: React.FC = () => {
                   Bienvenida al ENEA-TEST
                 </h2>
                 <p className="text-gray-600 text-sm sm:text-base max-w-sm mx-auto">
-                  Leé cada palabra y tildá las que más te representen en cada eneátipo.
+                  Test simple: leé cada palabra y marcá las que sientas que te describen.
                 </p>
               </div>
 
@@ -185,7 +185,7 @@ const EneaTest: React.FC = () => {
 
               {/* Instrucción */}
               <p className="text-center text-gray-500 text-sm mb-4 sm:mb-6 italic">
-                Tildá las palabras con las que te identificás:
+                Marca las palabras con las que te identificas:
               </p>
 
               {/* Chips de palabras — más grandes en mobile */}
@@ -253,7 +253,7 @@ const EneaTest: React.FC = () => {
                     onClick={handleNext}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 py-4 sm:py-3 px-8 rounded-xl bg-brand-gold hover:bg-amber-600 active:bg-amber-700 text-white font-bold transition-colors min-h-[56px] sm:min-h-0 text-base"
                   >
-                    Siguiente eneátipo
+                    Siguiente
                     <ChevronRight className="w-5 h-5" />
                   </button>
                 ) : (

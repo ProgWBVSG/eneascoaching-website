@@ -48,7 +48,7 @@ const App: React.FC = () => {
       <ScrollToTop />
       <Routes>
         {/* Standalone pages — sin navbar ni footer */}
-        <Route path="/enea-test" element={<EneaTest />} />
+        <Route path="/enea-test-juridico" element={<EneaTest />} />
         <Route path="/admin" element={<Admin />} />
 
         {/* Main site with navbar/footer */}
