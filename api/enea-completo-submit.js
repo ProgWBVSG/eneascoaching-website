@@ -7,12 +7,16 @@ export default async function handler(req, res) {
 
   const supabase = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'));
 
-  const { name, email, responses, totals } = req.body;
-  if (!name?.trim())     return res.status(400).json({ error: 'El nombre es requerido' });
+  const {
+    name, email,
+    date_of_birth, age, gender, marital_status, profession, zodiac_sign,
+    responses, totals,
+  } = req.body;
+
+  if (!name?.trim())             return res.status(400).json({ error: 'El nombre es requerido' });
   if (!Array.isArray(responses)) return res.status(400).json({ error: 'Respuestas inválidas' });
   if (!totals || typeof totals !== 'object') return res.status(400).json({ error: 'Totales inválidos' });
 
-  // Determinar tipo dominante
   let dominantType = 1;
   let max = -1;
   for (let i = 1; i <= 9; i++) {
@@ -25,6 +29,12 @@ export default async function handler(req, res) {
     .insert({
       name: name.trim(),
       email: (email || '').trim() || null,
+      date_of_birth: date_of_birth || null,
+      age: age != null ? Number(age) : null,
+      gender: gender || null,
+      marital_status: marital_status || null,
+      profession: (profession || '').trim() || null,
+      zodiac_sign: zodiac_sign || null,
       responses,
       type1_total: Number(totals[1]) || 0,
       type2_total: Number(totals[2]) || 0,

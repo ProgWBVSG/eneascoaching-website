@@ -30,6 +30,24 @@ interface JuridicoDetail extends Submission {
 
 interface CompletoDetail extends Submission {
   responses: number[];
+  date_of_birth?: string | null;
+  age?: number | null;
+  gender?: string | null;
+  marital_status?: string | null;
+  profession?: string | null;
+  zodiac_sign?: string | null;
+}
+
+const SIGNO_SIMBOLOS: Record<string, string> = {
+  'Aries': '♈', 'Tauro': '♉', 'Géminis': '♊', 'Cáncer': '♋',
+  'Leo': '♌', 'Virgo': '♍', 'Libra': '♎', 'Escorpio': '♏',
+  'Sagitario': '♐', 'Capricornio': '♑', 'Acuario': '♒', 'Piscis': '♓',
+};
+
+function formatDateAR(iso?: string | null): string {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('T')[0].split('-');
+  return `${d}/${m}/${y}`;
 }
 
 const STORAGE_KEY = 'enea_admin_token';
@@ -348,11 +366,60 @@ const JuridicoDetailView: React.FC<{ detail: JuridicoDetail }> = ({ detail }) =>
   </div>
 );
 
-// ── Detalle Test Completo (afirmaciones marcadas, agrupadas por tipo) ──
+// ── Detalle Test Completo (datos personales + afirmaciones agrupadas) ──
 const CompletoDetailView: React.FC<{ detail: CompletoDetail }> = ({ detail }) => {
   const markedSet = new Set(detail.responses || []);
+  const simbolo = detail.zodiac_sign ? SIGNO_SIMBOLOS[detail.zodiac_sign] : null;
+
   return (
     <div className="space-y-4">
+
+      {/* Datos personales */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+        {detail.email && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Email</p>
+            <p className="text-brand-dark truncate" title={detail.email}>{detail.email}</p>
+          </div>
+        )}
+        {detail.date_of_birth && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Nacimiento</p>
+            <p className="text-brand-dark">
+              {formatDateAR(detail.date_of_birth)}
+              {detail.age != null && <span className="text-gray-500"> · {detail.age} años</span>}
+            </p>
+          </div>
+        )}
+        {detail.zodiac_sign && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Signo</p>
+            <p className="text-brand-dark flex items-center gap-1.5">
+              {simbolo && <span className="text-lg">{simbolo}</span>}
+              {detail.zodiac_sign}
+            </p>
+          </div>
+        )}
+        {detail.gender && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Sexo</p>
+            <p className="text-brand-dark">{detail.gender}</p>
+          </div>
+        )}
+        {detail.marital_status && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Estado civil</p>
+            <p className="text-brand-dark">{detail.marital_status}</p>
+          </div>
+        )}
+        {detail.profession && (
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">Profesión</p>
+            <p className="text-brand-dark">{detail.profession}</p>
+          </div>
+        )}
+      </div>
+
       <p className="text-sm text-gray-600">
         Total marcadas: <span className="font-bold text-brand-dark">{detail.responses?.length || 0}</span> de {AFIRMACIONES.length}
       </p>
