@@ -2,7 +2,8 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { getSigno, calcularEdad } from '../data/zodiaco';
-import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles, Save, RotateCcw, Lock, AlertCircle } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Send, User, Check, Sparkles, Save, RotateCcw, Lock, AlertCircle } from 'lucide-react';
+import ResultadoEneatipo from '../components/ResultadoEneatipo';
 
 const PER_PAGE = 10;
 const TOTAL_PAGES = Math.ceil(AFIRMACIONES.length / PER_PAGE);
@@ -97,6 +98,9 @@ const EneaTestCompleto: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [showSaved, setShowSaved] = useState(false);
+  // Resultado para mostrar al final
+  const [resultTotals, setResultTotals] = useState<Record<number, number> | null>(null);
+  const [resultDominant, setResultDominant] = useState<number | null>(null);
 
   // Datos personales (nombre se pre-rellena con el del invite si la coach lo cargó)
   const [name, setName] = useState(saved?.name ?? '');
@@ -241,6 +245,13 @@ const EneaTestCompleto: React.FC = () => {
         }
       }
 
+      // Calcular dominante para el resultado
+      let dominant = 1;
+      let max = -1;
+      for (let i = 1; i <= 9; i++) {
+        if (totals[i] > max) { max = totals[i]; dominant = i; }
+      }
+
       const dobISO = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
       const res = await fetch('/api/enea-completo-submit', {
@@ -263,6 +274,8 @@ const EneaTestCompleto: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al enviar');
       if (code) clearState(code);
+      setResultTotals(totals);
+      setResultDominant(dominant);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: unknown) {
@@ -311,26 +324,14 @@ const EneaTestCompleto: React.FC = () => {
     );
   }
 
-  // ─── Pantalla de éxito ──────────────────────────────────────────────
-  if (submitted) {
+  // ─── Pantalla de resultado ──────────────────────────────────────────
+  if (submitted && resultTotals && resultDominant !== null) {
     return (
-      <div className="min-h-screen bg-brand-beige flex items-center justify-center p-6">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-20 h-20 rounded-full bg-brand-gold/10 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-brand-gold" />
-          </div>
-          <h1 className="font-heading font-bold text-2xl sm:text-3xl text-brand-dark mb-3">
-            ¡Gracias, {name}!
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base mb-6">
-            Tu test fue enviado correctamente. Cecilia revisará tus respuestas y se pondrá en contacto con vos pronto.
-          </p>
-          <p className="text-xs sm:text-sm text-gray-400 italic px-4">
-            "Conviértete en el que fuiste, antes que eras con el recuerdo y la sabiduría de aquel en el que te convertiste."
-          </p>
-          <p className="text-xs text-gray-400 mt-2">— Proverbio Sufí</p>
-        </div>
-      </div>
+      <ResultadoEneatipo
+        name={name}
+        dominantType={resultDominant}
+        totals={resultTotals}
+      />
     );
   }
 
