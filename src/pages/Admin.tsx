@@ -30,6 +30,13 @@ interface Submission {
   type8_total: number;
   type9_total: number;
   created_at: string;
+  // Datos personales (solo presentes en Test Completo)
+  date_of_birth?: string | null;
+  age?: number | null;
+  gender?: string | null;
+  marital_status?: string | null;
+  profession?: string | null;
+  zodiac_sign?: string | null;
 }
 
 interface JuridicoDetail extends Submission {
@@ -270,35 +277,64 @@ const Admin: React.FC = () => {
                 <div key={sub.id} className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
                   {/* Row header */}
                   <button onClick={() => handleSelectRow(sub.id)} className="w-full text-left px-4 sm:px-6 py-4 hover:bg-gray-50">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
                         <div className="w-10 h-10 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-heading font-bold text-sm shrink-0">
                           E{sub.dominant_type}
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-brand-dark truncate">{sub.name}</p>
-                          {sub.email && <p className="text-xs text-gray-500 truncate">{sub.email}</p>}
-                          <p className="text-xs text-gray-400">{formatDate(sub.created_at)}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-semibold text-brand-dark">{sub.name}</p>
+                            {tab === 'completo' && sub.zodiac_sign && SIGNO_SIMBOLOS[sub.zodiac_sign] && (
+                              <span className="text-xs bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full font-medium">
+                                {SIGNO_SIMBOLOS[sub.zodiac_sign]} {sub.zodiac_sign}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Datos personales en una linea (solo Test Completo) */}
+                          {tab === 'completo' && (
+                            <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                              {sub.profession && (
+                                <span><span className="text-gray-400">Profesión:</span> <span className="text-brand-dark font-medium">{sub.profession}</span></span>
+                              )}
+                              {sub.age != null && sub.date_of_birth && (
+                                <span><span className="text-gray-400">Nac:</span> <span className="text-brand-dark font-medium">{formatDateAR(sub.date_of_birth)} ({sub.age}a)</span></span>
+                              )}
+                              {sub.gender && (
+                                <span><span className="text-gray-400">Sexo:</span> <span className="text-brand-dark font-medium">{sub.gender}</span></span>
+                              )}
+                              {sub.marital_status && (
+                                <span><span className="text-gray-400">EC:</span> <span className="text-brand-dark font-medium">{sub.marital_status}</span></span>
+                              )}
+                            </div>
+                          )}
+
+                          <p className="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-3">
+                            {sub.email && <span>{sub.email}</span>}
+                            <span>Enviado: {formatDate(sub.created_at)}</span>
+                          </p>
                         </div>
                       </div>
 
-                      <div className="hidden sm:flex items-end gap-0.5 h-6">
-                        {totals.map((t, i) => (
-                          <div
-                            key={i}
-                            className={`w-3 rounded-sm ${i + 1 === sub.dominant_type ? 'bg-brand-gold' : 'bg-gray-200'}`}
-                            style={{ height: `${Math.max(4, (t / max) * 24)}px` }}
-                          />
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-medium text-brand-gold bg-brand-gold/10 px-2 py-1 rounded-full hidden sm:inline">
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <span className="text-xs font-medium text-brand-gold bg-brand-gold/10 px-2 py-1 rounded-full whitespace-nowrap">
                           Tipo {sub.dominant_type}{subtitle ? ` · ${subtitle}` : ''}
                         </span>
-                        {isOpen
-                          ? <ChevronUp className="w-4 h-4 text-gray-400" />
-                          : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                        <div className="flex items-center gap-2">
+                          <div className="hidden sm:flex items-end gap-0.5 h-6">
+                            {totals.map((t, i) => (
+                              <div
+                                key={i}
+                                className={`w-2.5 rounded-sm ${i + 1 === sub.dominant_type ? 'bg-brand-gold' : 'bg-gray-200'}`}
+                                style={{ height: `${Math.max(4, (t / max) * 24)}px` }}
+                              />
+                            ))}
+                          </div>
+                          {isOpen
+                            ? <ChevronUp className="w-4 h-4 text-gray-400" />
+                            : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                        </div>
                       </div>
                     </div>
                   </button>

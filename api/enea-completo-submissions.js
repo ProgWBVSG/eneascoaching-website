@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     const { data, error } = await supabase
       .from('enea_completo_submissions')
       .select(`id, name, email, dominant_type,
+        date_of_birth, age, gender, marital_status, profession, zodiac_sign,
         type1_total, type2_total, type3_total,
         type4_total, type5_total, type6_total,
         type7_total, type8_total, type9_total,
