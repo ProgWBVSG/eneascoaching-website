@@ -3,10 +3,21 @@ import { AFIRMACIONES } from '../data/afirmaciones';
 import { getSigno, calcularEdad } from '../data/zodiaco';
 import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles } from 'lucide-react';
 
-const PER_PAGE = 30;
+const PER_PAGE = 10;
 const TOTAL_PAGES = Math.ceil(AFIRMACIONES.length / PER_PAGE);
 
 const ESTADOS_CIVIL = ['Soltera/o', 'Casada/o', 'En pareja', 'De novia/o', 'Viuda/o', 'Divorciada/o'];
+
+// Mensajes motivacionales en momentos clave (sin revelar cuántas faltan)
+function getMotivationalMessage(step: number): string | null {
+  const pct = (step / TOTAL_PAGES) * 100;
+  if (step === 1) return '¡Empezaste! Confiá en tu primera intuición.';
+  if (pct >= 24 && pct <= 30) return '¡Vas muy bien! Seguí con espontaneidad.';
+  if (pct >= 48 && pct <= 54) return '¡Ya estás por la mitad! 🌱';
+  if (pct >= 73 && pct <= 79) return 'Estás en la recta final. Seguí confiando en vos.';
+  if (step === TOTAL_PAGES) return '¡Última pantalla! Después enviás tu test.';
+  return null;
+}
 
 const EneaTestCompleto: React.FC = () => {
   const [step, setStep] = useState(0); // 0 = datos personales, 1..TOTAL_PAGES = afirmaciones
@@ -195,8 +206,8 @@ const EneaTestCompleto: React.FC = () => {
         </div>
         {step > 0 && (
           <div className="text-right ml-3">
-            <p className="text-xs text-gray-400">Página {step} / {TOTAL_PAGES}</p>
             <p className="text-brand-gold font-bold text-sm">{totalMarked} marcadas</p>
+            <p className="text-xs text-gray-400">{name}</p>
           </div>
         )}
       </div>
@@ -221,7 +232,7 @@ const EneaTestCompleto: React.FC = () => {
                   Bienvenida al Test Completo
                 </h2>
                 <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
-                  Completá tus datos para empezar. Luego encontrarás {totalAfirm} afirmaciones — marcá las que te describan.
+                  Completá tus datos para empezar. Luego vas a ir marcando una serie de afirmaciones — solo las que sientas que te describen.
                 </p>
               </div>
 
@@ -394,6 +405,15 @@ const EneaTestCompleto: React.FC = () => {
           {/* STEPS 1..N: Afirmaciones */}
           {step >= 1 && (
             <div>
+              {/* Mensaje motivacional contextual */}
+              {getMotivationalMessage(step) && (
+                <div className="mb-4 bg-brand-gold/10 border border-brand-gold/30 rounded-xl px-4 py-3 text-center">
+                  <p className="text-sm font-medium text-brand-gold">
+                    {getMotivationalMessage(step)}
+                  </p>
+                </div>
+              )}
+
               <p className="text-center text-gray-500 text-sm mb-5 italic">
                 Marcá las afirmaciones con las que te identificas:
               </p>
@@ -434,7 +454,6 @@ const EneaTestCompleto: React.FC = () => {
                     <ChevronLeft className="w-5 h-5" />
                     Anterior
                   </button>
-                  <span className="text-sm font-medium text-gray-500">{step} / {TOTAL_PAGES}</span>
                 </div>
 
                 {step < TOTAL_PAGES ? (
@@ -464,7 +483,6 @@ const EneaTestCompleto: React.FC = () => {
                     <ChevronLeft className="w-5 h-5" />
                     Anterior
                   </button>
-                  <span className="text-sm text-gray-500">Página {step} de {TOTAL_PAGES}</span>
                 </div>
               </div>
 
