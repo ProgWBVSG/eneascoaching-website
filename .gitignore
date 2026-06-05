@@ -34,9 +34,10 @@ yarn-error.log*
 .tmp/
 *.tmp
 
-# Base de datos local
+# Base de datos local y config privada del servidor
 server/*.db
 server/*.db-journal
+server/.env
 
 # Claude tooling
 .claude/
