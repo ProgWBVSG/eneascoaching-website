@@ -1,15 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
+const env = (key) => (process.env[key] || '').replace(/^﻿/, '').trim();
+
 export default async function handler(req, res) {
   const token = req.headers['x-admin-token'];
-  if (token !== process.env.ADMIN_PASSWORD) {
+  if (token !== env('ADMIN_PASSWORD')) {
     return res.status(401).json({ error: 'No autorizado' });
   }
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const supabase = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'));
 
   if (req.method === 'GET') {
     const { data, error } = await supabase

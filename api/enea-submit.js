@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Elimina BOM y espacios de variables de entorno (problema de encoding en Windows)
+const env = (key) => (process.env[key] || '').replace(/^﻿/, '').trim();
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
+  const supabase = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'));
 
   const { name, answers } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'El nombre es requerido' });
