@@ -50,7 +50,7 @@ const App: React.FC = () => {
       <Routes>
         {/* Standalone pages — sin navbar ni footer */}
         <Route path="/enea-test-juridico" element={<EneaTest />} />
-        <Route path="/enea-test-completo" element={<EneaTestCompleto />} />
+        <Route path="/test/:code" element={<EneaTestCompleto />} />
         <Route path="/admin" element={<Admin />} />
 
         {/* Main site with navbar/footer */}

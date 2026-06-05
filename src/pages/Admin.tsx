@@ -1,9 +1,19 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon } from 'lucide-react';
 
 type TestKind = 'juridico' | 'completo';
+type AdminTab = TestKind | 'codigos';
+
+interface Invite {
+  id: string;
+  code: string;
+  client_name: string | null;
+  used: boolean;
+  submission_id: number | null;
+  created_at: string;
+}
 
 interface Submission {
   id: number;
@@ -63,11 +73,16 @@ const ENDPOINTS: Record<TestKind, { list: string; detail: (id: number) => string
   },
 };
 
+function buildInviteLink(code: string): string {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  return `${origin}/#/test/${code}`;
+}
+
 const Admin: React.FC = () => {
   const [token, setToken] = useState(() => sessionStorage.getItem(STORAGE_KEY) || '');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [tab, setTab] = useState<TestKind>('juridico');
+  const [tab, setTab] = useState<AdminTab>('juridico');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [detail, setDetail] = useState<JuridicoDetail | CompletoDetail | null>(null);
@@ -76,12 +91,12 @@ const Admin: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
 
   const fetchSubmissions = useCallback(async () => {
-    if (!token) return;
+    if (!token || tab === 'codigos') return;
     setLoading(true);
     setSelectedId(null);
     setDetail(null);
     try {
-      const res = await fetch(ENDPOINTS[tab].list, { headers: { 'x-admin-token': token } });
+      const res = await fetch(ENDPOINTS[tab as TestKind].list, { headers: { 'x-admin-token': token } });
       if (res.status === 401) {
         sessionStorage.removeItem(STORAGE_KEY);
         setToken('');
@@ -115,10 +130,11 @@ const Admin: React.FC = () => {
   };
 
   const handleSelectRow = async (id: number) => {
+    if (tab === 'codigos') return;
     if (selectedId === id) { setSelectedId(null); setDetail(null); return; }
     setSelectedId(id); setDetail(null); setLoadingDetail(true);
     try {
-      const res = await fetch(ENDPOINTS[tab].detail(id), { headers: { 'x-admin-token': token } });
+      const res = await fetch(ENDPOINTS[tab as TestKind].detail(id), { headers: { 'x-admin-token': token } });
       const data = await res.json();
       setDetail(data);
     } finally {
@@ -127,7 +143,8 @@ const Admin: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(ENDPOINTS[tab].detail(id), { method: 'DELETE', headers: { 'x-admin-token': token } });
+    if (tab === 'codigos') return;
+    await fetch(ENDPOINTS[tab as TestKind].detail(id), { method: 'DELETE', headers: { 'x-admin-token': token } });
     setDeleteConfirm(null);
     if (selectedId === id) { setSelectedId(null); setDetail(null); }
     fetchSubmissions();
@@ -207,42 +224,41 @@ const Admin: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto flex gap-1">
-          <button
-            onClick={() => setTab('juridico')}
-            className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
-              tab === 'juridico'
-                ? 'border-brand-gold text-brand-gold'
-                : 'border-transparent text-gray-500 hover:text-brand-dark'
-            }`}
-          >
-            Test Jurídico
-          </button>
-          <button
-            onClick={() => setTab('completo')}
-            className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors ${
-              tab === 'completo'
-                ? 'border-brand-gold text-brand-gold'
-                : 'border-transparent text-gray-500 hover:text-brand-dark'
-            }`}
-          >
-            Test Completo
-          </button>
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 overflow-x-auto">
+        <div className="max-w-5xl mx-auto flex gap-1 min-w-fit">
+          {([
+            { id: 'juridico', label: 'Test Jurídico' },
+            { id: 'completo', label: 'Test Completo' },
+            { id: 'codigos',  label: 'Códigos de acceso' },
+          ] as { id: AdminTab; label: string }[]).map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-4 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
+                tab === t.id
+                  ? 'border-brand-gold text-brand-gold'
+                  : 'border-transparent text-gray-500 hover:text-brand-dark'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
-        {loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
+        {tab === 'codigos' && <CodigosTab token={token} />}
 
-        {!loading && submissions.length === 0 && (
+        {tab !== 'codigos' && loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
+
+        {tab !== 'codigos' && !loading && submissions.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-400 text-lg">Aún no hay respuestas registradas.</p>
             <p className="text-gray-300 text-sm mt-1">Compartí el link del test para recibir respuestas.</p>
           </div>
         )}
 
-        {!loading && submissions.length > 0 && (
+        {tab !== 'codigos' && !loading && submissions.length > 0 && (
           <div className="space-y-3">
             {submissions.map(sub => {
               const totals = getTypeTotals(sub);
@@ -459,6 +475,202 @@ const CompletoDetailView: React.FC<{ detail: CompletoDetail }> = ({ detail }) =>
           );
         })}
       </div>
+    </div>
+  );
+};
+
+// ── Tab de gestión de Códigos de acceso ────────────────────────────
+const CodigosTab: React.FC<{ token: string }> = ({ token }) => {
+  const [invites, setInvites] = useState<Invite[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [clientName, setClientName] = useState('');
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const fetchInvites = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/enea-invites', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setInvites(Array.isArray(data) ? data : []);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => { fetchInvites(); }, [fetchInvites]);
+
+  const handleCreate = async () => {
+    setCreating(true);
+    try {
+      const res = await fetch('/api/enea-invite-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ client_name: clientName }),
+      });
+      if (res.ok) {
+        setClientName('');
+        fetchInvites();
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/enea-invites?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-token': token },
+    });
+    setDeleteConfirm(null);
+    fetchInvites();
+  };
+
+  const handleCopy = async (code: string) => {
+    const link = buildInviteLink(code);
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 2000);
+    } catch {
+      // Si clipboard falla, mostrar el link igual
+      prompt('Copiá el link manualmente:', link);
+    }
+  };
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('es-AR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+
+  const pendientes = invites.filter(i => !i.used);
+  const usados = invites.filter(i => i.used);
+
+  return (
+    <div>
+      {/* Generar nuevo código */}
+      <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 mb-6">
+        <h2 className="font-heading font-bold text-lg text-brand-dark mb-1">
+          Generar nuevo link para una clienta
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Generá un link único. Mandáselo por WhatsApp / email. El link funciona una sola vez.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            value={clientName}
+            onChange={e => setClientName(e.target.value)}
+            placeholder="Nombre de la clienta (opcional)"
+            className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 text-brand-dark focus:outline-none focus:border-brand-gold"
+          />
+          <button
+            onClick={handleCreate}
+            disabled={creating}
+            className="flex items-center justify-center gap-2 bg-brand-gold hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl transition-colors disabled:opacity-60"
+          >
+            <Plus className="w-5 h-5" />
+            {creating ? 'Generando...' : 'Generar link'}
+          </button>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-10 text-gray-400">Cargando códigos...</div>}
+
+      {/* Links pendientes */}
+      {!loading && pendientes.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-heading font-bold text-brand-dark text-sm uppercase tracking-wider mb-3">
+            Links pendientes ({pendientes.length})
+          </h3>
+          <div className="space-y-2">
+            {pendientes.map(inv => (
+              <div key={inv.id} className="bg-white rounded-xl border border-gray-200 p-4">
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-brand-dark">
+                      {inv.client_name || <span className="text-gray-400 italic">Sin nombre</span>}
+                    </p>
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <LinkIcon className="w-3 h-3" />
+                      <code className="text-brand-gold font-mono">{inv.code}</code>
+                      <span className="ml-2">{formatDate(inv.created_at)}</span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={() => handleCopy(inv.code)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                        copiedCode === inv.code
+                          ? 'bg-green-50 text-green-600'
+                          : 'bg-brand-gold/10 text-brand-gold hover:bg-brand-gold/20'
+                      }`}
+                    >
+                      {copiedCode === inv.code ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedCode === inv.code ? '¡Copiado!' : 'Copiar link'}
+                    </button>
+                    {deleteConfirm === inv.id ? (
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleDelete(inv.id)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2">
+                          Eliminar
+                        </button>
+                        <button onClick={() => setDeleteConfirm(null)} className="text-xs text-gray-400 px-1">
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirm(inv.id)}
+                        className="text-gray-400 hover:text-red-500 p-1.5"
+                        title="Eliminar"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Links ya usados */}
+      {!loading && usados.length > 0 && (
+        <div>
+          <h3 className="font-heading font-bold text-gray-500 text-sm uppercase tracking-wider mb-3">
+            Links ya completados ({usados.length})
+          </h3>
+          <div className="space-y-2">
+            {usados.map(inv => (
+              <div key={inv.id} className="bg-gray-50 rounded-xl border border-gray-100 p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-700">
+                    {inv.client_name || <span className="text-gray-400 italic">Sin nombre</span>}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    <code className="font-mono text-gray-500">{inv.code}</code>
+                    <span className="ml-2">· Usado · {formatDate(inv.created_at)}</span>
+                  </p>
+                </div>
+                <span className="text-xs bg-green-100 text-green-700 font-semibold px-2 py-1 rounded-full">
+                  Completado
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!loading && invites.length === 0 && (
+        <div className="text-center py-16">
+          <Lock className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-lg">Aún no hay links generados.</p>
+          <p className="text-gray-300 text-sm mt-1">Generá uno arriba para empezar.</p>
+        </div>
+      )}
     </div>
   );
 };

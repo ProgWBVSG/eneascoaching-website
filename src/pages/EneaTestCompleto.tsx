@@ -1,11 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { getSigno, calcularEdad } from '../data/zodiaco';
-import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles, Save, RotateCcw } from 'lucide-react';
+import { ChevronRight, ChevronLeft, CheckCircle, Send, User, Check, Sparkles, Save, RotateCcw, Lock, AlertCircle } from 'lucide-react';
 
 const PER_PAGE = 10;
 const TOTAL_PAGES = Math.ceil(AFIRMACIONES.length / PER_PAGE);
-const STORAGE_KEY = 'enea_completo_progress';
+// El storage es por codigo de invitacion para evitar mezclar progresos
+const storageKey = (code: string) => `enea_completo_progress_${code}`;
 
 const ESTADOS_CIVIL = ['Soltera/o', 'Casada/o', 'En pareja', 'De novia/o', 'Viuda/o', 'Divorciada/o'];
 
@@ -24,12 +26,11 @@ interface SavedState {
   savedAt: number;
 }
 
-function loadState(): SavedState | null {
+function loadState(code: string): SavedState | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey(code));
     if (!raw) return null;
     const parsed = JSON.parse(raw) as SavedState;
-    // Validar estructura mínima
     if (typeof parsed.step !== 'number' || !Array.isArray(parsed.marked)) return null;
     return parsed;
   } catch {
@@ -37,12 +38,12 @@ function loadState(): SavedState | null {
   }
 }
 
-function saveState(state: SavedState) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+function saveState(code: string, state: SavedState) {
+  try { localStorage.setItem(storageKey(code), JSON.stringify(state)); } catch {}
 }
 
-function clearState() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+function clearState(code: string) {
+  try { localStorage.removeItem(storageKey(code)); } catch {}
 }
 
 // Mensajes motivacionales en momentos clave (sin revelar cuántas faltan)
@@ -57,8 +58,38 @@ function getMotivationalMessage(step: number): string | null {
 }
 
 const EneaTestCompleto: React.FC = () => {
-  // ── Lazy init: cargar progreso guardado si existe ────────────────
-  const saved = useMemo(() => loadState(), []);
+  const { code: rawCode } = useParams<{ code: string }>();
+  const code = (rawCode || '').toUpperCase();
+
+  // Validación del código de acceso
+  const [validating, setValidating] = useState(true);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [clientNameFromInvite, setClientNameFromInvite] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!code) { setAccessError('Link inválido'); setValidating(false); return; }
+      try {
+        const res = await fetch(`/api/enea-invite-check?code=${encodeURIComponent(code)}`);
+        const data = await res.json();
+        if (!mounted) return;
+        if (!res.ok || !data.valid) {
+          setAccessError(data.error || 'Link inválido o expirado');
+        } else {
+          setClientNameFromInvite(data.client_name || null);
+        }
+      } catch {
+        if (mounted) setAccessError('No se pudo verificar el link. Probá de nuevo.');
+      } finally {
+        if (mounted) setValidating(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [code]);
+
+  // ── Lazy init: cargar progreso guardado para este codigo ────────────
+  const saved = useMemo(() => code ? loadState(code) : null, [code]);
   const hasSavedProgress = saved !== null && (saved.step > 0 || saved.marked.length > 0);
 
   const [step, setStep] = useState(saved?.step ?? 0);
@@ -67,8 +98,14 @@ const EneaTestCompleto: React.FC = () => {
   const [error, setError] = useState('');
   const [showSaved, setShowSaved] = useState(false);
 
-  // Datos personales
+  // Datos personales (nombre se pre-rellena con el del invite si la coach lo cargó)
   const [name, setName] = useState(saved?.name ?? '');
+  useEffect(() => {
+    if (clientNameFromInvite && !saved?.name && !name) {
+      setName(clientNameFromInvite);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientNameFromInvite]);
   const [email, setEmail] = useState(saved?.email ?? '');
   const [day, setDay] = useState(saved?.day ?? '');
   const [month, setMonth] = useState(saved?.month ?? '');
@@ -85,23 +122,22 @@ const EneaTestCompleto: React.FC = () => {
   // Marcaje de afirmaciones
   const [marked, setMarked] = useState<Set<number>>(new Set(saved?.marked ?? []));
 
-  // ── Auto-guardado en localStorage en cada cambio ───────────────────
+  // ── Auto-guardado en localStorage por codigo ────────────────────────
   useEffect(() => {
-    if (submitted) return;
-    saveState({
+    if (submitted || !code || accessError) return;
+    saveState(code, {
       step, name, email, day, month, year, sexo, estadoCivil, profesion,
       marked: Array.from(marked),
       savedAt: Date.now(),
     });
-    // Mostrar pista visual "Guardado" brevemente
     setShowSaved(true);
     const t = setTimeout(() => setShowSaved(false), 1200);
     return () => clearTimeout(t);
-  }, [step, name, email, day, month, year, sexo, estadoCivil, profesion, marked, submitted]);
+  }, [code, accessError, step, name, email, day, month, year, sexo, estadoCivil, profesion, marked, submitted]);
 
   const handleReset = () => {
     if (!confirm('¿Borrar todo el progreso y empezar de nuevo?')) return;
-    clearState();
+    if (code) clearState(code);
     setStep(0); setName(''); setEmail(''); setDay(''); setMonth(''); setYear('');
     setSexo(''); setEstadoCivil(''); setProfesion(''); setMarked(new Set());
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -211,6 +247,7 @@ const EneaTestCompleto: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          code,
           name,
           email,
           date_of_birth: dobISO,
@@ -225,7 +262,7 @@ const EneaTestCompleto: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Error al enviar');
-      clearState(); // limpiar progreso guardado al enviar OK
+      if (code) clearState(code);
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: unknown) {
@@ -234,6 +271,45 @@ const EneaTestCompleto: React.FC = () => {
       setSubmitting(false);
     }
   };
+
+  // ─── Pantalla de validación del link ────────────────────────────
+  if (validating) {
+    return (
+      <div className="min-h-screen bg-brand-beige flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-brand-gold/30 border-t-brand-gold animate-spin" />
+          <p className="text-gray-500 text-sm">Verificando tu link...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Pantalla de link inválido / usado ─────────────────────────
+  if (accessError) {
+    return (
+      <div className="min-h-screen bg-brand-beige flex items-center justify-center p-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="w-10 h-10 text-red-400" />
+          </div>
+          <h1 className="font-heading font-bold text-2xl sm:text-3xl text-brand-dark mb-3">
+            Link no disponible
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base mb-6">
+            {accessError}
+          </p>
+          <div className="bg-white rounded-xl p-4 border border-gray-200 text-left">
+            <p className="text-sm text-gray-600 flex items-start gap-2">
+              <Lock className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" />
+              <span>
+                Este test es privado. Si querés hacerlo, pedile el link directo a <span className="font-semibold text-brand-dark">Cecilia</span> — cada link es único y se usa una sola vez.
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ─── Pantalla de éxito ──────────────────────────────────────────────
   if (submitted) {

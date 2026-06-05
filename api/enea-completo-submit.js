@@ -8,15 +8,29 @@ export default async function handler(req, res) {
   const supabase = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'));
 
   const {
+    code,
     name, email,
     date_of_birth, age, gender, marital_status, profession, zodiac_sign,
     responses, totals,
   } = req.body;
 
+  if (!code)                     return res.status(400).json({ error: 'Código de acceso requerido' });
   if (!name?.trim())             return res.status(400).json({ error: 'El nombre es requerido' });
   if (!Array.isArray(responses)) return res.status(400).json({ error: 'Respuestas inválidas' });
   if (!totals || typeof totals !== 'object') return res.status(400).json({ error: 'Totales inválidos' });
 
+  // Validar código de invitación
+  const upperCode = String(code).toUpperCase();
+  const { data: invite } = await supabase
+    .from('enea_completo_invites')
+    .select('id, used')
+    .eq('code', upperCode)
+    .maybeSingle();
+
+  if (!invite)      return res.status(403).json({ error: 'Link inválido' });
+  if (invite.used)  return res.status(403).json({ error: 'Este link ya fue utilizado' });
+
+  // Calcular tipo dominante
   let dominantType = 1;
   let max = -1;
   for (let i = 1; i <= 9; i++) {
@@ -24,7 +38,8 @@ export default async function handler(req, res) {
     if (val > max) { max = val; dominantType = i; }
   }
 
-  const { data, error } = await supabase
+  // Insertar submission
+  const { data: submission, error: insertError } = await supabase
     .from('enea_completo_submissions')
     .insert({
       name: name.trim(),
@@ -50,10 +65,16 @@ export default async function handler(req, res) {
     .select('id')
     .single();
 
-  if (error) {
-    console.error('Supabase insert error:', error);
+  if (insertError) {
+    console.error('Supabase insert error:', insertError);
     return res.status(500).json({ error: 'Error al guardar la respuesta' });
   }
 
-  return res.status(200).json({ success: true, id: data.id });
+  // Marcar el código como usado
+  await supabase
+    .from('enea_completo_invites')
+    .update({ used: true, submission_id: submission.id })
+    .eq('id', invite.id);
+
+  return res.status(200).json({ success: true, id: submission.id });
 }
