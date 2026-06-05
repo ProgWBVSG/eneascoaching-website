@@ -55,7 +55,7 @@ const EneaTest: React.FC = () => {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/api/submit', {
+      const res = await fetch('/api/enea-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, answers }),

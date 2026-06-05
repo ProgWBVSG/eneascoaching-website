@@ -47,7 +47,7 @@ const Admin: React.FC = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/submissions', {
+      const res = await fetch('/api/enea-submissions', {
         headers: { 'x-admin-token': token },
       });
       if (res.status === 401) {
@@ -70,7 +70,7 @@ const Admin: React.FC = () => {
     e.preventDefault();
     setLoginError('');
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch('/api/enea-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -97,7 +97,7 @@ const Admin: React.FC = () => {
     setDetail(null);
     setLoadingDetail(true);
     try {
-      const res = await fetch(`/api/admin/submissions/${id}`, {
+      const res = await fetch(`/api/enea-submission?id=${id}`, {
         headers: { 'x-admin-token': token },
       });
       const data = await res.json();
@@ -108,7 +108,7 @@ const Admin: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    await fetch(`/api/admin/submissions/${id}`, {
+    await fetch(`/api/enea-submission?id=${id}`, {
       method: 'DELETE',
       headers: { 'x-admin-token': token },
     });
