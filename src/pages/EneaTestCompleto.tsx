@@ -66,6 +66,12 @@ const EneaTestCompleto: React.FC = () => {
   const [validating, setValidating] = useState(true);
   const [accessError, setAccessError] = useState<string | null>(null);
   const [clientNameFromInvite, setClientNameFromInvite] = useState<string | null>(null);
+  // Si el link ya fue usado, traemos el resultado guardado para modo lectura
+  const [completedResult, setCompletedResult] = useState<{
+    name: string;
+    dominant_type: number;
+    totals: Record<number, number>;
+  } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -77,6 +83,13 @@ const EneaTestCompleto: React.FC = () => {
         if (!mounted) return;
         if (!res.ok || !data.valid) {
           setAccessError(data.error || 'Link inválido o expirado');
+        } else if (data.status === 'completed') {
+          // El link ya se usó → mostrar resultado en modo lectura
+          if (data.result) {
+            setCompletedResult(data.result);
+          } else {
+            setAccessError('Este link ya fue utilizado y no se pudo recuperar el resultado.');
+          }
         } else {
           setClientNameFromInvite(data.client_name || null);
         }
@@ -86,7 +99,6 @@ const EneaTestCompleto: React.FC = () => {
         if (mounted) setValidating(false);
       }
     })();
-    return () => { mounted = false; };
   }, [code]);
 
   // ── Lazy init: cargar progreso guardado para este codigo ────────────
@@ -284,6 +296,19 @@ const EneaTestCompleto: React.FC = () => {
       setSubmitting(false);
     }
   };
+
+  // ─── Resultado guardado (link ya usado) ──────────────────────────
+  // Si el link ya fue completado mostramos el resultado en modo lectura.
+  // El usuario NO puede rehacer el test, solo ver lo que sacó.
+  if (!validating && completedResult) {
+    return (
+      <ResultadoEneatipo
+        name={completedResult.name}
+        dominantType={completedResult.dominant_type}
+        totals={completedResult.totals}
+      />
+    );
+  }
 
   // ─── Pantalla de validación del link ────────────────────────────
   if (validating) {
