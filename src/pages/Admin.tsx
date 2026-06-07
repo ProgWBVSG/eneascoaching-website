@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon } from 'lucide-react';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2 } from 'lucide-react';
+import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
 type AdminTab = TestKind | 'codigos';
@@ -96,6 +97,25 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [downloadingPdf, setDownloadingPdf] = useState<number | null>(null);
+
+  const handleDownloadPDF = async (sub: Submission, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDownloadingPdf(sub.id);
+    try {
+      const totalsMap: Record<number, number> = {
+        1: sub.type1_total, 2: sub.type2_total, 3: sub.type3_total,
+        4: sub.type4_total, 5: sub.type5_total, 6: sub.type6_total,
+        7: sub.type7_total, 8: sub.type8_total, 9: sub.type9_total,
+      };
+      generateResultadoPDF(sub.name, sub.dominant_type, totalsMap);
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo generar el PDF.');
+    } finally {
+      setDownloadingPdf(null);
+    }
+  };
 
   const fetchSubmissions = useCallback(async () => {
     if (!token || tab === 'codigos') return;
@@ -285,6 +305,21 @@ const Admin: React.FC = () => {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-semibold text-brand-dark">{sub.name}</p>
+                            {tab === 'completo' && (
+                              <button
+                                onClick={(e) => handleDownloadPDF(sub, e)}
+                                disabled={downloadingPdf === sub.id}
+                                title="Descargar PDF del resultado"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-brand-dark/5 hover:bg-brand-gold hover:text-white text-brand-gold text-xs font-semibold transition-colors disabled:opacity-50"
+                              >
+                                {downloadingPdf === sub.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <CloudDownload className="w-3.5 h-3.5" />
+                                )}
+                                PDF
+                              </button>
+                            )}
                             {tab === 'completo' && sub.zodiac_sign && SIGNO_SIMBOLOS[sub.zodiac_sign] && (
                               <span className="text-xs bg-brand-gold/10 text-brand-gold px-2 py-0.5 rounded-full font-medium">
                                 {SIGNO_SIMBOLOS[sub.zodiac_sign]} {sub.zodiac_sign}
