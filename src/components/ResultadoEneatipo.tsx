@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ENEATIPOS_DETALLE, calcularAla } from '../data/eneatipos-detalle';
 import EnneagramCircle from './EnneagramCircle';
 import { Sparkles, Heart, Shield, TrendingUp, AlertTriangle, Target, Download, Loader2 } from 'lucide-react';
@@ -13,7 +13,6 @@ const ResultadoEneatipo: React.FC<Props> = ({ name, dominantType, totals }) => {
   const tipo = ENEATIPOS_DETALLE[dominantType];
   const ala = calcularAla(dominantType, totals);
   const tipoAla = ENEATIPOS_DETALLE[ala.wing];
-  const printRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
 
   if (!tipo) {
@@ -28,46 +27,12 @@ const ResultadoEneatipo: React.FC<Props> = ({ name, dominantType, totals }) => {
 
   const maxScore = Math.max(...ranked.map(r => r.total), 1);
 
-  // ── Generar PDF a partir del contenido visible ─────────────────────
+  // ── Generar PDF nativo (texto + vectores, sin captura de pantalla) ─
   const handleDownloadPDF = async () => {
-    if (!printRef.current) return;
     setDownloading(true);
     try {
-      const [{ default: html2canvas }, jsPDFModule] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ]);
-      const jsPDF = jsPDFModule.default || jsPDFModule.jsPDF;
-
-      const canvas = await html2canvas(printRef.current, {
-        scale: 2,
-        backgroundColor: '#F9F7F2',
-        useCORS: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL('image/png');
-
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      const safeName = (name || 'eneatipo').replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
-      pdf.save(`enea-test-${safeName}.pdf`);
+      const { generateResultadoPDF } = await import('../lib/pdf-generator');
+      generateResultadoPDF(name, dominantType, totals);
     } catch (e) {
       console.error('Error generando PDF:', e);
       alert('No se pudo generar el PDF. Probá de nuevo.');
@@ -101,8 +66,8 @@ const ResultadoEneatipo: React.FC<Props> = ({ name, dominantType, totals }) => {
           </button>
         </div>
 
-        {/* CONTENIDO IMPRIMIBLE */}
-        <div ref={printRef} className="space-y-6">
+        {/* Contenido del resultado */}
+        <div className="space-y-6">
 
           {/* ── Saludo ──────────────────────────────────────────────────── */}
           <div className="text-center">
