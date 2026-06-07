@@ -482,7 +482,7 @@ function drawCrecimientoEstres(ctx: Ctx, tipo: EneatipoDetalle): void {
   pdf.setFontSize(7);
   pdf.setFont('helvetica', 'bold');
   setText(pdf, [60, 150, 110]);
-  pdf.text(`LÍNEA DE INTEGRACIÓN → ${tipo.lineaCrecimiento}`, MARGIN + 10, yi + 3);
+  pdf.text(`INTEGRACION - VAS HACIA EL TIPO ${tipo.lineaCrecimiento}`, MARGIN + 10, yi + 3);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'normal');
   setText(pdf, COLOR_TEXT);
@@ -496,7 +496,7 @@ function drawCrecimientoEstres(ctx: Ctx, tipo: EneatipoDetalle): void {
   pdf.setFontSize(7);
   pdf.setFont('helvetica', 'bold');
   setText(pdf, [200, 70, 70]);
-  pdf.text(`LÍNEA DE ESTRÉS → ${tipo.lineaEstres}`, MARGIN + 10, yi + 3);
+  pdf.text(`ESTRES - BAJO PRESION CAES EN TIPO ${tipo.lineaEstres}`, MARGIN + 10, yi + 3);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'normal');
   setText(pdf, COLOR_TEXT);
@@ -509,9 +509,9 @@ function drawCrecimientoEstres(ctx: Ctx, tipo: EneatipoDetalle): void {
 function drawContinuum(ctx: Ctx, tipo: EneatipoDetalle): void {
   const { pdf } = ctx;
   const items = [
-    { tag: 'En tu mejor versión:', body: tipo.sano, color: [80, 180, 130] as RGB, icon: '✓' },
+    { tag: 'En tu mejor versión:',   body: tipo.sano,    color: [80, 180, 130] as RGB, icon: '+' },
     { tag: 'En tu versión cotidiana:', body: tipo.promedio, color: [140, 140, 140] as RGB, icon: '~' },
-    { tag: 'Bajo presión extrema:', body: tipo.desafio, color: [220, 100, 100] as RGB, icon: '!' },
+    { tag: 'Bajo presión extrema:',  body: tipo.desafio, color: [220, 100, 100] as RGB, icon: '!' },
   ];
   let totalH = 12;
   items.forEach(it => {
