@@ -17,6 +17,11 @@ export function toEmbedUrl(raw: string | null | undefined): string | null {
     return vm[2] ? `${base}?h=${vm[2]}` : base;
   }
 
+  // Google Drive: convierte el link para compartir a formato /preview embebible
+  // (el archivo debe estar como "Cualquiera con el enlace puede ver")
+  const gd = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]+)/);
+  if (gd) return `https://drive.google.com/file/d/${gd[1]}/preview`;
+
   // Si ya es un embed o un mp4 directo, lo devolvemos tal cual
   if (url.includes('/embed/') || url.includes('player.vimeo.com') || /\.mp4($|\?)/.test(url)) return url;
 
