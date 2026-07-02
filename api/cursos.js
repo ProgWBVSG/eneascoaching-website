@@ -240,12 +240,21 @@ export default async function handler(req, res) {
       }
     }
 
-    // Feedback recibido (admin lee)
+    // Feedback recibido de un curso (admin lee)
     if (action === 'feedbacks' && req.method === 'GET') {
       const { data, error } = await supabase.from('curso_feedback')
         .select('*').eq('curso_id', req.query.curso_id).order('created_at', { ascending: false });
       if (error) return res.status(500).json({ error: error.message });
       return res.status(200).json(data || []);
+    }
+
+    // TODO el feedback de todos los cursos (admin, panel principal)
+    if (action === 'all-feedbacks' && req.method === 'GET') {
+      const { data, error } = await supabase.from('curso_feedback')
+        .select('*, cursos(title)').order('created_at', { ascending: false });
+      if (error) return res.status(500).json({ error: error.message });
+      const flat = (data || []).map(f => ({ ...f, curso_title: f.cursos?.title || null, cursos: undefined }));
+      return res.status(200).json(flat);
     }
 
     return res.status(400).json({ error: 'Acción inválida' });

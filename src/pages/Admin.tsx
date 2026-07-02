@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2 } from 'lucide-react';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos';
+type AdminTab = TestKind | 'codigos' | 'cursos-fb';
 
 interface Invite {
   id: string;
@@ -118,7 +118,7 @@ const Admin: React.FC = () => {
   };
 
   const fetchSubmissions = useCallback(async () => {
-    if (!token || tab === 'codigos') return;
+    if (!token || tab === 'codigos' || tab === 'cursos-fb') return;
     setLoading(true);
     setSelectedId(null);
     setDetail(null);
@@ -157,7 +157,7 @@ const Admin: React.FC = () => {
   };
 
   const handleSelectRow = async (id: number) => {
-    if (tab === 'codigos') return;
+    if (tab === 'codigos' || tab === 'cursos-fb') return;
     if (selectedId === id) { setSelectedId(null); setDetail(null); return; }
     setSelectedId(id); setDetail(null); setLoadingDetail(true);
     try {
@@ -170,7 +170,7 @@ const Admin: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (tab === 'codigos') return;
+    if (tab === 'codigos' || tab === 'cursos-fb') return;
     await fetch(ENDPOINTS[tab as TestKind].detail(id), { method: 'DELETE', headers: { 'x-admin-token': token } });
     setDeleteConfirm(null);
     if (selectedId === id) { setSelectedId(null); setDetail(null); }
@@ -257,6 +257,7 @@ const Admin: React.FC = () => {
             { id: 'juridico', label: 'Test Jurídico' },
             { id: 'completo', label: 'Test Completo' },
             { id: 'codigos',  label: 'Códigos de acceso' },
+            { id: 'cursos-fb', label: 'Feedback cursos' },
           ] as { id: AdminTab; label: string }[]).map(t => (
             <button
               key={t.id}
@@ -275,17 +276,18 @@ const Admin: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
         {tab === 'codigos' && <CodigosTab token={token} />}
+        {tab === 'cursos-fb' && <CursosFeedbackTab token={token} />}
 
-        {tab !== 'codigos' && loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
+        {tab !== 'codigos' && tab !== 'cursos-fb' && loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
 
-        {tab !== 'codigos' && !loading && submissions.length === 0 && (
+        {tab !== 'codigos' && tab !== 'cursos-fb' && !loading && submissions.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-400 text-lg">Aún no hay respuestas registradas.</p>
             <p className="text-gray-300 text-sm mt-1">Compartí el link del test para recibir respuestas.</p>
           </div>
         )}
 
-        {tab !== 'codigos' && !loading && submissions.length > 0 && (
+        {tab !== 'codigos' && tab !== 'cursos-fb' && !loading && submissions.length > 0 && (
           <div className="space-y-3">
             {submissions.map(sub => {
               const totals = getTypeTotals(sub);
@@ -742,6 +744,82 @@ const CodigosTab: React.FC<{ token: string }> = ({ token }) => {
           <p className="text-gray-300 text-sm mt-1">Generá uno arriba para empezar.</p>
         </div>
       )}
+    </div>
+  );
+};
+
+// ── Tab de Feedback de cursos (panel principal) ────────────────────
+interface CursoFeedback {
+  id: string; curso_title: string | null; client_name: string | null;
+  rating: number | null; comment: string | null; created_at: string;
+}
+
+const CursosFeedbackTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<CursoFeedback[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=all-feedbacks', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const fmt = (iso: string) => new Date(iso).toLocaleDateString('es-AR', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+
+  const rated = items.filter(f => f.rating);
+  const avg = rated.length ? (rated.reduce((s, f) => s + (f.rating || 0), 0) / rated.length).toFixed(1) : null;
+
+  if (loading) return <div className="text-center py-20 text-gray-400">Cargando...</div>;
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <GraduationCap className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+        <p className="text-gray-400 text-lg">Todavía no hay feedback de cursos.</p>
+        <p className="text-gray-300 text-sm mt-1">Aparece acá cuando una clienta termina un curso y deja su opinión.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {avg && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5 flex items-center gap-4">
+          <div className="text-center">
+            <p className="font-heading font-bold text-4xl text-brand-gold">{avg}</p>
+            <div className="flex gap-0.5 justify-center mt-1">
+              {[1, 2, 3, 4, 5].map(n => <Star key={n} className={`w-3.5 h-3.5 ${n <= Math.round(Number(avg)) ? 'fill-brand-gold text-brand-gold' : 'text-gray-200'}`} />)}
+            </div>
+          </div>
+          <p className="text-sm text-gray-500">Promedio de {rated.length} {rated.length === 1 ? 'opinión' : 'opiniones'} en total</p>
+        </div>
+      )}
+      <div className="space-y-3">
+        {items.map(f => (
+          <div key={f.id} className="bg-white rounded-2xl border border-gray-100 p-4">
+            <div className="flex items-center justify-between gap-3 mb-1.5">
+              <div className="min-w-0">
+                <p className="font-semibold text-brand-dark">{f.client_name || 'Anónima'}</p>
+                {f.curso_title && <p className="text-xs text-brand-gold font-medium">{f.curso_title}</p>}
+              </div>
+              {f.rating && (
+                <div className="flex gap-0.5 shrink-0">
+                  {[1, 2, 3, 4, 5].map(n => <Star key={n} className={`w-4 h-4 ${n <= (f.rating || 0) ? 'fill-brand-gold text-brand-gold' : 'text-gray-200'}`} />)}
+                </div>
+              )}
+            </div>
+            {f.comment && <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{f.comment}</p>}
+            <p className="text-xs text-gray-400 mt-2">{fmt(f.created_at)}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
