@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
       const { data: acceso } = await supabase
         .from('curso_accesos')
-        .select('id, code, client_name, curso_id')
+        .select('id, code, client_name, curso_id, is_general')
         .eq('code', code)
         .maybeSingle();
       if (!acceso) return res.status(404).json({ error: 'Link inválido o expirado' });
@@ -64,10 +64,31 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         client_name: acceso.client_name,
+        is_general: !!acceso.is_general,
         curso,
         modulos: tree,
         completadas: (progreso || []).map(p => p.leccion_id),
       });
+    }
+
+    // Feedback de la clienta al terminar (sin token)
+    if (action === 'feedback' && req.method === 'POST') {
+      const { code, rating, comment, client_name } = req.body || {};
+      if (!code) return res.status(400).json({ error: 'Código requerido' });
+      const upperCode = String(code).toUpperCase();
+      const { data: acceso } = await supabase
+        .from('curso_accesos').select('id, curso_id').eq('code', upperCode).maybeSingle();
+      if (!acceso) return res.status(403).json({ error: 'No autorizado' });
+
+      const { error } = await supabase.from('curso_feedback').insert({
+        curso_id: acceso.curso_id,
+        code: upperCode,
+        client_name: (client_name || '').trim() || null,
+        rating: rating != null ? Number(rating) : null,
+        comment: (comment || '').trim() || null,
+      });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ success: true });
     }
 
     if (action === 'progress' && req.method === 'POST') {
@@ -197,7 +218,7 @@ export default async function handler(req, res) {
         return res.status(200).json(data || []);
       }
       if (req.method === 'POST') {
-        const { curso_id, client_name } = req.body || {};
+        const { curso_id, client_name, is_general } = req.body || {};
         let code = '';
         for (let i = 0; i < 10; i++) {
           code = genCode(8);
@@ -205,7 +226,11 @@ export default async function handler(req, res) {
           if (!ex) break;
         }
         const { data, error } = await supabase.from('curso_accesos')
-          .insert({ code, curso_id, client_name: (client_name || '').trim() || null }).select().single();
+          .insert({
+            code, curso_id,
+            client_name: is_general ? 'Link general' : ((client_name || '').trim() || null),
+            is_general: !!is_general,
+          }).select().single();
         if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json(data);
       }
@@ -213,6 +238,14 @@ export default async function handler(req, res) {
         await supabase.from('curso_accesos').delete().eq('id', req.query.id);
         return res.status(200).json({ success: true });
       }
+    }
+
+    // Feedback recibido (admin lee)
+    if (action === 'feedbacks' && req.method === 'GET') {
+      const { data, error } = await supabase.from('curso_feedback')
+        .select('*').eq('curso_id', req.query.curso_id).order('created_at', { ascending: false });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
     }
 
     return res.status(400).json({ error: 'Acción inválida' });
