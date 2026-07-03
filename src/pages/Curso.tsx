@@ -196,7 +196,7 @@ const Curso: React.FC = () => {
         <main className="flex-1 min-w-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
             {showFeedback ? (
-              <FeedbackPanel code={code} clientName={clientName} isGeneral={isGeneral} cursoTitle={curso.title} onBack={() => setShowFeedback(false)} />
+              <FeedbackPanel code={code} clientName={clientName} cursoTitle={curso.title} onBack={() => setShowFeedback(false)} />
             ) : !currentLesson ? (
               <div className="text-center py-20 text-gray-400">Este curso todavía no tiene lecciones.</div>
             ) : (
@@ -263,24 +263,24 @@ const Curso: React.FC = () => {
 
 // ── Panel de feedback al terminar (responsive) ───────────────────────
 const FeedbackPanel: React.FC<{
-  code: string; clientName: string | null; isGeneral: boolean; cursoTitle: string; onBack: () => void;
-}> = ({ code, clientName, isGeneral, cursoTitle, onBack }) => {
+  code: string; clientName: string | null; cursoTitle: string; onBack: () => void;
+}> = ({ code, clientName, cursoTitle, onBack }) => {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
-  const [name, setName] = useState('');
+  const [name, setName] = useState(clientName || '');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
 
   const submit = async () => {
+    if (!name.trim()) { setError('Poné tu nombre 🙂'); return; }
     if (rating === 0) { setError('Elegí cuántas estrellas ⭐'); return; }
-    if (isGeneral && !clientName && !name.trim()) { setError('Poné tu nombre 🙂'); return; }
     setSending(true); setError('');
     try {
       const res = await fetch('/api/cursos?action=feedback', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, rating, comment, client_name: clientName || name }),
+        body: JSON.stringify({ code, rating, comment, client_name: name }),
       });
       if (!res.ok) throw new Error();
       setSent(true);
@@ -326,13 +326,11 @@ const FeedbackPanel: React.FC<{
           ))}
         </div>
 
-        {isGeneral && !clientName && (
-          <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tu nombre</label>
-            <input value={name} onChange={e => { setName(e.target.value); setError(''); }} placeholder="Nombre y apellido"
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-gold" />
-          </div>
-        )}
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tu nombre</label>
+          <input value={name} onChange={e => { setName(e.target.value); setError(''); }} placeholder="Nombre y apellido"
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-gold" />
+        </div>
 
         <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tu comentario <span className="text-gray-400 font-normal">(opcional)</span></label>
         <textarea value={comment} onChange={e => setComment(e.target.value)} rows={4} placeholder="¿Qué te llevás del curso? ¿Qué fue lo que más te sirvió?"
