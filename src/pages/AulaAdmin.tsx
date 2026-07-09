@@ -7,7 +7,7 @@ import {
 const STORAGE_KEY = 'enea_admin_token';
 const inputCls = 'w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-gold text-brand-dark';
 
-interface Curso { id: string; title: string; description: string | null; cover_image_url: string | null; published: boolean; }
+interface Curso { id: string; title: string; description: string | null; cover_image_url: string | null; published: boolean; price?: number; for_sale?: boolean; }
 interface Recurso { id: string; name: string; url: string; }
 interface Leccion { id: string; title: string; description: string | null; video_url: string | null; recursos: Recurso[]; }
 interface Modulo { id: string; title: string; lecciones: Leccion[]; }
@@ -187,6 +187,12 @@ const CursoEditor: React.FC<{ cursoId: string; token: string; onBack: () => void
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [tab, setTab] = useState<'contenido' | 'codigos' | 'feedback'>('contenido');
   const [copied, setCopied] = useState<string | null>(null);
+  const [copiedBuy, setCopiedBuy] = useState(false);
+  const buildBuyLink = (cid: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/#/comprar/${cid}`;
+  const copyBuy = async (cid: string) => {
+    try { await navigator.clipboard.writeText(buildBuyLink(cid)); setCopiedBuy(true); setTimeout(() => setCopiedBuy(false), 2000); }
+    catch { prompt('Copiá el link de compra:', buildBuyLink(cid)); }
+  };
 
   // modales
   const [modModal, setModModal] = useState<{ id?: string; title: string } | null>(null);
@@ -254,6 +260,34 @@ const CursoEditor: React.FC<{ cursoId: string; token: string; onBack: () => void
               <Field label="Título"><input defaultValue={curso.title} onBlur={e => e.target.value !== curso.title && saveCurso({ title: e.target.value })} className={inputCls} /></Field>
               <Field label="Descripción"><textarea defaultValue={curso.description || ''} rows={2} onBlur={e => e.target.value !== (curso.description || '') && saveCurso({ description: e.target.value })} className={inputCls} /></Field>
               <Field label="Imagen de portada (link, opcional)"><input defaultValue={curso.cover_image_url || ''} onBlur={e => e.target.value !== (curso.cover_image_url || '') && saveCurso({ cover_image_url: e.target.value })} placeholder="https://..." className={inputCls} /></Field>
+            </div>
+
+            {/* Venta */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="font-heading font-bold text-brand-dark">Vender este curso</h3>
+                  <p className="text-sm text-gray-500">Cobrá con tarjeta / MercadoPago</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" defaultChecked={!!curso.for_sale} onChange={e => saveCurso({ for_sale: e.target.checked })} />
+                  <div className="w-11 h-6 bg-gray-200 peer-checked:bg-brand-gold rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5" />
+                </label>
+              </div>
+              <Field label="Precio (ARS)" hint="Precio en pesos. Ej: 15000">
+                <input type="number" defaultValue={curso.price || ''} onBlur={e => Math.round(Number(e.target.value)) !== (curso.price || 0) && saveCurso({ price: Math.round(Number(e.target.value)) })} placeholder="Ej: 15000" className={inputCls} />
+              </Field>
+              {curso.for_sale && (
+                <div className="bg-brand-beige rounded-xl p-3 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">Link de compra (mandáselo a tus clientas)</p>
+                    <code className="text-xs text-brand-gold truncate block">{buildBuyLink(curso.id)}</code>
+                  </div>
+                  <button onClick={() => copyBuy(curso.id)} className={`shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-lg ${copiedBuy ? 'bg-green-50 text-green-600' : 'bg-brand-gold/10 text-brand-gold hover:bg-brand-gold/20'}`}>
+                    {copiedBuy ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}{copiedBuy ? '¡Copiado!' : 'Copiar'}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between mb-3">

@@ -11,6 +11,42 @@ function isAdmin(req) {
   return req.headers['x-admin-token'] === env('ADMIN_PASSWORD');
 }
 
+// ── MercadoPago ──────────────────────────────────────────────────────
+const MP_TOKEN = () => env('MP_ACCESS_TOKEN');
+const SITE = () => env('SITE_URL') || 'https://eneascoaching.vercel.app';
+
+async function mpGetPayment(paymentId) {
+  try {
+    const r = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${MP_TOKEN()}` },
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+// Confirma una venta: genera el código de acceso al curso y actualiza la venta.
+async function finalizeSale(supabase, sale, payment) {
+  if (sale.status === 'approved' && sale.access_code) return sale.access_code;
+  let code = '';
+  for (let i = 0; i < 10; i++) {
+    code = genCode(8);
+    const { data: ex } = await supabase.from('curso_accesos').select('id').eq('code', code).maybeSingle();
+    if (!ex) break;
+  }
+  const buyerName = payment?.payer?.first_name
+    ? `${payment.payer.first_name} ${payment.payer.last_name || ''}`.trim()
+    : 'Compra online';
+  await supabase.from('curso_accesos').insert({ code, curso_id: sale.curso_id, client_name: buyerName, is_general: false });
+  await supabase.from('curso_ventas').update({
+    status: 'approved', access_code: code,
+    mp_payment_id: String(payment?.id || ''),
+    buyer_name: buyerName,
+    buyer_email: payment?.payer?.email || null,
+  }).eq('id', sale.id);
+  return code;
+}
+
 export default async function handler(req, res) {
   const supabase = sb();
   const action = req.query.action;
@@ -108,6 +144,90 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // Info pública de un curso a la venta (para la página de compra)
+    if (action === 'sale-info' && req.method === 'GET') {
+      const { data: curso } = await supabase.from('cursos')
+        .select('id, title, description, cover_image_url, price, for_sale').eq('id', req.query.curso_id).maybeSingle();
+      if (!curso) return res.status(404).json({ error: 'No encontrado' });
+      const { data: modulos } = await supabase.from('curso_modulos').select('id').eq('curso_id', curso.id);
+      const moduloIds = (modulos || []).map(m => m.id);
+      let leccCount = 0, recCount = 0;
+      if (moduloIds.length) {
+        const { data: lecc } = await supabase.from('curso_lecciones').select('id').in('modulo_id', moduloIds);
+        leccCount = (lecc || []).length;
+        const leccIds = (lecc || []).map(l => l.id);
+        if (leccIds.length) {
+          const { count } = await supabase.from('curso_recursos').select('id', { count: 'exact', head: true }).in('leccion_id', leccIds);
+          recCount = count || 0;
+        }
+      }
+      return res.status(200).json({ curso, modulos_count: moduloIds.length, lecciones_count: leccCount, recursos_count: recCount });
+    }
+
+    // Crear pago (Checkout Pro de MercadoPago)
+    if (action === 'pay-create' && req.method === 'POST') {
+      const { curso_id } = req.body || {};
+      const { data: curso } = await supabase.from('cursos').select('id, title, price, for_sale').eq('id', curso_id).maybeSingle();
+      if (!curso || !curso.for_sale || !curso.price) return res.status(400).json({ error: 'Curso no disponible para la venta' });
+      if (!MP_TOKEN()) return res.status(500).json({ error: 'Los pagos no están configurados todavía' });
+
+      const { data: sale, error: se } = await supabase.from('curso_ventas')
+        .insert({ curso_id: curso.id, amount: curso.price, status: 'pending' }).select('id').single();
+      if (se) return res.status(500).json({ error: 'No se pudo iniciar la compra' });
+
+      const pref = {
+        items: [{ title: curso.title, quantity: 1, unit_price: Number(curso.price), currency_id: 'ARS' }],
+        external_reference: sale.id,
+        back_urls: {
+          success: `${SITE()}/#/compra-exito/${sale.id}`,
+          pending: `${SITE()}/#/compra-exito/${sale.id}`,
+          failure: `${SITE()}/#/comprar/${curso.id}`,
+        },
+        auto_return: 'approved',
+        notification_url: `${SITE()}/api/cursos?action=pay-webhook`,
+      };
+      const r = await fetch('https://api.mercadopago.com/checkout/preferences', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${MP_TOKEN()}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(pref),
+      });
+      const data = await r.json();
+      if (!r.ok) { console.error('MP pref error:', data); return res.status(500).json({ error: 'No se pudo crear el pago' }); }
+      await supabase.from('curso_ventas').update({ mp_preference_id: data.id }).eq('id', sale.id);
+      return res.status(200).json({ init_point: data.init_point });
+    }
+
+    // Webhook de MercadoPago (avisa cuando se paga)
+    if (action === 'pay-webhook') {
+      const paymentId = (req.body && req.body.data && req.body.data.id) || req.query['data.id'] || req.query.id;
+      const topic = (req.body && req.body.type) || req.query.type || req.query.topic;
+      if ((topic && topic !== 'payment') || !paymentId) return res.status(200).json({ ok: true });
+      const payment = await mpGetPayment(paymentId);
+      if (payment && payment.status === 'approved' && payment.external_reference) {
+        const { data: sale } = await supabase.from('curso_ventas').select('*').eq('id', payment.external_reference).maybeSingle();
+        if (sale) await finalizeSale(supabase, sale, payment);
+      }
+      return res.status(200).json({ ok: true });
+    }
+
+    // Estado del pago (la página de éxito consulta acá)
+    if (action === 'pay-status' && req.method === 'GET') {
+      const ref = req.query.ref;
+      const paymentId = req.query.payment_id;
+      if (!ref) return res.status(400).json({ error: 'ref requerido' });
+      const { data: sale } = await supabase.from('curso_ventas').select('*').eq('id', ref).maybeSingle();
+      if (!sale) return res.status(404).json({ status: 'not_found' });
+      if (sale.status !== 'approved' && paymentId) {
+        const payment = await mpGetPayment(paymentId);
+        if (payment && payment.status === 'approved' && payment.external_reference === sale.id) {
+          const code = await finalizeSale(supabase, sale, payment);
+          return res.status(200).json({ status: 'approved', code, curso_id: sale.curso_id });
+        }
+      }
+      if (sale.status === 'approved') return res.status(200).json({ status: 'approved', code: sale.access_code, curso_id: sale.curso_id });
+      return res.status(200).json({ status: 'pending' });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -118,9 +238,14 @@ export default async function handler(req, res) {
         return res.status(200).json(data || []);
       }
       if (req.method === 'POST') {
-        const { id, title, description, cover_image_url, published, position } = req.body || {};
+        const { id, title, description, cover_image_url, published, position, price, for_sale } = req.body || {};
         if (!title?.trim()) return res.status(400).json({ error: 'Título requerido' });
-        const row = { title: title.trim(), description: description || null, cover_image_url: cover_image_url || null, published: published !== false, position: position || 0 };
+        const row = {
+          title: title.trim(), description: description || null, cover_image_url: cover_image_url || null,
+          published: published !== false, position: position || 0,
+          price: price != null ? Math.round(Number(price)) : 0,
+          for_sale: !!for_sale,
+        };
         const q = id ? supabase.from('cursos').update(row).eq('id', id).select().single()
                      : supabase.from('cursos').insert(row).select().single();
         const { data, error } = await q;
