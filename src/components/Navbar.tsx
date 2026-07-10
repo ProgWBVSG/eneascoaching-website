@@ -56,10 +56,19 @@ const Navbar: React.FC = () => {
             </div>
 
             <Link to="/contenido-gratuito" className="text-sm font-medium hover:text-brand-gold transition-colors">CONTENIDO GRATUITO</Link>
-            
-            <a 
-              href="https://wa.me/5493515632496" 
-              target="_blank" 
+
+            <a
+              href="https://wa.me/5493515632496?text=Hola!%20Quiero%20info%20de%20la%20comunidad%20Descubr%C3%AD%20tu%20Norte"
+              target="_blank"
+              rel="noreferrer"
+              className="gold-gradient text-white px-4 py-2 text-sm font-bold tracking-wide transition-all rounded-sm shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            >
+              COMUNIDAD
+            </a>
+
+            <a
+              href="https://wa.me/5493515632496"
+              target="_blank"
               rel="noreferrer"
               className="border border-brand-dark px-4 py-2 text-sm font-medium hover:bg-brand-dark hover:text-white transition-all rounded-sm"
             >
@@ -94,6 +103,12 @@ const Navbar: React.FC = () => {
           </div>
 
           <Link to="/contenido-gratuito" className="text-lg font-heading font-medium text-brand-dark border-b border-brand-gold/20 pb-2">Contenido Gratuito</Link>
+          <a
+            href="https://wa.me/5493515632496?text=Hola!%20Quiero%20info%20de%20la%20comunidad%20Descubr%C3%AD%20tu%20Norte"
+            className="gold-gradient text-white text-center text-lg font-heading font-bold py-3 rounded-lg shadow-md"
+          >
+            ✨ Comunidad
+          </a>
           <a href="https://wa.me/5493515632496" className="text-lg font-heading font-medium text-brand-gold">WhatsApp</a>
         </div>
       </div>
