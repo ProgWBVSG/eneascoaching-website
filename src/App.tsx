@@ -21,6 +21,8 @@ import Curso from './pages/Curso';
 import AulaAdmin from './pages/AulaAdmin';
 import Comprar from './pages/Comprar';
 import CompraExito from './pages/CompraExito';
+import Comunidad from './pages/Comunidad';
+import ComunidadAdmin from './pages/ComunidadAdmin';
 
 const MainLayout: React.FC = () => (
   <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
@@ -60,6 +62,8 @@ const App: React.FC = () => {
         <Route path="/aula-admin" element={<AulaAdmin />} />
         <Route path="/comprar/:id" element={<Comprar />} />
         <Route path="/compra-exito/:ref" element={<CompraExito />} />
+        <Route path="/comunidad/:code" element={<Comunidad />} />
+        <Route path="/comunidad-admin" element={<ComunidadAdmin />} />
 
         {/* Main site with navbar/footer */}
         <Route element={<MainLayout />}>

@@ -228,6 +228,17 @@ export default async function handler(req, res) {
       return res.status(200).json({ status: 'pending' });
     }
 
+    // Dashboard de la comunidad (miembro con código)
+    if (action === 'com-get' && req.method === 'GET') {
+      const code = String(req.query.code || '').toUpperCase();
+      if (!code) return res.status(400).json({ error: 'Código requerido' });
+      const { data: acc } = await supabase.from('comunidad_accesos').select('member_name').eq('code', code).maybeSingle();
+      if (!acc) return res.status(404).json({ error: 'Link inválido o expirado' });
+      const { data: config } = await supabase.from('comunidad_config').select('*').eq('key', 'main').maybeSingle();
+      const { data: items } = await supabase.from('comunidad_items').select('*').eq('published', true).order('position');
+      return res.status(200).json({ member_name: acc.member_name, config: config || {}, items: items || [] });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -380,6 +391,78 @@ export default async function handler(req, res) {
       if (error) return res.status(500).json({ error: error.message });
       const flat = (data || []).map(f => ({ ...f, curso_title: f.cursos?.title || null, cursos: undefined }));
       return res.status(200).json(flat);
+    }
+
+    // ── Comunidad: configuración (admin) ──
+    if (action === 'com-config') {
+      if (req.method === 'GET') {
+        const { data } = await supabase.from('comunidad_config').select('*').eq('key', 'main').maybeSingle();
+        return res.status(200).json(data || {});
+      }
+      if (req.method === 'POST') {
+        const b = req.body || {};
+        const row = {
+          key: 'main',
+          welcome_title: b.welcome_title || null, welcome_text: b.welcome_text || null,
+          whatsapp_url: b.whatsapp_url || null, zoom_url: b.zoom_url || null, zoom_text: b.zoom_text || null,
+          onboarding_url: b.onboarding_url || null, onboarding_text: b.onboarding_text || null,
+          updated_at: new Date().toISOString(),
+        };
+        const { error } = await supabase.from('comunidad_config').upsert(row, { onConflict: 'key' });
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json({ success: true });
+      }
+    }
+
+    // ── Comunidad: items del dashboard (admin) ──
+    if (action === 'com-items') {
+      if (req.method === 'GET') {
+        const { data } = await supabase.from('comunidad_items').select('*').order('position');
+        return res.status(200).json(data || []);
+      }
+      if (req.method === 'POST') {
+        const b = req.body || {};
+        if (!b.title?.trim() || !b.pillar) return res.status(400).json({ error: 'Título y pilar requeridos' });
+        const row = {
+          pillar: b.pillar, kind: b.kind || 'link', title: b.title.trim(), description: b.description || null,
+          url: b.url || null, curso_code: b.curso_code || null, position: b.position || 0, published: b.published !== false,
+        };
+        const q = b.id ? supabase.from('comunidad_items').update(row).eq('id', b.id).select().single()
+                       : supabase.from('comunidad_items').insert(row).select().single();
+        const { data, error } = await q;
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json(data);
+      }
+      if (req.method === 'DELETE') {
+        await supabase.from('comunidad_items').delete().eq('id', req.query.id);
+        return res.status(200).json({ success: true });
+      }
+    }
+
+    // ── Comunidad: accesos de miembros (admin) ──
+    if (action === 'com-invites') {
+      if (req.method === 'GET') {
+        const { data } = await supabase.from('comunidad_accesos').select('*').order('created_at', { ascending: false });
+        return res.status(200).json(data || []);
+      }
+      if (req.method === 'POST') {
+        const b = req.body || {};
+        let code = '';
+        for (let i = 0; i < 10; i++) {
+          code = genCode(8);
+          const { data: ex } = await supabase.from('comunidad_accesos').select('id').eq('code', code).maybeSingle();
+          if (!ex) break;
+        }
+        const { data, error } = await supabase.from('comunidad_accesos')
+          .insert({ code, member_name: b.is_general ? 'Link general' : ((b.member_name || '').trim() || null), is_general: !!b.is_general })
+          .select().single();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json(data);
+      }
+      if (req.method === 'DELETE') {
+        await supabase.from('comunidad_accesos').delete().eq('id', req.query.id);
+        return res.status(200).json({ success: true });
+      }
     }
 
     return res.status(400).json({ error: 'Acción inválida' });
