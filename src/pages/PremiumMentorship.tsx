@@ -9,9 +9,9 @@ const PremiumMentorship: React.FC = () => {
       <div className="bg-black text-white py-24 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-brand-gold/20 to-black z-0"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
-          <span className="inline-block border border-brand-gold text-brand-gold px-4 py-1 rounded-full text-xs tracking-widest uppercase mb-6">Exclusivo 1 a 1</span>
-          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6">Mentoría Premium</h1>
-          <p className="text-2xl font-light text-gray-300 mb-8">No necesitas más información. <br />Necesitas <span className="text-brand-gold font-bold">dirección</span>.</p>
+          <span className="inline-block border border-brand-gold text-brand-gold px-4 py-1 rounded-full text-xs tracking-widest uppercase mb-6">Eneagrama de Liderazgo · 1 a 1</span>
+          <h1 className="text-5xl md:text-7xl font-heading font-bold mb-6">Mentoría en Eneagrama</h1>
+          <p className="text-2xl font-light text-gray-300 mb-8">Liderá desde el SER. <br />Potenciá tu <span className="text-brand-gold font-bold">liderazgo</span> y tus <span className="text-brand-gold font-bold">vínculos conscientes</span>.</p>
 
           {/* Sales Video - High Conversion Design */}
           <div className="mt-12 relative w-full max-w-3xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden group bg-black aspect-video">
@@ -32,13 +32,17 @@ const PremiumMentorship: React.FC = () => {
       <section className="py-20 px-6 bg-white">
         <div className="container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="order-2 lg:order-1">
-            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-6">Espacio profundo y personalizado</h2>
+            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-6">Para líderes, equipos y quienes construyen vínculos</h2>
             <p className="text-gray-600 text-lg leading-relaxed mb-6">
-              Un espacio cuidado, donde tu proceso se convierte en prioridad.
-              MENTORÍA PREMIUM es claridad, dirección y transformación en menos tiempo.
+              Si liderás un equipo, tenés un negocio, trabajás en Recursos Humanos o acompañás personas, el Eneagrama es tu mapa para entenderte, entender a los demás y <strong>liderar desde la consciencia</strong>. Un proceso 1 a 1, diseñado a tu medida.
             </p>
-            <p className="text-brand-dark font-medium text-xl italic border-l-4 border-brand-gold pl-4 mb-8">
-              "Durante 12 encuentros trabajaremos desde el SER para lograr un HACER sostenido, disruptivo y rentable."
+            <p className="text-brand-dark font-medium text-xl italic border-l-4 border-brand-gold pl-4 mb-6">
+              "Durante 12 encuentros trabajamos desde el SER para lograr un HACER sostenido, disruptivo y rentable."
+            </p>
+            <h3 className="text-lg font-heading font-bold text-brand-dark mb-2">¿Para quién es?</h3>
+            <p className="text-gray-600 mb-4">Líderes y dueños de negocio · Coaches · Recursos Humanos · Equipos y organizaciones que quieren vincularse mejor.</p>
+            <p className="text-sm text-gray-600 bg-brand-beige border-l-4 border-brand-gold pl-4 py-3 rounded-r mb-8">
+              ¿Querés formarte como coach y <strong>enseñar</strong> el Eneagrama? Entonces mirá la <a href="#/diplomatura" className="text-brand-gold font-semibold underline">Diplomatura</a>.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -88,8 +92,8 @@ const PremiumMentorship: React.FC = () => {
       {/* CTA Section */}
       <section className="py-24 px-6 text-center bg-white">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">Metodología probada y garantizada</h2>
-          <p className="text-xl text-gray-600 mb-10">Este es el espacio donde tu transformación se acelera.</p>
+          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-6">Liderá desde la consciencia</h2>
+          <p className="text-xl text-gray-600 mb-10">Un proceso a tu medida para transformar cómo liderás y cómo te vinculás — guiada por quien ya acompañó a <strong className="text-brand-dark">+600 personas</strong>.</p>
           <Button
             href="https://wa.me/5493515632496?text=Hola%20Cecilia%2C%20quiero%20agendar%20una%20reuni%C3%B3n%20gratuita%20sobre%20la%20Mentor%C3%ADa%20Premium"
             variant="primary"

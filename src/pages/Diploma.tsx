@@ -34,15 +34,18 @@ const Diploma: React.FC = () => {
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Formación profesional de 3 meses en modalidad online, diseñada para personas que desean enseñar, facilitar y transformar vidas.
-              Aprende a ser mentor, profundiza en coaching ontológico y Eneagrama, y genera un ingreso extra mientras ayudas a otros a despertar conscientes.
+              La formación para <strong>profesionalizarte como Coach Eneagramista certificada</strong> y llevar esta herramienta a otras personas: acompañar procesos, facilitar talleres y enseñar el Eneagrama con método propio.
+              En 3 meses, 100% online, salís con tu certificación y una nueva forma de generar ingresos ayudando a otros a despertar conscientes.
             </p>
-            <h3 className="text-xl font-heading font-bold mb-4">¿Para quién es?</h3>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Personas que quieren enseñar y facilitar</li>
-              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Quienes buscan generar ingresos extra</li>
-              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Profesionales del desarrollo personal</li>
+            <h3 className="text-xl font-heading font-bold mb-4">¿Es para vos?</h3>
+            <ul className="space-y-2 text-gray-600 mb-6">
+              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Querés dedicarte al coaching y al desarrollo personal</li>
+              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Buscás una certificación y un método para enseñar</li>
+              <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Querés generar un ingreso transformando vidas</li>
             </ul>
+            <p className="text-sm text-gray-600 bg-brand-beige border-l-4 border-brand-gold pl-4 py-3 rounded-r">
+              ¿No querés formarte como coach, sino potenciar tu <strong>liderazgo y tus vínculos</strong> en tu empresa o equipo? Entonces lo tuyo es la <a href="#/mentorias/premium" className="text-brand-gold font-semibold underline">Mentoría en Eneagrama</a>.
+            </p>
           </div>
           <div className="flex flex-col gap-6">
             {/* Diplomatura Grupal */}
@@ -183,9 +186,9 @@ const Diploma: React.FC = () => {
 
       {/* Footer CTA */}
       <section className="py-20 px-6 bg-white text-center">
-        <h2 className="text-3xl font-heading font-bold mb-6">Formación certificada para transformar vidas</h2>
-        <p className="text-xl text-gray-600 mb-10">Conviértete en facilitador del despertar consciente.</p>
-        <Button href="https://wa.me/5493515632496" variant="primary">Agendar reunión informativa gratuita</Button>
+        <h2 className="text-3xl font-heading font-bold mb-6">Convertite en Coach Eneagramista certificada</h2>
+        <p className="text-xl text-gray-600 mb-10">Formate con quien ya acompañó a <strong className="text-brand-dark">+600 personas</strong>. Enseñá, facilitá y viví de transformar vidas.</p>
+        <Button href="https://wa.me/5493515632496?text=Hola%20Cecilia%2C%20quiero%20informaci%C3%B3n%20de%20la%20Diplomatura" variant="primary">Agendar reunión informativa gratuita</Button>
       </section>
     </div>
   );
