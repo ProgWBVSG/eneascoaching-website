@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Compass, Sparkles, TrendingUp, Play, Check, X, MessageCircle, Video,
-  FileText, GraduationCap, Star, ShieldCheck, ChevronDown, Heart,
+  FileText, GraduationCap, Star, ShieldCheck, ChevronDown, Heart, ArrowLeft,
 } from 'lucide-react';
 
 // ⚠️ VSL DE PRUEBA — copy y precio de ejemplo para ver el estilo.
@@ -21,7 +21,10 @@ const ComunidadVSL: React.FC = () => {
   return (
     <div className="bg-brand-beige text-brand-text">
       {/* Barra mínima */}
-      <div className="w-full py-4 text-center">
+      <div className="w-full py-4 px-4 relative flex items-center justify-center">
+        <Link to="/" className="absolute left-4 flex items-center gap-1.5 text-brand-dark hover:text-brand-gold transition-colors text-sm font-medium">
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Volver</span>
+        </Link>
         <Link to="/" className="font-heading font-bold tracking-widest text-brand-dark text-sm">ENEASCOACHING</Link>
       </div>
 
