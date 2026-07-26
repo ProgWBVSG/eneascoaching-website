@@ -41,30 +41,31 @@ const Navbar: React.FC = () => {
             <Link to="/" className="text-sm font-medium hover:text-brand-gold transition-colors">INICIO</Link>
             <Link to="/sobre-mi" className="text-sm font-medium hover:text-brand-gold transition-colors">SOBRE MÍ</Link>
             
-            {/* Dropdown */}
+            {/* Dropdown — 2 caminos claros en eneagrama */}
             <div className="relative group">
               <button className="flex items-center text-sm font-medium hover:text-brand-gold transition-colors focus:outline-none">
-                MENTORÍAS <ChevronDown className="w-4 h-4 ml-1" />
+                PROGRAMAS <ChevronDown className="w-4 h-4 ml-1" />
               </button>
-              <div className="absolute left-0 mt-2 w-56 bg-white shadow-xl rounded-sm opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="py-2">
-                  <Link to="/mentorias/grupal" className="block px-4 py-2 text-sm hover:bg-brand-beige hover:text-brand-gold">Mentoría Grupal</Link>
-                  <Link to="/mentorias/premium" className="block px-4 py-2 text-sm hover:bg-brand-beige hover:text-brand-gold">Mentoría Premium</Link>
-                  <Link to="/diplomatura" className="block px-4 py-2 text-sm hover:bg-brand-beige hover:text-brand-gold">Diplomatura</Link>
-                </div>
+              <div className="absolute left-0 mt-2 w-72 bg-white shadow-xl rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden">
+                <Link to="/diplomatura" className="block px-4 py-3 hover:bg-brand-beige border-b border-gray-100">
+                  <span className="block text-sm font-semibold text-brand-dark">Diplomatura</span>
+                  <span className="block text-xs text-gray-500">Profesionalizate como coach eneagramista y enseñá</span>
+                </Link>
+                <Link to="/mentorias/premium" className="block px-4 py-3 hover:bg-brand-beige">
+                  <span className="block text-sm font-semibold text-brand-dark">Mentoría en Eneagrama</span>
+                  <span className="block text-xs text-gray-500">Liderazgo y vínculos conscientes · 1 a 1</span>
+                </Link>
               </div>
             </div>
 
-            <Link to="/contenido-gratuito" className="text-sm font-medium hover:text-brand-gold transition-colors">CONTENIDO GRATUITO</Link>
+            <Link to="/recursos" className="text-sm font-medium hover:text-brand-gold transition-colors">RECURSOS</Link>
 
-            <a
-              href="https://wa.me/5493515632496?text=Hola!%20Quiero%20info%20de%20la%20comunidad%20Descubr%C3%AD%20tu%20Norte"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              to="/comunidad"
               className="gold-gradient text-white px-4 py-2 text-sm font-bold tracking-wide transition-all rounded-sm shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               COMUNIDAD
-            </a>
+            </Link>
 
             <a
               href="https://wa.me/5493515632496"
@@ -93,22 +94,21 @@ const Navbar: React.FC = () => {
           
           <div>
             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex justify-between w-full text-lg font-heading font-medium text-brand-dark border-b border-brand-gold/20 pb-2">
-              Mentorías <ChevronDown className={`w-5 h-5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+              Programas <ChevronDown className={`w-5 h-5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
             </button>
             <div className={`pl-4 flex flex-col space-y-3 mt-3 overflow-hidden transition-all duration-300 ${dropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <Link to="/mentorias/grupal" className="text-base text-gray-600">Grupal - Liberación</Link>
-              <Link to="/mentorias/premium" className="text-base text-gray-600">Premium - Individual</Link>
-              <Link to="/diplomatura" className="text-base text-gray-600">Diplomatura</Link>
+              <Link to="/diplomatura" className="text-base text-gray-600">Diplomatura — Formate y enseñá</Link>
+              <Link to="/mentorias/premium" className="text-base text-gray-600">Mentoría en Eneagrama — 1 a 1</Link>
             </div>
           </div>
 
-          <Link to="/contenido-gratuito" className="text-lg font-heading font-medium text-brand-dark border-b border-brand-gold/20 pb-2">Contenido Gratuito</Link>
-          <a
-            href="https://wa.me/5493515632496?text=Hola!%20Quiero%20info%20de%20la%20comunidad%20Descubr%C3%AD%20tu%20Norte"
+          <Link to="/recursos" className="text-lg font-heading font-medium text-brand-dark border-b border-brand-gold/20 pb-2">Recursos</Link>
+          <Link
+            to="/comunidad"
             className="gold-gradient text-white text-center text-lg font-heading font-bold py-3 rounded-lg shadow-md"
           >
             ✨ Comunidad
-          </a>
+          </Link>
           <a href="https://wa.me/5493515632496" className="text-lg font-heading font-medium text-brand-gold">WhatsApp</a>
         </div>
       </div>

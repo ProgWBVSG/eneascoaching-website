@@ -239,6 +239,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ member_name: acc.member_name, config: config || {}, items: items || [] });
     }
 
+    // Recursos publicados (hub de recursos, público)
+    if (action === 'recursos-get' && req.method === 'GET') {
+      const { data } = await supabase.from('recursos').select('*').eq('published', true).order('position');
+      return res.status(200).json(data || []);
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -461,6 +467,31 @@ export default async function handler(req, res) {
       }
       if (req.method === 'DELETE') {
         await supabase.from('comunidad_accesos').delete().eq('id', req.query.id);
+        return res.status(200).json({ success: true });
+      }
+    }
+
+    // Recursos (admin)
+    if (action === 'recursos-admin') {
+      if (req.method === 'GET') {
+        const { data } = await supabase.from('recursos').select('*').order('position');
+        return res.status(200).json(data || []);
+      }
+      if (req.method === 'POST') {
+        const b = req.body || {};
+        if (!b.title?.trim()) return res.status(400).json({ error: 'Título requerido' });
+        const row = {
+          title: b.title.trim(), description: b.description || null, kind: b.kind || 'guia',
+          url: b.url || null, category: b.category || null, position: b.position || 0, published: b.published !== false,
+        };
+        const q = b.id ? supabase.from('recursos').update(row).eq('id', b.id).select().single()
+                       : supabase.from('recursos').insert(row).select().single();
+        const { data, error } = await q;
+        if (error) return res.status(500).json({ error: error.message });
+        return res.status(200).json(data);
+      }
+      if (req.method === 'DELETE') {
+        await supabase.from('recursos').delete().eq('id', req.query.id);
         return res.status(200).json({ success: true });
       }
     }
