@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap } from 'lucide-react';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb';
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel';
+const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel'];
 
 interface Invite {
   id: string;
@@ -90,7 +92,7 @@ const Admin: React.FC = () => {
   const [token, setToken] = useState(() => sessionStorage.getItem(STORAGE_KEY) || '');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [tab, setTab] = useState<AdminTab>('juridico');
+  const [tab, setTab] = useState<AdminTab>('panel');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [detail, setDetail] = useState<JuridicoDetail | CompletoDetail | null>(null);
@@ -118,7 +120,7 @@ const Admin: React.FC = () => {
   };
 
   const fetchSubmissions = useCallback(async () => {
-    if (!token || tab === 'codigos' || tab === 'cursos-fb') return;
+    if (!token || NON_TEST_TABS.includes(tab)) return;
     setLoading(true);
     setSelectedId(null);
     setDetail(null);
@@ -157,7 +159,7 @@ const Admin: React.FC = () => {
   };
 
   const handleSelectRow = async (id: number) => {
-    if (tab === 'codigos' || tab === 'cursos-fb') return;
+    if (NON_TEST_TABS.includes(tab)) return;
     if (selectedId === id) { setSelectedId(null); setDetail(null); return; }
     setSelectedId(id); setDetail(null); setLoadingDetail(true);
     try {
@@ -170,7 +172,7 @@ const Admin: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (tab === 'codigos' || tab === 'cursos-fb') return;
+    if (NON_TEST_TABS.includes(tab)) return;
     await fetch(ENDPOINTS[tab as TestKind].detail(id), { method: 'DELETE', headers: { 'x-admin-token': token } });
     setDeleteConfirm(null);
     if (selectedId === id) { setSelectedId(null); setDetail(null); }
@@ -254,6 +256,7 @@ const Admin: React.FC = () => {
       <div className="bg-white border-b border-gray-200 px-4 sm:px-6 overflow-x-auto">
         <div className="max-w-5xl mx-auto flex gap-1 min-w-fit">
           {([
+            { id: 'panel',    label: 'Panel General' },
             { id: 'juridico', label: 'Test Jurídico' },
             { id: 'completo', label: 'Test Completo' },
             { id: 'codigos',  label: 'Códigos de acceso' },
@@ -275,19 +278,20 @@ const Admin: React.FC = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+        {tab === 'panel' && <PanelGeneralTab />}
         {tab === 'codigos' && <CodigosTab token={token} />}
         {tab === 'cursos-fb' && <CursosFeedbackTab token={token} />}
 
-        {tab !== 'codigos' && tab !== 'cursos-fb' && loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
+        {!NON_TEST_TABS.includes(tab) &&loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
 
-        {tab !== 'codigos' && tab !== 'cursos-fb' && !loading && submissions.length === 0 && (
+        {!NON_TEST_TABS.includes(tab) &&!loading && submissions.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-400 text-lg">Aún no hay respuestas registradas.</p>
             <p className="text-gray-300 text-sm mt-1">Compartí el link del test para recibir respuestas.</p>
           </div>
         )}
 
-        {tab !== 'codigos' && tab !== 'cursos-fb' && !loading && submissions.length > 0 && (
+        {!NON_TEST_TABS.includes(tab) &&!loading && submissions.length > 0 && (
           <div className="space-y-3">
             {submissions.map(sub => {
               const totals = getTypeTotals(sub);
@@ -823,5 +827,72 @@ const CursosFeedbackTab: React.FC<{ token: string }> = ({ token }) => {
     </div>
   );
 };
+
+// ── Panel General: hub central hacia todas las areas de gestion ─────────
+const PANEL_ITEMS = [
+  {
+    to: '/aula-admin', icon: GraduationCap, color: '#C5A059',
+    title: 'Aula de cursos', desc: 'Creá cursos, módulos y lecciones. Subí las grabaciones (YouTube/Vimeo/Drive) y descargables.',
+  },
+  {
+    to: '/recursos-admin', icon: Library, color: '#8B6BB8',
+    title: 'Recursos / Newsletter', desc: 'Cargá tests, guías, videos y herramientas gratuitas. Cada visitante que las abre queda en tu newsletter.',
+  },
+  {
+    to: '/comunidad-admin', icon: Users, color: '#5DA8A0',
+    title: 'Comunidad — Descubrí tu Norte', desc: 'Configurá la bienvenida, el WhatsApp, el Zoom mensual y el contenido de los 3 pilares.',
+  },
+];
+
+const PanelGeneralTab: React.FC = () => (
+  <div>
+    <div className="mb-6">
+      <h2 className="font-heading font-bold text-xl text-brand-dark flex items-center gap-2">
+        <LayoutGrid className="w-5 h-5 text-brand-gold" /> Todo lo configurable, en un solo lugar
+      </h2>
+      <p className="text-gray-500 text-sm mt-1">Entrá a cada panel con la misma contraseña. Se abre en esta misma pestaña.</p>
+    </div>
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+      {PANEL_ITEMS.map(item => (
+        <RouterLink key={item.to} to={item.to}
+          className="bg-white rounded-2xl border border-gray-100 p-5 flex items-start gap-4 hover:shadow-md hover:border-brand-gold/30 transition-all group">
+          <span className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${item.color}1a` }}>
+            <item.icon className="w-6 h-6" style={{ color: item.color }} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-heading font-bold text-brand-dark mb-1">{item.title}</p>
+            <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+          </div>
+          <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-brand-gold shrink-0 mt-1" />
+        </RouterLink>
+      ))}
+    </div>
+
+    <div className="bg-brand-dark rounded-2xl p-5 sm:p-6 text-white">
+      <div className="flex items-start gap-3">
+        <Mail className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
+        <div>
+          <p className="font-heading font-bold mb-1">¿Cómo subo algo nuevo a la newsletter?</p>
+          <p className="text-sm text-gray-300 leading-relaxed">
+            Entrá a <span className="text-brand-gold font-medium">Recursos / Newsletter</span> → <span className="text-brand-gold font-medium">Nuevo recurso</span> → cargá título, tipo y el link (video, PDF, Drive). Cuando alguien lo abre por primera vez, deja su email y queda suscripto — así tu lista crece sola con cada cosa que subís.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 sm:p-6 mt-4">
+      <div className="flex items-start gap-3">
+        <PlayCircle className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
+        <div>
+          <p className="font-heading font-bold text-brand-dark mb-1">¿Cómo subo una grabación de un curso?</p>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Subí el video a YouTube como <strong>"No listado"</strong> (o Vimeo/Drive) y copiá el link. En <span className="text-brand-gold font-medium">Aula de cursos</span> → elegí el curso → <span className="text-brand-gold font-medium">Agregar lección</span> → pegá el link ahí. Se ve embebido en la página, sin salir del sitio.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default Admin;
