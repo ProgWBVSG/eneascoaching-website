@@ -53,7 +53,7 @@ const Home: React.FC = () => {
               Método #Eneascoaching: una integración poderosa de Coaching Ontológico y Eneagrama, aplicado con éxito a más de 1800 personas. Descubre tu esencia, transforma tus patrones y vive la vida que deseas.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button to="/mentorias/grupal">Comenzar el Viaje</Button>
+              <Button onClick={() => document.getElementById('mentorias')?.scrollIntoView({ behavior: 'smooth' })}>Ver los programas</Button>
               <Button to="/sobre-mi" variant="outline">Conocer a Cecilia</Button>
             </div>
 
@@ -129,30 +129,12 @@ const Home: React.FC = () => {
       <section className="py-24 bg-white" id="mentorias">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-heading font-bold text-brand-dark mb-4">Nuestras Mentorías</h2>
+            <h2 className="text-3xl md:text-5xl font-heading font-bold text-brand-dark mb-4">Elegí tu camino en el Eneagrama</h2>
             <div className="w-24 h-1 bg-brand-gold mx-auto"></div>
-            <p className="mt-4 text-gray-600">Elige el camino que resuene con tu momento actual.</p>
+            <p className="mt-4 text-gray-600 max-w-xl mx-auto">Dos caminos, un mismo método probado con <strong className="text-brand-dark">+600 personas</strong>. ¿Potenciar tu liderazgo o formarte como coach?</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Card 1 */}
-            <div className="group bg-brand-beige rounded-sm overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-              <div className="h-64 overflow-hidden relative">
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors z-10"></div>
-                <img src="/fotosCecilia/foto_cecilia_clase.jpg" alt="Mentoría Grupal" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute bottom-4 left-4 z-20">
-                  <span className="bg-brand-gold text-white text-xs px-3 py-1 uppercase tracking-wider font-bold">Grupal</span>
-                </div>
-              </div>
-              <div className="p-8">
-                <h3 className="text-2xl font-heading font-bold mb-3 text-brand-dark">Liberación Personal</h3>
-                <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                  Patrones que sostienen, patrones que liberan. Aprende a elegir en presencia.
-                </p>
-                <Button to="/mentorias/grupal" variant="secondary" className="w-full">Súmate ahora</Button>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-4xl mx-auto">
             {/* Card 2 */}
             <div className="group bg-brand-dark rounded-sm overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 relative">
               <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold"></div>
@@ -160,15 +142,15 @@ const Home: React.FC = () => {
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"></div>
                 <img src="/fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Mentoría Premium" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute bottom-4 left-4 z-20">
-                  <span className="bg-white text-brand-dark text-xs px-3 py-1 uppercase tracking-wider font-bold">Premium</span>
+                  <span className="bg-white text-brand-dark text-xs px-3 py-1 uppercase tracking-wider font-bold">Mentoría · 1 a 1</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="text-2xl font-heading font-bold mb-3 text-white">Mentoría Individual</h3>
+                <h3 className="text-2xl font-heading font-bold mb-3 text-white">Mentoría en Eneagrama</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  No necesitas más información. Necesitas dirección. Un espacio profundo y personalizado.
+                  Para líderes, dueños de negocio, coaches y RRHH. Potenciá tu liderazgo y tus vínculos conscientes en un proceso 1 a 1.
                 </p>
-                <Button to="/mentorias/premium" variant="primary" className="w-full">Agenda reunión gratuita</Button>
+                <Button to="/mentorias/premium" variant="primary" className="w-full">Agendá reunión gratuita</Button>
               </div>
             </div>
 
@@ -182,14 +164,24 @@ const Home: React.FC = () => {
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="text-2xl font-heading font-bold mb-3 text-brand-dark">Diplomatura Eneagrama</h3>
+                <h3 className="text-2xl font-heading font-bold mb-3 text-brand-dark">Diplomatura en Eneagrama</h3>
                 <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                  Formación certificada de 6 meses para transformar vidas y generar un impacto real.
+                  Profesionalizate como Coach Eneagramista certificada, enseñá esta herramienta y generá un nuevo ingreso ayudando a otros.
                 </p>
-                <Button to="/diplomatura" variant="outline" className="w-full border-brand-dark text-brand-dark hover:bg-brand-dark hover:text-white">Conoce el programa</Button>
+                <Button to="/diplomatura" variant="secondary" className="w-full">Conocé el programa</Button>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Recursos gratuitos band */}
+      <section className="bg-brand-dark text-white py-14 text-center px-6">
+        <div className="max-w-2xl mx-auto">
+          <p className="text-brand-gold text-xs font-bold tracking-widest uppercase mb-2">Empezá gratis</p>
+          <h3 className="font-heading font-bold text-2xl md:text-3xl mb-4">Accedé a tests, guías y videos de Eneagrama</h3>
+          <p className="text-gray-300 mb-6">Todo el contenido de valor de Cecilia, en un solo lugar. Solo dejás tu email.</p>
+          <Button to="/recursos" variant="primary">Ver recursos gratuitos</Button>
         </div>
       </section>
 
