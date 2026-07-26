@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Video, Star, FileText, Wrench, BookOpen, ArrowRight, Loader2, Lock, Mail, Sparkles, X,
+  Video, Star, FileText, Wrench, BookOpen, ArrowRight, Loader2, Lock, Mail, Sparkles, X, ArrowLeft,
 } from 'lucide-react';
 
 const UNLOCK_KEY = 'recursos_unlocked';
@@ -77,7 +77,10 @@ const Recursos: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-dark text-white">
       {/* Barra mínima */}
-      <div className="w-full py-5 text-center border-b border-white/10">
+      <div className="w-full py-5 px-4 relative flex items-center justify-center border-b border-white/10">
+        <Link to="/" className="absolute left-4 flex items-center gap-1.5 text-gray-300 hover:text-brand-gold transition-colors text-sm font-medium">
+          <ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">Volver</span>
+        </Link>
         <Link to="/" className="font-heading font-bold tracking-widest text-white text-sm">ENEASCOACHING</Link>
       </div>
 
