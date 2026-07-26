@@ -28,8 +28,10 @@ const ComunidadVSL: React.FC = () => {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 pt-4 pb-12 text-center">
         <p className="text-brand-gold text-xs sm:text-sm font-bold tracking-[0.2em] uppercase mb-4">Comunidad de mujeres · Descubrí tu Norte</p>
-        <h1 className="font-heading font-bold text-3xl sm:text-5xl leading-tight text-brand-dark mb-5">
-          Dejá de vivir en piloto automático y <span className="text-brand-gold">reconectá con quién sos</span>
+        <h1 className="font-heading font-bold text-4xl sm:text-6xl leading-[1.1] text-brand-dark mb-5">
+          Salí del piloto automático.
+          <br />
+          <span className="text-brand-gold">Reconectá con quién sos.</span>
         </h1>
         <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto mb-8">
           Una comunidad de mujeres que, con el eneagrama como brújula, vuelven a elegirse: para <strong>conocerse</strong>, <strong>rediseñarse</strong> y <strong>avanzar</strong> — acompañadas, nunca solas.
