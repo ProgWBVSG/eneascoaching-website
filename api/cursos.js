@@ -245,6 +245,20 @@ export default async function handler(req, res) {
       return res.status(200).json(data || []);
     }
 
+    // Test de dinero: guardar respuesta (público, desde ManyChat/newsletter)
+    if (action === 'dinero-submit' && req.method === 'POST') {
+      const { name, contact, pattern, answers } = req.body || {};
+      if (!pattern || !Array.isArray(answers)) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('test_dinero_submissions').insert({
+        name: (name || '').trim() || null,
+        contact: (contact || '').trim() || null,
+        pattern,
+        answers,
+      });
+      if (error) { console.error('dinero-submit error:', error); return res.status(500).json({ error: 'No se pudo guardar' }); }
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -494,6 +508,17 @@ export default async function handler(req, res) {
         await supabase.from('recursos').delete().eq('id', req.query.id);
         return res.status(200).json({ success: true });
       }
+    }
+
+    // Test de dinero: leads (admin)
+    if (action === 'dinero-submissions' && req.method === 'GET') {
+      const { data, error } = await supabase.from('test_dinero_submissions').select('*').order('created_at', { ascending: false });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
+    }
+    if (action === 'dinero-submission' && req.method === 'DELETE') {
+      await supabase.from('test_dinero_submissions').delete().eq('id', req.query.id);
+      return res.status(200).json({ success: true });
     }
 
     return res.status(400).json({ error: 'Acción inválida' });

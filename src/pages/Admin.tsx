@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle } from 'lucide-react';
+import { PATRONES } from '../data/patronesFinancieros';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel';
-const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel'];
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero';
+const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero'];
 
 interface Invite {
   id: string;
@@ -261,6 +262,7 @@ const Admin: React.FC = () => {
             { id: 'completo', label: 'Test Completo' },
             { id: 'codigos',  label: 'Códigos de acceso' },
             { id: 'cursos-fb', label: 'Feedback cursos' },
+            { id: 'dinero', label: 'Test Dinero' },
           ] as { id: AdminTab; label: string }[]).map(t => (
             <button
               key={t.id}
@@ -281,6 +283,7 @@ const Admin: React.FC = () => {
         {tab === 'panel' && <PanelGeneralTab />}
         {tab === 'codigos' && <CodigosTab token={token} />}
         {tab === 'cursos-fb' && <CursosFeedbackTab token={token} />}
+        {tab === 'dinero' && <TestDineroTab token={token} />}
 
         {!NON_TEST_TABS.includes(tab) &&loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
 
@@ -823,6 +826,106 @@ const CursosFeedbackTab: React.FC<{ token: string }> = ({ token }) => {
             <p className="text-xs text-gray-400 mt-2">{fmt(f.created_at)}</p>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+// ── Tab de leads del Test de Dinero ─────────────────────────────────
+interface DineroSubmission {
+  id: string; name: string | null; contact: string | null; pattern: string; answers: string[]; created_at: string;
+}
+
+const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<DineroSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=dinero-submissions', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=dinero-submission&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleDateString('es-AR', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+
+  if (loading) return <div className="text-center py-20 text-gray-400">Cargando...</div>;
+
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-20">
+        <Coins className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+        <p className="text-gray-400 text-lg">Todavía no hay respuestas del test de dinero.</p>
+        <p className="text-gray-300 text-sm mt-1">Compartí el link (o el flujo de ManyChat) para recibir leads.</p>
+      </div>
+    );
+  }
+
+  // Distribución de patrones
+  const counts: Record<string, number> = {};
+  items.forEach(i => { counts[i.pattern] = (counts[i.pattern] || 0) + 1; });
+
+  return (
+    <div>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Distribución de patrones ({items.length} respuestas)</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(counts).map(([key, count]) => {
+            const p = PATRONES[key];
+            if (!p) return null;
+            return (
+              <span key={key} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
+                {p.nombre.replace('El patrón de la ', '').replace('El patrón del ', '')} · {count}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {items.map(sub => {
+          const p = PATRONES[sub.pattern];
+          return (
+            <div key={sub.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
+                  {p && (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
+                      {p.nombre}
+                    </span>
+                  )}
+                </div>
+                {sub.contact && (
+                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" /> {sub.contact}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-0.5">{fmt(sub.created_at)}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {deleteConfirm === sub.id ? (
+                  <>
+                    <button onClick={() => del(sub.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">Eliminar</button>
+                    <button onClick={() => setDeleteConfirm(null)} className="text-xs text-gray-400">Cancelar</button>
+                  </>
+                ) : (
+                  <button onClick={() => setDeleteConfirm(sub.id)} className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

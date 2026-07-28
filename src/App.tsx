@@ -26,6 +26,7 @@ import ComunidadAdmin from './pages/ComunidadAdmin';
 import ComunidadVSL from './pages/ComunidadVSL';
 import Recursos from './pages/Recursos';
 import RecursosAdmin from './pages/RecursosAdmin';
+import TestDinero from './pages/TestDinero';
 
 const MainLayout: React.FC = () => (
   <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
@@ -70,6 +71,7 @@ const App: React.FC = () => {
         <Route path="/comunidad-admin" element={<ComunidadAdmin />} />
         <Route path="/recursos" element={<Recursos />} />
         <Route path="/recursos-admin" element={<RecursosAdmin />} />
+        <Route path="/test-dinero" element={<TestDinero />} />
 
         {/* Main site with navbar/footer */}
         <Route element={<MainLayout />}>
