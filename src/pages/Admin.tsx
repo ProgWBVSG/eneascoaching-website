@@ -3,6 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { PATRONES } from '../data/patronesFinancieros';
+import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
@@ -840,6 +841,7 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
   const [items, setItems] = useState<DineroSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -897,32 +899,62 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
       <div className="space-y-2">
         {items.map(sub => {
           const p = PATRONES[sub.pattern];
+          const isOpen = expandedId === sub.id;
           return (
-            <div key={sub.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
-                  {p && (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
-                      {p.nombre}
-                    </span>
+            <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <button
+                onClick={() => setExpandedId(isOpen ? null : sub.id)}
+                className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-gray-50"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
+                    {p && (
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
+                        {p.nombre}
+                      </span>
+                    )}
+                  </div>
+                  {sub.contact && (
+                    <p className="text-sm text-brand-gold font-medium flex items-center gap-1 mt-0.5"><Mail className="w-3.5 h-3.5" /> {sub.contact}</p>
                   )}
+                  <p className="text-xs text-gray-400 mt-0.5">{fmt(sub.created_at)}</p>
                 </div>
-                {sub.contact && (
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3" /> {sub.contact}</p>
-                )}
-                <p className="text-xs text-gray-400 mt-0.5">{fmt(sub.created_at)}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {deleteConfirm === sub.id ? (
-                  <>
-                    <button onClick={() => del(sub.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">Eliminar</button>
-                    <button onClick={() => setDeleteConfirm(null)} className="text-xs text-gray-400">Cancelar</button>
-                  </>
-                ) : (
-                  <button onClick={() => setDeleteConfirm(sub.id)} className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                )}
-              </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                </div>
+              </button>
+
+              {isOpen && (
+                <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Lo que fue eligiendo, pregunta por pregunta</p>
+                  <div className="space-y-2 mb-4">
+                    {PREGUNTAS_DINERO.map((preg, i) => {
+                      const chosenPattern = sub.answers?.[i];
+                      const chosenOption = preg.opciones.find(o => o.patron === chosenPattern);
+                      return (
+                        <div key={i} className="bg-white rounded-lg p-3 border border-gray-100">
+                          <p className="text-xs text-gray-500 mb-1">{preg.pregunta}</p>
+                          <p className="text-sm font-medium text-brand-dark">{chosenOption?.label || '—'}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-end">
+                    {deleteConfirm === sub.id ? (
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">¿Eliminar esta respuesta?</span>
+                        <button onClick={() => del(sub.id)} className="text-sm text-red-500 hover:text-red-700 font-medium">Sí, eliminar</button>
+                        <button onClick={() => setDeleteConfirm(null)} className="text-sm text-gray-400 hover:text-gray-600">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setDeleteConfirm(sub.id)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500">
+                        <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
