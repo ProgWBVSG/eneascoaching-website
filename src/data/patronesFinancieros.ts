@@ -1,4 +1,4 @@
-// Patrones financieros — contenido original para el Test de Dinero
+// Patrones financieros: contenido original para el Test de Dinero
 export interface PatronFinanciero {
   key: string;
   nombre: string;
@@ -7,6 +7,8 @@ export interface PatronFinanciero {
   description: string;
   cost: string;
   shift: string;
+  eneatipos: number[];       // los 2 eneatipos que más suelen mostrar este patrón
+  eneagramInsight: string;   // conecta el patrón con esos eneatipos
 }
 
 export const PATRONES: Record<string, PatronFinanciero> = {
@@ -16,26 +18,32 @@ export const PATRONES: Record<string, PatronFinanciero> = {
     tagline: 'Sentís que nunca alcanza, aunque alcance.',
     color: '#B85C38',
     description: 'Vivís con la sensación de que el dinero se va a terminar, incluso cuando tenés lo suficiente. Ahorrás por miedo, no por elección, y te cuesta disfrutar lo que ya tenés porque la cabeza está en lo que podría faltar.',
-    cost: 'Te perdés el presente por estar defendiéndote de un futuro que quizás nunca llegue. La escasez no es de plata — es de calma.',
+    cost: 'Te perdés el presente por estar defendiéndote de un futuro que quizás nunca llegue. La escasez no es de plata. Es de calma.',
     shift: 'El primer paso no es ganar más. Es entender de dónde viene ese miedo y dejar de operar desde él.',
+    eneatipos: [5, 6],
+    eneagramInsight: 'En el Eneagrama, este patrón aparece mucho en los tipos 5 (el Investigador) y 6 (el Leal): ambos buscan seguridad, uno acumulando conocimiento y recursos, el otro anticipando lo que podría salir mal. Si te reconocés acá, probablemente no es solo un tema de plata. Es tu forma de sentirte a salvo.',
   },
   evitacion: {
     key: 'evitacion',
     nombre: 'El patrón de la evitación',
     tagline: 'Lo que no mirás, no podés cambiar.',
     color: '#6B7A8F',
-    description: 'Preferís no saber cuánto tenés, cuánto debés o cuánto gastás. El dinero te genera culpa o ansiedad, así que la salida más fácil es no mirarlo — hasta que el problema se hace más grande solo.',
+    description: 'Preferís no saber cuánto tenés, cuánto debés o cuánto gastás. El dinero te genera culpa o ansiedad, así que la salida más fácil es no mirarlo, hasta que el problema se hace más grande solo.',
     cost: 'Cada vez que evitás tus números, le entregás el control a otra persona (o al azar). La evitación no te protege: te deja afuera de tus propias decisiones.',
     shift: 'No se trata de volverte obsesiva con las planillas. Se trata de animarte a mirar sin juzgarte.',
+    eneatipos: [9, 4],
+    eneagramInsight: 'En el Eneagrama, este patrón es típico de los tipos 9 (el Pacificador) y 4 (el Individualista): uno evita el conflicto que implica mirar de frente sus números, el otro se refugia en lo emocional para no enfrentar lo práctico. Mirar tus finanzas también es una forma de empezar a mirarte a vos.',
   },
   estatus: {
     key: 'estatus',
     nombre: 'El patrón del estatus',
-    tagline: 'Lo que tenés habla de quién sos — o eso creés.',
+    tagline: 'Lo que tenés habla de quién sos, o eso creés.',
     color: '#C9A227',
     description: 'Gastás para sostener una imagen, aunque no siempre te alcance. El dinero se convirtió en una forma de demostrar tu valor, y eso te empuja a decisiones que no siempre te hacen bien a largo plazo.',
     cost: 'Cuanto más necesitás mostrar, menos espacio le das a lo que de verdad sos, sin la etiqueta de precio.',
     shift: 'Tu valor no se mide en lo que mostrás. Separar quién sos de lo que tenés es el trabajo real.',
+    eneatipos: [3, 7],
+    eneagramInsight: 'En el Eneagrama, este patrón conecta fuerte con los tipos 3 (el Triunfador) y 7 (el Entusiasta): uno mide su valor por lo que logra y muestra, el otro gasta para no perderse ninguna experiencia. Lo que buscás afuera, probablemente empieza por reconocer tu valor por dentro.',
   },
   vigilancia: {
     key: 'vigilancia',
@@ -45,6 +53,8 @@ export const PATRONES: Record<string, PatronFinanciero> = {
     description: 'Tenés todo anotado, calculado, controlado. Pero ese control no te da paz: te genera tensión constante, porque siempre hay algo más para revisar, ajustar o prever.',
     cost: 'El exceso de control es, muchas veces, otra forma de miedo. Estás tan ocupada evitando el error que no estás disfrutando el acierto.',
     shift: 'No necesitás soltar el control de golpe. Necesitás confiar en que también podés equivocarte y seguir estando bien.',
+    eneatipos: [1, 8],
+    eneagramInsight: 'En el Eneagrama, este patrón se ve claro en los tipos 1 (el Reformador) y 8 (el Desafiador): ambos necesitan tener el control, uno para que todo esté bien hecho, el otro para no depender de nadie. El control excesivo suele ser, en el fondo, otra forma de miedo.',
   },
   dependencia: {
     key: 'dependencia',
@@ -54,6 +64,8 @@ export const PATRONES: Record<string, PatronFinanciero> = {
     description: 'Frente a las decisiones de dinero, buscás que otra persona decida por vos o te rescate. No porque no puedas, sino porque en algún momento aprendiste que no era "tu lugar" hacerte cargo.',
     cost: 'Cada vez que delegás tu poder financiero, delegás también un pedazo de tu autonomía.',
     shift: 'Hacerte cargo no es hacerlo sola. Es empezar a confiar en tu propio criterio, aunque al principio dé miedo.',
+    eneatipos: [2, 9],
+    eneagramInsight: 'En el Eneagrama, este patrón aparece en los tipos 2 (el Ayudador) y 9 (el Pacificador): uno se entrega esperando que después alguien lo cuide a él, el otro prefiere que otros decidan antes que asumir el propio criterio. Hacerte cargo empieza por saber, primero, quién sos vos en todo esto.',
   },
 };
 

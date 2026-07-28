@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
 import { PATRONES } from '../data/patronesFinancieros';
+import { ENEATIPOS_DETALLE } from '../data/eneatipos-detalle';
 import {
   ArrowLeft, ArrowRight, Sparkles, Mail, Loader2, MessageCircle,
   Compass, Send, Check, Users,
@@ -231,13 +232,28 @@ const TestDinero: React.FC = () => {
                 </div>
               </div>
 
-              {/* Puente hacia el eneagrama / Cecilia */}
+              {/* Puente hacia el eneagrama / Cecilia, con los eneatipos conectados a este patrón */}
               <div className="bg-brand-dark rounded-3xl p-6 sm:p-7 text-white text-center mb-4 anim-fade-slide-up" style={{ animationDelay: '120ms' }}>
                 <Compass className="w-8 h-8 text-brand-gold mx-auto mb-3" />
-                <p className="font-heading font-bold text-lg mb-2">Este patrón no nació de la nada</p>
-                <p className="text-gray-300 text-sm mb-5">
-                  Lo que hacés con el dinero es un reflejo de patrones más profundos de tu personalidad. Con el Eneagrama, Cecilia te ayuda a entenderlos de raíz — no solo a nivel plata.
-                </p>
+                <p className="font-heading font-bold text-lg mb-3">Este patrón no nació de la nada</p>
+
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  {patron.eneatipos.map(n => {
+                    const t = ENEATIPOS_DETALLE[n];
+                    if (!t) return null;
+                    return (
+                      <div key={n} className="flex items-center gap-2 bg-white/10 rounded-full pl-1.5 pr-4 py-1.5">
+                        <span className="w-7 h-7 rounded-full flex items-center justify-center font-heading font-bold text-xs text-white shrink-0" style={{ background: t.color }}>
+                          {n}
+                        </span>
+                        <span className="text-xs font-medium">{t.nombre}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <p className="text-gray-300 text-sm mb-5">{patron.eneagramInsight}</p>
+
                 <a href={waHref} target="_blank" rel="noopener noreferrer"
                   className="tap-feedback inline-flex items-center justify-center gap-2 gold-gradient text-white font-bold py-3.5 px-8 rounded-full shadow-md">
                   <MessageCircle className="w-5 h-5" /> Quiero saber más
