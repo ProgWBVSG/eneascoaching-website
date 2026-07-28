@@ -8,33 +8,33 @@ export const PREGUNTAS_DINERO: PreguntaDinero[] = [
     opciones: [
       { label: 'Que nunca va a alcanzar', patron: 'escasez' },
       { label: 'Prefiero no pensarlo, me genera ansiedad', patron: 'evitacion' },
-      { label: 'Que necesito tener más para que me tomen en serio', patron: 'estatus' },
+      { label: 'Que necesito más para que me tomen en serio', patron: 'estatus' },
       { label: 'Que tengo que controlar cada peso', patron: 'vigilancia' },
       { label: 'Que alguien más debería resolverlo', patron: 'dependencia' },
     ],
   },
   {
-    pregunta: 'Cuando te llega un ingreso extra, ¿qué hacés primero?',
+    pregunta: 'Te llega un ingreso extra. ¿Qué hacés primero?',
     opciones: [
       { label: 'Lo guardo todo, por las dudas', patron: 'escasez' },
       { label: 'Se me va sin darme cuenta', patron: 'evitacion' },
-      { label: 'Me doy un gusto que se note', patron: 'estatus' },
+      { label: 'Me compro algo que se note', patron: 'estatus' },
       { label: 'Anoto exactamente en qué lo voy a usar', patron: 'vigilancia' },
       { label: 'Espero que alguien me diga qué hacer con él', patron: 'dependencia' },
     ],
   },
   {
-    pregunta: '¿Cómo te llevás con hablar de plata con otros?',
+    pregunta: 'Alguien te pregunta cuánto ganás. ¿Cómo reaccionás?',
     opciones: [
-      { label: 'Me da vergüenza si tengo poco', patron: 'escasez' },
-      { label: 'Evito el tema todo lo que puedo', patron: 'evitacion' },
+      { label: 'Me da vergüenza si es poco', patron: 'escasez' },
+      { label: 'Cambio de tema como puedo', patron: 'evitacion' },
       { label: 'Me gusta que sepan que me va bien', patron: 'estatus' },
-      { label: 'Prefiero no dar detalles, es mi tema', patron: 'vigilancia' },
-      { label: 'Necesito que alguien más lo entienda por mí', patron: 'dependencia' },
+      { label: 'No doy detalles, es mi tema y punto', patron: 'vigilancia' },
+      { label: 'Prefiero que otra persona responda por mí', patron: 'dependencia' },
     ],
   },
   {
-    pregunta: 'Frente a un gasto grande, ¿qué te pasa?',
+    pregunta: 'Tenés que hacer un gasto grande. ¿Qué te pasa?',
     opciones: [
       { label: 'Pánico, pienso que me voy a quedar sin nada', patron: 'escasez' },
       { label: 'Lo pospongo hasta último momento', patron: 'evitacion' },
@@ -44,9 +44,9 @@ export const PREGUNTAS_DINERO: PreguntaDinero[] = [
     ],
   },
   {
-    pregunta: 'Cuando alguien cercano gana más que vos, ¿qué pensás?',
+    pregunta: 'Un familiar o amigo cercano empieza a ganar más que vos. ¿Qué pensás?',
     opciones: [
-      { label: 'Que a mí nunca me va a alcanzar así', patron: 'escasez' },
+      { label: 'Que a mí nunca me va a alcanzar', patron: 'escasez' },
       { label: 'Ni me fijo, no me interesa comparar', patron: 'evitacion' },
       { label: 'Que tengo que estar a la altura', patron: 'estatus' },
       { label: 'Que yo administro mejor de todos modos', patron: 'vigilancia' },
@@ -54,17 +54,17 @@ export const PREGUNTAS_DINERO: PreguntaDinero[] = [
     ],
   },
   {
-    pregunta: 'Tu relación con ahorrar es...',
+    pregunta: 'Tu forma de ahorrar es...',
     opciones: [
       { label: 'Ahorro obsesivamente, nunca es suficiente', patron: 'escasez' },
       { label: 'No tengo ni idea de cuánto ahorro', patron: 'evitacion' },
       { label: 'Prefiero gastar que ahorrar, se vive una vez', patron: 'estatus' },
-      { label: 'Tengo un plan estricto y lo sigo al pie', patron: 'vigilancia' },
+      { label: 'Tengo un plan estricto y lo sigo al pie de la letra', patron: 'vigilancia' },
       { label: 'Cuento con que otro me respalde', patron: 'dependencia' },
     ],
   },
   {
-    pregunta: 'Si perdieras tu ingreso principal mañana, tu primer pensamiento sería...',
+    pregunta: 'Si mañana perdieras tu ingreso principal, tu primer pensamiento sería...',
     opciones: [
       { label: 'Sabía que esto iba a pasar', patron: 'escasez' },
       { label: 'Ya voy a ver cómo resolverlo, no pienso en eso ahora', patron: 'evitacion' },
