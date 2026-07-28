@@ -842,6 +842,18 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const dineroLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-dinero`;
+  const copyDineroLink = async () => {
+    try {
+      await navigator.clipboard.writeText(dineroLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      prompt('Copiá el link manualmente:', dineroLink);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -863,24 +875,38 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
     day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 
-  if (loading) return <div className="text-center py-20 text-gray-400">Cargando...</div>;
-
-  if (items.length === 0) {
-    return (
-      <div className="text-center py-20">
-        <Coins className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-400 text-lg">Todavía no hay respuestas del test de dinero.</p>
-        <p className="text-gray-300 text-sm mt-1">Compartí el link (o el flujo de ManyChat) para recibir leads.</p>
-      </div>
-    );
-  }
-
   // Distribución de patrones
   const counts: Record<string, number> = {};
   items.forEach(i => { counts[i.pattern] = (counts[i.pattern] || 0) + 1; });
 
   return (
     <div>
+      {/* Link general — el mismo link para todos, se manda desde ManyChat/WhatsApp */}
+      <div className="bg-brand-dark rounded-2xl p-5 mb-5 text-white">
+        <div className="flex items-center gap-2 mb-1"><Coins className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Link del Test de Dinero</h3></div>
+        <p className="text-sm text-gray-300 mb-4">Es un solo link para todas las personas (no hace falta generar uno por cada una). Copiálo y mandalo por WhatsApp, ManyChat o donde quieras.</p>
+        <div className="flex items-center justify-between gap-3 bg-white/10 rounded-xl p-3">
+          <code className="text-brand-gold font-mono text-sm truncate">{dineroLink}</code>
+          <button onClick={copyDineroLink}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold shrink-0 ${linkCopied ? 'bg-green-500/20 text-green-300' : 'bg-brand-gold text-white hover:bg-amber-600'}`}>
+            {linkCopied ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {linkCopied ? '¡Copiado!' : 'Copiar link'}
+          </button>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-16 text-gray-400">Cargando...</div>}
+
+      {!loading && items.length === 0 && (
+        <div className="text-center py-16">
+          <Coins className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-lg">Todavía no hay respuestas del test de dinero.</p>
+          <p className="text-gray-300 text-sm mt-1">Compartí el link de arriba para recibir leads.</p>
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+      <>
       <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
         <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Distribución de patrones ({items.length} respuestas)</p>
         <div className="flex flex-wrap gap-2">
@@ -959,6 +985,8 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
           );
         })}
       </div>
+      </>
+      )}
     </div>
   );
 };
