@@ -4,8 +4,7 @@ import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { PATRONES } from '../data/patronesFinancieros';
 import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
-import { ESTILOS_LIDERAZGO } from '../data/estilosLiderazgo';
-import { PREGUNTAS_LIDERAZGO } from '../data/testLiderazgoPreguntas';
+import { LIDERAZGO_TIPOS } from '../data/liderazgoTipos';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
@@ -997,7 +996,7 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
 
 // ── Tab de leads del Test de Liderazgo ──────────────────────────────
 interface LiderazgoSubmission {
-  id: string; name: string | null; contact: string | null; style: string; answers: string[]; created_at: string;
+  id: string; name: string | null; contact: string | null; style: string; answers: Record<string, string[]>; created_at: string;
 }
 
 const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
@@ -1071,11 +1070,11 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
         <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Distribución de estilos ({items.length} respuestas)</p>
         <div className="flex flex-wrap gap-2">
           {Object.entries(counts).map(([key, count]) => {
-            const e = ESTILOS_LIDERAZGO[key];
+            const e = LIDERAZGO_TIPOS.find(t => t.num === Number(key));
             if (!e) return null;
             return (
               <span key={key} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: `${e.color}1a`, color: e.color }}>
-                {e.nombre.replace('El líder ', '')} · {count}
+                {e.archetype} · {count}
               </span>
             );
           })}
@@ -1084,7 +1083,7 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
 
       <div className="space-y-2">
         {items.map(sub => {
-          const e = ESTILOS_LIDERAZGO[sub.style];
+          const e = LIDERAZGO_TIPOS.find(t => t.num === Number(sub.style));
           const isOpen = expandedId === sub.id;
           return (
             <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -1095,7 +1094,7 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
                     <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
                     {e && (
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${e.color}1a`, color: e.color }}>
-                        {e.nombre}
+                        {e.archetype}
                       </span>
                     )}
                   </div>
@@ -1109,15 +1108,27 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
 
               {isOpen && (
                 <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Lo que fue eligiendo, situación por situación</p>
-                  <div className="space-y-2 mb-4">
-                    {PREGUNTAS_LIDERAZGO.map((preg, i) => {
-                      const chosen = sub.answers?.[i];
-                      const opt = preg.opciones.find(o => o.estilo === chosen);
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Palabras tildadas por tipo</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    {LIDERAZGO_TIPOS.map(tipo => {
+                      const selected = sub.answers?.[String(tipo.num)] || [];
+                      const isDominant = tipo.num === Number(sub.style);
                       return (
-                        <div key={i} className="bg-white rounded-lg p-3 border border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">{preg.pregunta}</p>
-                          <p className="text-sm font-medium text-brand-dark">{opt?.label || '—'}</p>
+                        <div key={tipo.num} className={`rounded-xl p-3 ${isDominant ? 'bg-white border-2' : 'bg-white border border-gray-100'}`}
+                          style={isDominant ? { borderColor: tipo.color } : undefined}>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-heading font-bold text-xs" style={{ color: isDominant ? tipo.color : '#1A1A1A' }}>{tipo.archetype}</p>
+                            <span className="font-bold text-sm" style={{ color: isDominant ? tipo.color : '#9CA3AF' }}>{selected.length}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {tipo.words.map(word => (
+                              <span key={word} className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                                selected.includes(word) ? 'text-white font-medium' : 'bg-gray-100 text-gray-400'
+                              }`} style={selected.includes(word) ? { background: tipo.color } : undefined}>
+                                {word}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       );
                     })}

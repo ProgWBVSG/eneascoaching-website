@@ -262,7 +262,7 @@ export default async function handler(req, res) {
     // Test de liderazgo: guardar respuesta (público, desde Instagram/newsletter)
     if (action === 'liderazgo-submit' && req.method === 'POST') {
       const { name, contact, style, answers } = req.body || {};
-      if (!style || !Array.isArray(answers)) return res.status(400).json({ error: 'Datos inválidos' });
+      if (!style || !answers || typeof answers !== 'object') return res.status(400).json({ error: 'Datos inválidos' });
       const { error } = await supabase.from('test_liderazgo_submissions').insert({
         name: (name || '').trim() || null,
         contact: (contact || '').trim() || null,
