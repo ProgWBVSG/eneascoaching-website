@@ -259,6 +259,20 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // Test de liderazgo: guardar respuesta (público, desde Instagram/newsletter)
+    if (action === 'liderazgo-submit' && req.method === 'POST') {
+      const { name, contact, style, answers } = req.body || {};
+      if (!style || !Array.isArray(answers)) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('test_liderazgo_submissions').insert({
+        name: (name || '').trim() || null,
+        contact: (contact || '').trim() || null,
+        style,
+        answers,
+      });
+      if (error) { console.error('liderazgo-submit error:', error); return res.status(500).json({ error: 'No se pudo guardar' }); }
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -518,6 +532,17 @@ export default async function handler(req, res) {
     }
     if (action === 'dinero-submission' && req.method === 'DELETE') {
       await supabase.from('test_dinero_submissions').delete().eq('id', req.query.id);
+      return res.status(200).json({ success: true });
+    }
+
+    // Test de liderazgo: leads (admin)
+    if (action === 'liderazgo-submissions' && req.method === 'GET') {
+      const { data, error } = await supabase.from('test_liderazgo_submissions').select('*').order('created_at', { ascending: false });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
+    }
+    if (action === 'liderazgo-submission' && req.method === 'DELETE') {
+      await supabase.from('test_liderazgo_submissions').delete().eq('id', req.query.id);
       return res.status(200).json({ success: true });
     }
 
