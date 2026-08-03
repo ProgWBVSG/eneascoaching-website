@@ -4,7 +4,7 @@ import { ENEATIPOS } from '../data/eneatipos';
 import { AFIRMACIONES } from '../data/afirmaciones';
 import { PATRONES } from '../data/patronesFinancieros';
 import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
-import { LIDERAZGO_TIPOS } from '../data/liderazgoTipos';
+import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
@@ -996,7 +996,8 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
 
 // ── Tab de leads del Test de Liderazgo ──────────────────────────────
 interface LiderazgoSubmission {
-  id: string; name: string | null; contact: string | null; style: string; answers: Record<string, string[]>; created_at: string;
+  id: string; name: string | null; contact: string | null; style: string;
+  answers: { ratings: number[]; reflexion: string }; created_at: string;
 }
 
 const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
@@ -1036,7 +1037,8 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
   });
 
   const counts: Record<string, number> = {};
-  items.forEach(i => { counts[i.style] = (counts[i.style] || 0) + 1; });
+  items.forEach(i => { const b = getBanda(Number(i.style) || 0); counts[b.titulo] = (counts[b.titulo] || 0) + 1; });
+  const avgScore = items.length ? Math.round(items.reduce((a, i) => a + (Number(i.style) || 0), 0) / items.length) : 0;
 
   return (
     <div>
@@ -1067,14 +1069,14 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
       {!loading && items.length > 0 && (
       <>
       <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
-        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Distribución de estilos ({items.length} respuestas)</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Distribución de resultados ({items.length} respuestas · promedio {avgScore}/100)</p>
         <div className="flex flex-wrap gap-2">
-          {Object.entries(counts).map(([key, count]) => {
-            const e = LIDERAZGO_TIPOS.find(t => t.num === Number(key));
-            if (!e) return null;
+          {Object.entries(counts).map(([titulo, count]) => {
+            const sample = items.find(i => getBanda(Number(i.style) || 0).titulo === titulo);
+            const color = sample ? getBanda(Number(sample.style) || 0).color : '#C5A059';
             return (
-              <span key={key} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: `${e.color}1a`, color: e.color }}>
-                {e.archetype} · {count}
+              <span key={titulo} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: `${color}1a`, color }}>
+                {titulo} · {count}
               </span>
             );
           })}
@@ -1083,7 +1085,8 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
 
       <div className="space-y-2">
         {items.map(sub => {
-          const e = LIDERAZGO_TIPOS.find(t => t.num === Number(sub.style));
+          const scoreNum = Number(sub.style) || 0;
+          const e = getBanda(scoreNum);
           const isOpen = expandedId === sub.id;
           return (
             <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -1092,11 +1095,9 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
-                    {e && (
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${e.color}1a`, color: e.color }}>
-                        {e.archetype}
-                      </span>
-                    )}
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${e.color}1a`, color: e.color }}>
+                      {scoreNum}/100 · {e.titulo}
+                    </span>
                   </div>
                   {sub.contact && (
                     <p className="text-sm text-brand-gold font-medium flex items-center gap-1 mt-0.5"><Mail className="w-3.5 h-3.5" /> {sub.contact}</p>
@@ -1108,31 +1109,24 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
 
               {isOpen && (
                 <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
-                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Palabras tildadas por tipo</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    {LIDERAZGO_TIPOS.map(tipo => {
-                      const selected = sub.answers?.[String(tipo.num)] || [];
-                      const isDominant = tipo.num === Number(sub.style);
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Respuesta a cada afirmación (1 a 5)</p>
+                  <div className="space-y-1.5 mb-4">
+                    {AFIRMACIONES_LIDERAZGO.map((texto, i) => {
+                      const val = sub.answers?.ratings?.[i];
                       return (
-                        <div key={tipo.num} className={`rounded-xl p-3 ${isDominant ? 'bg-white border-2' : 'bg-white border border-gray-100'}`}
-                          style={isDominant ? { borderColor: tipo.color } : undefined}>
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="font-heading font-bold text-xs" style={{ color: isDominant ? tipo.color : '#1A1A1A' }}>{tipo.archetype}</p>
-                            <span className="font-bold text-sm" style={{ color: isDominant ? tipo.color : '#9CA3AF' }}>{selected.length}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1">
-                            {tipo.words.map(word => (
-                              <span key={word} className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                                selected.includes(word) ? 'text-white font-medium' : 'bg-gray-100 text-gray-400'
-                              }`} style={selected.includes(word) ? { background: tipo.color } : undefined}>
-                                {word}
-                              </span>
-                            ))}
-                          </div>
+                        <div key={i} className="bg-white rounded-lg p-2.5 border border-gray-100 flex items-center justify-between gap-3">
+                          <p className="text-xs text-gray-600 flex-1">{texto}</p>
+                          <span className="font-heading font-bold text-sm text-brand-gold shrink-0 w-6 text-center">{val ?? '—'}</span>
                         </div>
                       );
                     })}
                   </div>
+                  {sub.answers?.reflexion && (
+                    <div className="bg-white rounded-lg p-3 border border-gray-100 mb-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Reflexión final</p>
+                      <p className="text-sm text-brand-dark">{sub.answers.reflexion}</p>
+                    </div>
+                  )}
                   <div className="flex justify-end">
                     {deleteConfirm === sub.id ? (
                       <div className="flex items-center gap-3">
