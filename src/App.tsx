@@ -28,6 +28,7 @@ import Recursos from './pages/Recursos';
 import RecursosAdmin from './pages/RecursosAdmin';
 import TestDinero from './pages/TestDinero';
 import TestLiderazgo from './pages/TestLiderazgo';
+import TestReuniones from './pages/TestReuniones';
 
 const MainLayout: React.FC = () => (
   <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
@@ -74,6 +75,7 @@ const App: React.FC = () => {
         <Route path="/recursos-admin" element={<RecursosAdmin />} />
         <Route path="/test-dinero" element={<TestDinero />} />
         <Route path="/test-liderazgo" element={<TestLiderazgo />} />
+        <Route path="/test-reuniones" element={<TestReuniones />} />
 
         {/* Main site with navbar/footer */}
         <Route element={<MainLayout />}>
