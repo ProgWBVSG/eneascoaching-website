@@ -20,7 +20,10 @@ const TestReuniones: React.FC = () => {
   const [respuestas, setRespuestas] = useState<number[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
+  // Si ya dejó su mail en el hub de recursos, no se lo volvemos a pedir desde cero
+  const [contact, setContact] = useState(() => {
+    try { return localStorage.getItem('recursos_email') || ''; } catch { return ''; }
+  });
   const [calcMsgIdx, setCalcMsgIdx] = useState(0);
   const advanceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 

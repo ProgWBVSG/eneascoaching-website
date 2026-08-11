@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 
 const UNLOCK_KEY = 'recursos_unlocked';
+const EMAIL_KEY = 'recursos_email';
 
 interface Recurso {
   id: string; title: string; description: string | null; kind: string;
@@ -63,6 +64,7 @@ const Recursos: React.FC = () => {
         body: JSON.stringify({ email }),
       });
       localStorage.setItem(UNLOCK_KEY, '1');
+      localStorage.setItem(EMAIL_KEY, email.trim());
       setUnlocked(true);
       if (pending) {
         const url = pending.url || '#';
@@ -91,7 +93,7 @@ const Recursos: React.FC = () => {
           Todo lo que necesitás para <span className="text-brand-gold">conocerte</span>, en un solo lugar
         </h1>
         <p className="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto">
-          Tests, guías, videos y herramientas de Cecilia B. Sánchez — coach eneagramista con +600 personas mentoreadas. Gratis, actualizándose siempre.
+          Tests, guías, videos y herramientas de Cecilia B. Sánchez, coach eneagramista con +600 personas mentoreadas. Gratis, actualizándose siempre.
         </p>
       </section>
 
