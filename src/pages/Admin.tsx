@@ -6,12 +6,13 @@ import { PATRONES } from '../data/patronesFinancieros';
 import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
 import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass } from 'lucide-react';
+import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones';
-const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones'];
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion';
+const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion'];
 
 interface Invite {
   id: string;
@@ -268,6 +269,7 @@ const Admin: React.FC = () => {
             { id: 'dinero', label: 'Test Dinero' },
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
+            { id: 'comunicacion', label: 'Test Comunicación' },
           ] as { id: AdminTab; label: string }[]).map(t => (
             <button
               key={t.id}
@@ -291,6 +293,7 @@ const Admin: React.FC = () => {
         {tab === 'dinero' && <TestDineroTab token={token} />}
         {tab === 'liderazgo' && <TestLiderazgoTab token={token} />}
         {tab === 'reuniones' && <TestReunionesTab token={token} />}
+        {tab === 'comunicacion' && <TestComunicacionTab token={token} />}
 
         {!NON_TEST_TABS.includes(tab) &&loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
 
@@ -1277,6 +1280,163 @@ const TestReunionesTab: React.FC<{ token: string }> = ({ token }) => {
                         <div key={i} className="bg-white rounded-lg p-3 border border-gray-100">
                           <p className="text-xs text-gray-500 mb-1">{preg.pregunta}</p>
                           <p className="text-sm font-medium text-brand-dark">{op?.label || 'Sin respuesta'}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-end">
+                    {deleteConfirm === sub.id ? (
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">¿Eliminar esta respuesta?</span>
+                        <button onClick={() => del(sub.id)} className="text-sm text-red-500 hover:text-red-700 font-medium">Sí, eliminar</button>
+                        <button onClick={() => setDeleteConfirm(null)} className="text-sm text-gray-400 hover:text-gray-600">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setDeleteConfirm(sub.id)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500">
+                        <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      </>
+      )}
+    </div>
+  );
+};
+
+// ── Tab de leads del Test de Estilos de Comunicación ────────────────
+interface ComunicacionSubmission {
+  id: string; name: string | null; contact: string | null; style: Estilo;
+  answers: number[]; created_at: string;
+}
+
+const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<ComunicacionSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-comunicacion`;
+  const copyTestLink = async () => {
+    try {
+      await navigator.clipboard.writeText(testLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch { prompt('Copiá el link manualmente:', testLink); }
+  };
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=comunicacion-submissions', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=comunicacion-submission&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleDateString('es-AR', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+
+  const counts: Record<string, number> = {};
+  items.forEach(i => { counts[i.style] = (counts[i.style] || 0) + 1; });
+
+  return (
+    <div>
+      <div className="bg-brand-dark rounded-2xl p-5 mb-5 text-white">
+        <div className="flex items-center gap-2 mb-1"><MessageSquare className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Link del Test de Comunicación</h3></div>
+        <p className="text-sm text-gray-300 mb-4">Un solo link para todas las personas. Quien deje su mail entra automáticamente a la newsletter.</p>
+        <div className="flex items-center justify-between gap-3 bg-white/10 rounded-xl p-3">
+          <code className="text-brand-gold font-mono text-sm truncate">{testLink}</code>
+          <button onClick={copyTestLink}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold shrink-0 ${linkCopied ? 'bg-green-500/20 text-green-300' : 'bg-brand-gold text-white hover:bg-amber-600'}`}>
+            {linkCopied ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {linkCopied ? '¡Copiado!' : 'Copiar link'}
+          </button>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-16 text-gray-400">Cargando...</div>}
+
+      {!loading && items.length === 0 && (
+        <div className="text-center py-16">
+          <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-lg">Todavía no hay respuestas del test de comunicación.</p>
+          <p className="text-gray-300 text-sm mt-1">Compartí el link de arriba para recibir leads.</p>
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+      <>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Estilos detectados ({items.length} respuestas)</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(counts).map(([key, count]) => {
+            const p = PERFILES_COMUNICACION[key as Estilo];
+            if (!p) return null;
+            return (
+              <span key={key} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
+                {p.nombre.replace('Estilo ', '')} (eneatipo {p.eneatipo}) · {count}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {items.map(sub => {
+          const p = PERFILES_COMUNICACION[sub.style];
+          const isOpen = expandedId === sub.id;
+          return (
+            <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <button onClick={() => setExpandedId(isOpen ? null : sub.id)}
+                className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-gray-50">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-brand-dark">{sub.name || <span className="text-gray-400 italic">Sin nombre</span>}</p>
+                    {p && (
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full" style={{ background: `${p.color}1a`, color: p.color }}>
+                        {p.nombre} · eneatipo {p.eneatipo}
+                      </span>
+                    )}
+                  </div>
+                  {sub.contact && (
+                    <p className="text-sm text-brand-gold font-medium flex items-center gap-1 mt-0.5"><Mail className="w-3.5 h-3.5" /> {sub.contact}</p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-0.5">{fmt(sub.created_at)}</p>
+                </div>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
+              </button>
+
+              {isOpen && (
+                <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Lo que respondió, pregunta por pregunta</p>
+                  <div className="space-y-2 mb-4">
+                    {PREGUNTAS_COMUNICACION.map((preg, i) => {
+                      const op = preg.opciones[sub.answers?.[i]];
+                      const perfilOp = op ? PERFILES_COMUNICACION[op.estilo] : null;
+                      return (
+                        <div key={i} className="bg-white rounded-lg p-3 border border-gray-100">
+                          <p className="text-xs text-gray-500 mb-1">{preg.pregunta}</p>
+                          <p className="text-sm font-medium text-brand-dark">{op?.label || 'Sin respuesta'}</p>
+                          {perfilOp && (
+                            <span className="text-[10px] font-semibold" style={{ color: perfilOp.color }}>
+                              {perfilOp.nombre.replace('Estilo ', '')} · eneatipo {perfilOp.eneatipo}
+                            </span>
+                          )}
                         </div>
                       );
                     })}
