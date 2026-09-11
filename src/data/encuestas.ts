@@ -1,14 +1,20 @@
 // Encuestas de investigación de dolores (modelo "deep dive": frustración #1,
 // por qué ahora, qué intentaron, contexto, contacto). Una config por cuenta.
 
-export type TipoPregunta = 'choice' | 'text' | 'short';
+export type TipoPregunta = 'choice' | 'text' | 'short' | 'cards';
+
+export interface OpcionCard {
+  label: string;      // título grande de la tarjeta (ej: "Diplomatura en Eneagrama")
+  sublabel: string;    // texto chico debajo: para quién es / qué incluye
+}
 
 export interface PreguntaEncuesta {
   key: string;
   tipo: TipoPregunta;
   pregunta: string;
   placeholder?: string;
-  opciones?: string[];     // solo para 'choice'; la opción "Otro" abre un campo libre
+  opciones?: string[];     // para 'choice'; la opción "Otro" abre un campo libre
+  cards?: OpcionCard[];    // para 'cards': tarjetas grandes con título + descripción
   requerida?: boolean;
 }
 
@@ -64,12 +70,30 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
   key: 'eneagrama',
   marca: 'ENEASCOACHING',
   titulo: 'Contame qué te está costando',
-  intro: 'Estoy preparando algo nuevo sobre Eneagrama y antes de armarlo quiero escucharte a vos. Son 5 preguntas, 2 minutos.',
+  intro: 'Estoy preparando algo nuevo sobre Eneagrama y antes de armarlo quiero escucharte a vos. Son 6 preguntas, 2 minutos.',
   preguntas: [
     {
       key: 'rol', tipo: 'choice', requerida: true,
       pregunta: '¿A qué te dedicás?',
       opciones: ['Coach eneagramista', 'Coach ontológico/a', 'Abogado/a', 'Psicólogo/a o terapeuta', 'Otro'],
+    },
+    {
+      key: 'interes', tipo: 'cards', requerida: true,
+      pregunta: '¿Qué es lo que más te resuena hoy?',
+      cards: [
+        {
+          label: 'Diplomatura en Eneagrama',
+          sublabel: 'Programa en 3 etapas: de las bases a aplicarlo en una organización entera. Para quien quiere formarse a fondo y, más adelante, poder acompañar a otros.',
+        },
+        {
+          label: 'Mentoría en Eneagrama',
+          sublabel: 'Acompañamiento 1 a 1 con Cecilia: te hacés el test, descubrís tu tipo y, si liderás un equipo, lo llevás a la práctica en tu negocio.',
+        },
+        {
+          label: 'Todavía no sé, quiero que me ayuden a elegir',
+          sublabel: 'Contame tu situación en las próximas preguntas y te oriento.',
+        },
+      ],
     },
     {
       key: 'frustracion', tipo: 'text', requerida: true,

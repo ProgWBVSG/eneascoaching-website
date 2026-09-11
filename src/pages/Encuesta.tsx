@@ -143,6 +143,25 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
                 </div>
               )}
 
+              {preg.tipo === 'cards' && (
+                <div className="space-y-3">
+                  {preg.cards!.map(c => {
+                    const sel = valorActual === c.label;
+                    return (
+                      <button key={c.label} onClick={() => setValor(c.label)}
+                        className={`tap-feedback w-full text-left rounded-2xl px-5 py-4 border-2 touch-manipulation
+                          ${sel ? 'bg-brand-gold border-brand-gold' : 'bg-white border-gray-200 hover:border-brand-gold/60'}`}>
+                        <span className="flex items-start justify-between gap-2">
+                          <span className={`font-heading font-bold text-base sm:text-lg ${sel ? 'text-white' : 'text-brand-dark'}`}>{c.label}</span>
+                          {sel && <Check className="w-5 h-5 text-white shrink-0 mt-0.5" />}
+                        </span>
+                        <span className={`block text-xs sm:text-sm mt-1.5 leading-relaxed ${sel ? 'text-white/90' : 'text-gray-500'}`}>{c.sublabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {preg.tipo === 'text' && (
                 <textarea autoFocus value={valorActual} onChange={e => setValor(e.target.value)} rows={5} placeholder={preg.placeholder}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-brand-gold text-brand-dark text-sm sm:text-base resize-none" />
