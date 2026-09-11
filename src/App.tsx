@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
@@ -45,8 +45,22 @@ const MainLayout: React.FC = () => (
   </div>
 );
 
+// Migramos de HashRouter (URLs con #) a BrowserRouter para que Google pueda
+// indexar cada página por separado. Este shim redirige links viejos ya
+// compartidos (IG bio, ads, WhatsApp) tipo "/#/test-reuniones" a su
+// equivalente limpio "/test-reuniones", una sola vez al cargar.
+const useLegacyHashRedirect = () => {
+  React.useEffect(() => {
+    if (window.location.hash.startsWith('#/')) {
+      const cleanPath = window.location.hash.slice(1) + window.location.search;
+      window.location.replace(cleanPath || '/');
+    }
+  }, []);
+};
+
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
+  useLegacyHashRedirect();
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,7 +74,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <ScrollToTop />
       <Routes>
         {/* Standalone pages — sin navbar ni footer */}
@@ -93,7 +107,7 @@ const App: React.FC = () => {
           <Route path="/contenido-gratuito" element={<FreeContent />} />
         </Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

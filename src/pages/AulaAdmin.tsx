@@ -21,7 +21,7 @@ const api = (action: string, token: string, opts: RequestInit = {}) =>
   });
 
 const buildCourseLink = (code: string) =>
-  `${typeof window !== 'undefined' ? window.location.origin : ''}/#/curso/${code}`;
+  `${typeof window !== 'undefined' ? window.location.origin : ''}/curso/${code}`;
 
 // ── Modal reutilizable ───────────────────────────────────────────────
 const Modal: React.FC<{ onClose: () => void; title: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ onClose, title, icon, children }) => (
@@ -188,7 +188,7 @@ const CursoEditor: React.FC<{ cursoId: string; token: string; onBack: () => void
   const [tab, setTab] = useState<'contenido' | 'codigos' | 'feedback'>('contenido');
   const [copied, setCopied] = useState<string | null>(null);
   const [copiedBuy, setCopiedBuy] = useState(false);
-  const buildBuyLink = (cid: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/#/comprar/${cid}`;
+  const buildBuyLink = (cid: string) => `${typeof window !== 'undefined' ? window.location.origin : ''}/comprar/${cid}`;
   const copyBuy = async (cid: string) => {
     try { await navigator.clipboard.writeText(buildBuyLink(cid)); setCopiedBuy(true); setTimeout(() => setCopiedBuy(false), 2000); }
     catch { prompt('Copiá el link de compra:', buildBuyLink(cid)); }

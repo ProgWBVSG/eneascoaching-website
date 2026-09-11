@@ -58,8 +58,11 @@ const Comunidad: React.FC = () => {
     return map;
   }, [items]);
 
-  const itemHref = (i: Item) => i.kind === 'curso' && i.curso_code ? `#/curso/${i.curso_code}` : (i.url || '#');
-  const itemExternal = (i: Item) => !(i.kind === 'curso' && i.curso_code);
+  // Soporta links internos guardados en el viejo formato "#/ruta" (de cuando
+  // el sitio usaba HashRouter) además del formato nuevo "/ruta".
+  const resolveUrl = (url: string) => url.startsWith('#') ? url.slice(1) : url;
+  const itemHref = (i: Item) => resolveUrl(i.kind === 'curso' && i.curso_code ? `/curso/${i.curso_code}` : (i.url || '/'));
+  const itemExternal = (i: Item) => itemHref(i).startsWith('http');
 
   if (loading) {
     return <div className="min-h-screen bg-brand-beige flex items-center justify-center"><Loader2 className="w-8 h-8 text-brand-gold animate-spin" /></div>;
@@ -103,7 +106,7 @@ const Comunidad: React.FC = () => {
 
         {/* Onboarding destacado */}
         {config.onboarding_url && (
-          <a href={config.onboarding_url} target={config.onboarding_url.startsWith('#') ? undefined : '_blank'} rel="noopener noreferrer"
+          <a href={resolveUrl(config.onboarding_url)} target={resolveUrl(config.onboarding_url).startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
             className="block bg-gradient-to-br from-brand-gold to-amber-500 text-white rounded-3xl p-6 sm:p-7 mb-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"><Compass className="w-6 h-6" /></div>

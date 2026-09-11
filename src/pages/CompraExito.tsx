@@ -14,7 +14,7 @@ const CompraExito: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     // MercadoPago agrega ?payment_id=... al volver; lo usamos para confirmar más rápido
-    const params = new URLSearchParams(window.location.hash.split('?')[1] || window.location.search);
+    const params = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
     const paymentId = params.get('payment_id') || params.get('collection_id') || '';
 
     const poll = async () => {
@@ -37,7 +37,7 @@ const CompraExito: React.FC = () => {
     return () => { mounted = false; };
   }, [ref]);
 
-  const cursoLink = code ? `${window.location.origin}/#/curso/${code}` : '';
+  const cursoLink = code ? `${window.location.origin}/curso/${code}` : '';
   const copy = async () => {
     try { await navigator.clipboard.writeText(cursoLink); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* noop */ }
   };
@@ -61,7 +61,7 @@ const CompraExito: React.FC = () => {
             <h1 className="font-heading font-bold text-2xl sm:text-3xl text-brand-dark mb-2">¡Listo, ya es tuyo! 🎉</h1>
             <p className="text-gray-600 text-sm sm:text-base mb-6">Tu compra se confirmó. Entrá al curso cuando quieras con este acceso.</p>
 
-            <a href={`#/curso/${code}`}
+            <a href={`/curso/${code}`}
               className="w-full flex items-center justify-center gap-2 bg-brand-gold hover:bg-amber-600 text-white font-bold py-4 rounded-xl transition-colors min-h-[56px] text-base mb-3">
               Entrar al curso <ArrowRight className="w-5 h-5" />
             </a>

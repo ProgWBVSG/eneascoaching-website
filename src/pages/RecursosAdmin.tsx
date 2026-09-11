@@ -119,7 +119,7 @@ const RecursosAdmin: React.FC = () => {
                 </div>
               </Field>
               <Field label="Categoría" hint="Agrupa los recursos (ej: Tests, Videos, Guías)"><input className={inputCls} value={modal.category || ''} onChange={e => setModal({ ...modal, category: e.target.value })} placeholder="Ej: Autoconocimiento" /></Field>
-              <Field label="Link" hint="YouTube, Drive, PDF, o una ruta interna (#/enea-test-juridico)"><input className={inputCls} value={modal.url || ''} onChange={e => setModal({ ...modal, url: e.target.value })} placeholder="https://..." /></Field>
+              <Field label="Link" hint="YouTube, Drive, PDF, o una ruta interna (/enea-test-juridico)"><input className={inputCls} value={modal.url || ''} onChange={e => setModal({ ...modal, url: e.target.value })} placeholder="https://..." /></Field>
               <button onClick={save} disabled={!modal.title?.trim()} className="w-full bg-brand-gold hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl disabled:opacity-50">Guardar</button>
             </div>
           </div>

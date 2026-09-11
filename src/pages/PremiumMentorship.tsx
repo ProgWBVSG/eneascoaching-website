@@ -42,7 +42,7 @@ const PremiumMentorship: React.FC = () => {
             <h3 className="text-lg font-heading font-bold text-brand-dark mb-2">¿Para quién es?</h3>
             <p className="text-gray-600 mb-4">Líderes y dueños de negocio · Coaches · Recursos Humanos · Equipos y organizaciones que quieren vincularse mejor.</p>
             <p className="text-sm text-gray-600 bg-brand-beige border-l-4 border-brand-gold pl-4 py-3 rounded-r mb-8">
-              ¿Querés formarte como coach y <strong>enseñar</strong> el Eneagrama? Entonces mirá la <a href="#/diplomatura" className="text-brand-gold font-semibold underline">Diplomatura</a>.
+              ¿Querés formarte como coach y <strong>enseñar</strong> el Eneagrama? Entonces mirá la <a href="/diplomatura" className="text-brand-gold font-semibold underline">Diplomatura</a>.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

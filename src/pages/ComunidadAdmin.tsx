@@ -90,7 +90,7 @@ const ComunidadAdmin: React.FC = () => {
   const delAcceso = async (id: string) => { await api(`com-invites&id=${id}`, token, { method: 'DELETE' }); loadAll(); };
 
   const copyLink = async (code: string, path: string) => {
-    const link = `${window.location.origin}/#/${path}/${code}`;
+    const link = `${window.location.origin}/${path}/${code}`;
     try { await navigator.clipboard.writeText(link); setCopied(code); setTimeout(() => setCopied(null), 2000); }
     catch { prompt('Copiá el link:', link); }
   };
@@ -173,7 +173,7 @@ const ComunidadAdmin: React.FC = () => {
             <Field label="Link del grupo de WhatsApp"><input defaultValue={config.whatsapp_url || ''} onBlur={e => saveConfig({ whatsapp_url: e.target.value })} className={inputCls} placeholder="https://chat.whatsapp.com/..." /></Field>
             <Field label="Link del Zoom del mes"><input defaultValue={config.zoom_url || ''} onBlur={e => saveConfig({ zoom_url: e.target.value })} className={inputCls} placeholder="https://zoom.us/..." /></Field>
             <Field label="Info del Zoom (fecha/hora)"><input defaultValue={config.zoom_text || ''} onBlur={e => saveConfig({ zoom_text: e.target.value })} className={inputCls} placeholder="Ej: Jueves 3 de julio, 19hs" /></Field>
-            <Field label="Link del onboarding (ej: test del eneagrama)"><input defaultValue={config.onboarding_url || ''} onBlur={e => saveConfig({ onboarding_url: e.target.value })} className={inputCls} placeholder="#/enea-test-juridico o https://..." /></Field>
+            <Field label="Link del onboarding (ej: test del eneagrama)"><input defaultValue={config.onboarding_url || ''} onBlur={e => saveConfig({ onboarding_url: e.target.value })} className={inputCls} placeholder="/enea-test-juridico o https://..." /></Field>
             <Field label="Texto del onboarding"><input defaultValue={config.onboarding_text || ''} onBlur={e => saveConfig({ onboarding_text: e.target.value })} className={inputCls} placeholder="Hacé tu test del eneagrama" /></Field>
             <p className="text-xs text-gray-400">Los cambios se guardan solos al salir de cada campo.</p>
           </div>
@@ -243,7 +243,7 @@ const ComunidadAdmin: React.FC = () => {
           <Field label="Descripción (opcional)"><input className={inputCls} value={itemModal.description || ''} onChange={e => setItemModal({ ...itemModal, description: e.target.value })} /></Field>
           {itemModal.kind === 'curso'
             ? <Field label="Código del curso" hint="El código de acceso del curso (del Aula)"><input className={inputCls} value={itemModal.curso_code || ''} onChange={e => setItemModal({ ...itemModal, curso_code: e.target.value })} placeholder="Ej: K7H4M2QR" /></Field>
-            : <Field label="Link" hint="Drive, PDF, test (#/enea-test-juridico), etc."><input className={inputCls} value={itemModal.url || ''} onChange={e => setItemModal({ ...itemModal, url: e.target.value })} placeholder="https://..." /></Field>}
+            : <Field label="Link" hint="Drive, PDF, test (/enea-test-juridico), etc."><input className={inputCls} value={itemModal.url || ''} onChange={e => setItemModal({ ...itemModal, url: e.target.value })} placeholder="https://..." /></Field>}
           <button onClick={saveItem} disabled={!itemModal.title?.trim() || !itemModal.pillar} className="w-full bg-brand-gold hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl disabled:opacity-50">Guardar</button>
         </Modal>
       )}

@@ -47,7 +47,7 @@ const Recursos: React.FC = () => {
   const openResource = (r: Recurso) => {
     if (unlocked) {
       const url = r.url || '#';
-      if (url.startsWith('#')) window.location.hash = url.slice(1);
+      if (url.startsWith('#')) window.location.href = url.slice(1);
       else window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
@@ -69,7 +69,7 @@ const Recursos: React.FC = () => {
       if (pending) {
         const url = pending.url || '#';
         setPending(null);
-        if (url.startsWith('#')) window.location.hash = url.slice(1);
+        if (url.startsWith('#')) window.location.href = url.slice(1);
         else window.open(url, '_blank', 'noopener,noreferrer');
       }
     } catch { setError('No se pudo. Probá de nuevo.'); }

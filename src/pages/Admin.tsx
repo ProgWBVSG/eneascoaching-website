@@ -91,7 +91,7 @@ const ENDPOINTS: Record<TestKind, { list: string; detail: (id: number) => string
 
 function buildInviteLink(code: string): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  return `${origin}/#/test/${code}`;
+  return `${origin}/test/${code}`;
 }
 
 const Admin: React.FC = () => {
@@ -856,7 +856,7 @@ const TestDineroTab: React.FC<{ token: string }> = ({ token }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const dineroLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-dinero`;
+  const dineroLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/test-dinero`;
   const copyDineroLink = async () => {
     try {
       await navigator.clipboard.writeText(dineroLink);
@@ -1016,7 +1016,7 @@ const TestLiderazgoTab: React.FC<{ token: string }> = ({ token }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-liderazgo`;
+  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/test-liderazgo`;
   const copyTestLink = async () => {
     try {
       await navigator.clipboard.writeText(testLink);
@@ -1174,7 +1174,7 @@ const TestReunionesTab: React.FC<{ token: string }> = ({ token }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-reuniones`;
+  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/test-reuniones`;
   const copyTestLink = async () => {
     try {
       await navigator.clipboard.writeText(testLink);
@@ -1325,7 +1325,7 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/test-comunicacion`;
+  const testLink = `${typeof window !== 'undefined' ? window.location.origin : ''}/test-comunicacion`;
   const copyTestLink = async () => {
     try {
       await navigator.clipboard.writeText(testLink);
@@ -1485,7 +1485,7 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const config = ENCUESTAS[survey];
-  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/encuesta-${survey}`;
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/encuesta-${survey}`;
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(link); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }
     catch { prompt('Copiá el link manualmente:', link); }

@@ -1,5 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /admin
+Disallow: /aula-admin
+Disallow: /comunidad-admin
+Disallow: /recursos-admin
+Disallow: /encuesta-reuniones
+Disallow: /encuesta-eneagrama
 
 Sitemap: https://www.cecimentorcoach.com/sitemap.xml
