@@ -31,7 +31,7 @@ export const ENCUESTA_REUNIONES: EncuestaConfig = {
   preguntas: [
     {
       key: 'rol', tipo: 'choice', requerida: true,
-      pregunta: '¿Cuál de estas opciones te describe mejor?',
+      pregunta: 'Para ubicarte mejor, ¿qué es lo que más se parece a tu día a día hoy?',
       opciones: ['Lidero un equipo', 'Soy ejecutivo/a o gerente', 'Tengo mi propio negocio', 'Coordino proyectos o reuniones', 'Otro'],
     },
     {
@@ -50,9 +50,9 @@ export const ENCUESTA_REUNIONES: EncuestaConfig = {
       placeholder: 'Contame tu experiencia previa...',
     },
     {
-      key: 'tiempo', tipo: 'short',
+      key: 'tiempo', tipo: 'choice',
       pregunta: '¿Hace cuánto liderás equipos o reuniones?',
-      placeholder: 'Ej: 3 años, 6 meses...',
+      opciones: ['Entre 3 y 6 meses', 'Entre 6 y 12 meses', 'Entre 2 y 4 años', 'Entre 5 y 7 años', 'Más de 10 años'],
     },
   ],
   preguntaAviso: 'Si armo algo puntual para resolver esto, ¿querés que te avise apenas esté listo?',
@@ -87,9 +87,9 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
       placeholder: 'Contame tu experiencia previa...',
     },
     {
-      key: 'tiempo', tipo: 'short',
+      key: 'tiempo', tipo: 'choice',
       pregunta: '¿Hace cuánto conocés el Eneagrama?',
-      placeholder: 'Ej: 2 años, unos meses, recién empiezo...',
+      opciones: ['Entre 3 y 6 meses', 'Entre 6 y 12 meses', 'Entre 2 y 4 años', 'Entre 5 y 7 años', 'Más de 10 años'],
     },
   ],
   preguntaAviso: 'Si armo algo puntual para resolver esto, ¿querés que te avise apenas esté listo?',

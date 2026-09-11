@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { EncuestaConfig } from '../data/encuestas';
-import { ArrowLeft, ArrowRight, Send, Loader2, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Send, Loader2, Check, MessageCircle, ShieldCheck } from 'lucide-react';
 
 type Respuestas = Record<string, string>;
+
+const PAISES = [
+  { dial: '54', label: 'Argentina +54' },
+  { dial: '598', label: 'Uruguay +598' },
+  { dial: '56', label: 'Chile +56' },
+  { dial: '595', label: 'Paraguay +595' },
+  { dial: '591', label: 'Bolivia +591' },
+  { dial: '51', label: 'Perú +51' },
+  { dial: '57', label: 'Colombia +57' },
+  { dial: '52', label: 'México +52' },
+  { dial: '34', label: 'España +34' },
+  { dial: '1', label: 'Estados Unidos +1' },
+];
 
 const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
   const total = config.preguntas.length + 1; // + paso de contacto
@@ -11,7 +24,9 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
   const [respuestas, setRespuestas] = useState<Respuestas>({});
   const [otro, setOtro] = useState('');
   const [name, setName] = useState('');
+  const [dial, setDial] = useState('54');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [notify, setNotify] = useState<boolean | null>(null);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
@@ -37,7 +52,8 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
   };
   const back = () => setStep(s => s - 1);
 
-  const puedeEnviar = name.trim().length > 1 && phone.replace(/\D/g, '').length >= 8 && notify !== null;
+  const emailValido = email.trim() === '' || /\S+@\S+\.\S+/.test(email.trim());
+  const puedeEnviar = name.trim().length > 1 && phone.replace(/\D/g, '').length >= 8 && emailValido && notify !== null;
 
   const submit = async () => {
     if (!puedeEnviar) return;
@@ -50,7 +66,8 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
           role: respuestas.rol || null,
           answers: config.preguntas.map(p => ({ key: p.key, q: p.pregunta, a: respuestas[p.key] || '' })),
           name: name.trim(),
-          phone: `+54${phone.replace(/\D/g, '')}`,
+          phone: `+${dial}${phone.replace(/\D/g, '')}`,
+          email: email.trim() || null,
           notify,
         }),
       });
@@ -160,11 +177,23 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
                 className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-brand-gold text-brand-dark mb-4" />
 
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Tu número de WhatsApp</label>
-              <div className="flex gap-2 mb-5">
-                <span className="flex items-center px-4 border-2 border-gray-200 rounded-xl text-gray-500 text-sm bg-gray-50 shrink-0">AR +54</span>
+              <div className="flex gap-2 mb-4">
+                <select value={dial} onChange={e => setDial(e.target.value)}
+                  className="border-2 border-gray-200 rounded-xl pl-3 pr-1 py-3.5 text-gray-600 text-sm bg-gray-50 shrink-0 focus:outline-none focus:border-brand-gold max-w-[110px]">
+                  {PAISES.map(p => <option key={p.dial} value={p.dial}>+{p.dial}</option>)}
+                </select>
                 <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9 351 123 4567" inputMode="tel"
                   className="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-brand-gold text-brand-dark" />
               </div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Tu email (opcional)</label>
+              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@email.com" type="email"
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3.5 focus:outline-none focus:border-brand-gold text-brand-dark" />
+              {!emailValido && <p className="text-red-500 text-xs mt-1.5">Ese email no parece válido</p>}
+              <p className="flex items-start gap-1.5 text-xs text-gray-400 mt-2 mb-5">
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                No lo vamos a usar para mandarte spam. Tus datos están seguros y son solo para responderte.
+              </p>
 
               <p className="text-sm text-gray-700 mb-3">{config.preguntaAviso}</p>
               <div className="grid grid-cols-2 gap-3 mb-6">

@@ -1473,7 +1473,7 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
 interface EncuestaRespuesta {
   id: string; survey: string; role: string | null;
   answers: { key: string; q: string; a: string }[];
-  name: string; phone: string; notify: boolean; created_at: string;
+  name: string; phone: string; email: string | null; notify: boolean; created_at: string;
 }
 
 const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
@@ -1572,7 +1572,7 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
                     {sub.role && <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{sub.role}</span>}
                     {sub.notify && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Quiere aviso</span>}
                   </div>
-                  <p className="text-sm text-brand-gold font-medium mt-0.5">{sub.phone}</p>
+                  <p className="text-sm text-brand-gold font-medium mt-0.5">{sub.phone}{sub.email && <span className="text-gray-500 font-normal"> · {sub.email}</span>}</p>
                   {frustracion && <p className="text-sm text-gray-600 mt-1 line-clamp-2 italic">"{frustracion}"</p>}
                   <p className="text-xs text-gray-400 mt-1">{fmt(sub.created_at)}</p>
                 </div>

@@ -303,11 +303,12 @@ export default async function handler(req, res) {
 
     // Encuestas de dolores (público)
     if (action === 'encuesta-submit' && req.method === 'POST') {
-      const { survey, role, answers, name, phone, notify } = req.body || {};
+      const { survey, role, answers, name, phone, email, notify } = req.body || {};
       if (!survey || !name || !phone || !Array.isArray(answers)) return res.status(400).json({ error: 'Datos inválidos' });
       const { error } = await supabase.from('encuesta_respuestas').insert({
         survey, role: role || null, answers,
-        name: String(name).trim(), phone: String(phone).trim(), notify: !!notify,
+        name: String(name).trim(), phone: String(phone).trim(),
+        email: email ? String(email).trim() : null, notify: !!notify,
       });
       if (error) { console.error('encuesta-submit error:', error); return res.status(500).json({ error: 'No se pudo guardar' }); }
       return res.status(200).json({ success: true });
