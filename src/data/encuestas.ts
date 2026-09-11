@@ -79,7 +79,7 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
     },
     {
       key: 'interes', tipo: 'cards', requerida: true,
-      pregunta: '¿Qué es lo que más te resuena hoy?',
+      pregunta: 'Si tuvieras que elegir un camino hoy, ¿cuál elegirías?',
       cards: [
         {
           label: 'Diplomatura en Eneagrama',
