@@ -30,6 +30,8 @@ import TestDinero from './pages/TestDinero';
 import TestLiderazgo from './pages/TestLiderazgo';
 import TestReuniones from './pages/TestReuniones';
 import TestComunicacion from './pages/TestComunicacion';
+import Encuesta from './pages/Encuesta';
+import { ENCUESTA_REUNIONES, ENCUESTA_ENEAGRAMA } from './data/encuestas';
 
 const MainLayout: React.FC = () => (
   <div className="flex flex-col min-h-screen font-sans text-brand-text bg-white">
@@ -78,6 +80,8 @@ const App: React.FC = () => {
         <Route path="/test-liderazgo" element={<TestLiderazgo />} />
         <Route path="/test-reuniones" element={<TestReuniones />} />
         <Route path="/test-comunicacion" element={<TestComunicacion />} />
+        <Route path="/encuesta-reuniones" element={<Encuesta key="reuniones" config={ENCUESTA_REUNIONES} />} />
+        <Route path="/encuesta-eneagrama" element={<Encuesta key="eneagrama" config={ENCUESTA_ENEAGRAMA} />} />
 
         {/* Main site with navbar/footer */}
         <Route element={<MainLayout />}>

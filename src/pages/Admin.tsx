@@ -7,12 +7,13 @@ import { PREGUNTAS_DINERO } from '../data/testDineroPreguntas';
 import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
 import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
+import { ENCUESTAS } from '../data/encuestas';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion';
-const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion'];
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas';
+const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion', 'encuestas'];
 
 interface Invite {
   id: string;
@@ -270,6 +271,7 @@ const Admin: React.FC = () => {
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
+            { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
             <button
               key={t.id}
@@ -294,6 +296,7 @@ const Admin: React.FC = () => {
         {tab === 'liderazgo' && <TestLiderazgoTab token={token} />}
         {tab === 'reuniones' && <TestReunionesTab token={token} />}
         {tab === 'comunicacion' && <TestComunicacionTab token={token} />}
+        {tab === 'encuestas' && <EncuestasTab token={token} />}
 
         {!NON_TEST_TABS.includes(tab) &&loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
 
@@ -1447,6 +1450,155 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
                         <span className="text-sm text-gray-500">¿Eliminar esta respuesta?</span>
                         <button onClick={() => del(sub.id)} className="text-sm text-red-500 hover:text-red-700 font-medium">Sí, eliminar</button>
                         <button onClick={() => setDeleteConfirm(null)} className="text-sm text-gray-400 hover:text-gray-600">Cancelar</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setDeleteConfirm(sub.id)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500">
+                        <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      </>
+      )}
+    </div>
+  );
+};
+
+// ── Tab de encuestas de dolores (Reuniones con Ceci / Eneagrama) ─────
+interface EncuestaRespuesta {
+  id: string; survey: string; role: string | null;
+  answers: { key: string; q: string; a: string }[];
+  name: string; phone: string; notify: boolean; created_at: string;
+}
+
+const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
+  const [survey, setSurvey] = useState<string>('reuniones');
+  const [items, setItems] = useState<EncuestaRespuesta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const config = ENCUESTAS[survey];
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/#/encuesta-${survey}`;
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(link); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }
+    catch { prompt('Copiá el link manualmente:', link); }
+  };
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/cursos?action=encuesta-submissions&survey=${survey}`, { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token, survey]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=encuesta-submission&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+
+  const fmt = (iso: string) => new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const roles: Record<string, number> = {};
+  items.forEach(i => { const r = (i.role || 'Sin dato').replace(/^Otro: .*/, 'Otro'); roles[r] = (roles[r] || 0) + 1; });
+  const quierenAviso = items.filter(i => i.notify).length;
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-5">
+        {Object.values(ENCUESTAS).map(e => (
+          <button key={e.key} onClick={() => { setSurvey(e.key); setExpandedId(null); }}
+            className={`px-4 py-2 rounded-full text-sm font-semibold border-2 ${survey === e.key ? 'bg-brand-dark text-white border-brand-dark' : 'bg-white border-gray-200 text-gray-600'}`}>
+            {e.marca === 'ENEASCOACHING' ? 'Eneagrama' : 'Reuniones con Ceci'}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-brand-dark rounded-2xl p-5 mb-5 text-white">
+        <div className="flex items-center gap-2 mb-1"><MessageSquare className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Link de la encuesta · {config.marca}</h3></div>
+        <p className="text-sm text-gray-300 mb-4">Mandalo por Instagram, historias o WhatsApp. Cada respuesta llega acá con nombre y número.</p>
+        <div className="flex items-center justify-between gap-3 bg-white/10 rounded-xl p-3">
+          <code className="text-brand-gold font-mono text-sm truncate">{link}</code>
+          <button onClick={copyLink}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold shrink-0 ${linkCopied ? 'bg-green-500/20 text-green-300' : 'bg-brand-gold text-white hover:bg-amber-600'}`}>
+            {linkCopied ? <CheckIcon className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {linkCopied ? '¡Copiado!' : 'Copiar link'}
+          </button>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-16 text-gray-400">Cargando...</div>}
+
+      {!loading && items.length === 0 && (
+        <div className="text-center py-16">
+          <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-lg">Todavía no hay respuestas de esta encuesta.</p>
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+      <>
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-5">
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          {items.length} respuestas · {quierenAviso} quieren que les avises
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(roles).map(([r, n]) => (
+            <span key={r} className="text-xs font-semibold px-3 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold">{r} · {n}</span>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {items.map(sub => {
+          const isOpen = expandedId === sub.id;
+          const frustracion = sub.answers?.find(a => a.key === 'frustracion')?.a;
+          return (
+            <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <button onClick={() => setExpandedId(isOpen ? null : sub.id)} className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-gray-50">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-brand-dark">{sub.name}</p>
+                    {sub.role && <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{sub.role}</span>}
+                    {sub.notify && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Quiere aviso</span>}
+                  </div>
+                  <p className="text-sm text-brand-gold font-medium mt-0.5">{sub.phone}</p>
+                  {frustracion && <p className="text-sm text-gray-600 mt-1 line-clamp-2 italic">"{frustracion}"</p>}
+                  <p className="text-xs text-gray-400 mt-1">{fmt(sub.created_at)}</p>
+                </div>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
+              </button>
+
+              {isOpen && (
+                <div className="border-t border-gray-100 px-4 py-4 bg-gray-50">
+                  <div className="space-y-2 mb-4">
+                    {sub.answers?.map((a, i) => (
+                      <div key={i} className="bg-white rounded-lg p-3 border border-gray-100">
+                        <p className="text-xs text-gray-500 mb-1">{a.q}</p>
+                        <p className="text-sm text-brand-dark whitespace-pre-wrap">{a.a || <span className="text-gray-400 italic">Sin respuesta</span>}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <a href={`https://wa.me/${sub.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-sm font-semibold text-green-600 hover:text-green-700">
+                      <Mail className="w-4 h-4" /> Escribirle por WhatsApp
+                    </a>
+                    {deleteConfirm === sub.id ? (
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-gray-500">¿Eliminar?</span>
+                        <button onClick={() => del(sub.id)} className="text-sm text-red-500 hover:text-red-700 font-medium">Sí</button>
+                        <button onClick={() => setDeleteConfirm(null)} className="text-sm text-gray-400">Cancelar</button>
                       </div>
                     ) : (
                       <button onClick={() => setDeleteConfirm(sub.id)} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500">

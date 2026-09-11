@@ -301,6 +301,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // Encuestas de dolores (público)
+    if (action === 'encuesta-submit' && req.method === 'POST') {
+      const { survey, role, answers, name, phone, notify } = req.body || {};
+      if (!survey || !name || !phone || !Array.isArray(answers)) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('encuesta_respuestas').insert({
+        survey, role: role || null, answers,
+        name: String(name).trim(), phone: String(phone).trim(), notify: !!notify,
+      });
+      if (error) { console.error('encuesta-submit error:', error); return res.status(500).json({ error: 'No se pudo guardar' }); }
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -571,6 +583,19 @@ export default async function handler(req, res) {
     }
     if (action === 'liderazgo-submission' && req.method === 'DELETE') {
       await supabase.from('test_liderazgo_submissions').delete().eq('id', req.query.id);
+      return res.status(200).json({ success: true });
+    }
+
+    // Encuestas: respuestas (admin)
+    if (action === 'encuesta-submissions' && req.method === 'GET') {
+      let q = supabase.from('encuesta_respuestas').select('*').order('created_at', { ascending: false });
+      if (req.query.survey) q = q.eq('survey', req.query.survey);
+      const { data, error } = await q;
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
+    }
+    if (action === 'encuesta-submission' && req.method === 'DELETE') {
+      await supabase.from('encuesta_respuestas').delete().eq('id', req.query.id);
       return res.status(200).json({ success: true });
     }
 
