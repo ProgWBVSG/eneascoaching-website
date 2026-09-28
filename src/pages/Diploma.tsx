@@ -54,7 +54,7 @@ const Diploma: React.FC = () => {
                 23% OFF
               </div>
               <h3 className="text-2xl font-heading font-bold mb-1 text-brand-dark">Diplomatura Grupal</h3>
-              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia 20 de Mayo</p>
+              <p className="text-sm font-semibold text-brand-gold mb-6">Próxima cohorte: consultá la fecha</p>
               
               <div className="space-y-4">
                 <div className="flex items-center gap-4">

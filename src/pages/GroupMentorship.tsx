@@ -161,7 +161,7 @@ const GroupMentorship: React.FC = () => {
             <div>
               <Calendar className="w-10 h-10 text-brand-gold mx-auto mb-3" />
               <h4 className="font-bold text-lg">Inicio</h4>
-              <p className="text-gray-300">9, 10, 16 y 17 de marzo de 2026</p>
+              <p className="text-gray-300">Próxima fecha a confirmar</p>
             </div>
             <div>
               <Users className="w-10 h-10 text-brand-gold mx-auto mb-3" />
