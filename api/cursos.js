@@ -310,7 +310,11 @@ export default async function handler(req, res) {
         name: String(name).trim(), phone: String(phone).trim(),
         email: email ? String(email).trim() : null, notify: !!notify,
       });
-      if (error) { console.error('encuesta-submit error:', error); return res.status(500).json({ error: 'No se pudo guardar' }); }
+      if (error) {
+        // La respuesta completa queda en los logs de Vercel para poder recuperarla
+        console.error('encuesta-submit error:', error, 'RESPUESTA_NO_GUARDADA:', JSON.stringify(req.body));
+        return res.status(500).json({ error: 'No se pudo guardar' });
+      }
       return res.status(200).json({ success: true });
     }
 

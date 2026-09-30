@@ -31,6 +31,7 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [fallbackWa, setFallbackWa] = useState(false);
 
   // Título neutro en la pestaña: el general del sitio nombra el Eneagrama
   useEffect(() => {
@@ -80,11 +81,24 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
       });
       if (!res.ok) throw new Error();
       setDone(true);
-    } catch { setError('No se pudo enviar. Probá de nuevo en un momento.'); }
+    } catch {
+      setError('No pudimos guardar tu respuesta. Enviala por WhatsApp con el botón de abajo así no se pierde.');
+      setFallbackWa(true);
+    }
     finally { setSending(false); }
   };
 
   const waHref = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent(`Hola Cecilia! Soy ${name.trim()}. Acabo de completar tu encuesta y quería contarte algo más.`)}`;
+
+  // Respaldo: si la base no responde, la respuesta completa viaja por WhatsApp
+  const waRespaldo = `https://wa.me/${config.whatsapp}?text=${encodeURIComponent([
+    `Hola Cecilia! Soy ${name.trim()}. Completé tu encuesta pero no se pudo enviar, te la paso por acá:`,
+    '',
+    ...config.preguntas.map(p => `${p.pregunta}\n${respuestas[p.key] || '-'}`),
+    '',
+    `WhatsApp: +${dial}${phone.replace(/\D/g, '')}${email.trim() ? ` · Email: ${email.trim()}` : ''}`,
+    `¿Aviso cuando esté listo?: ${notify ? 'Sí' : 'No'}`,
+  ].join('\n'))}`;
 
   return (
     <div className="min-h-screen bg-brand-beige flex flex-col">
@@ -234,6 +248,12 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
               </div>
 
               {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+              {fallbackWa && (
+                <a href={waRespaldo} target="_blank" rel="noopener noreferrer"
+                  className="tap-feedback w-full mb-4 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl">
+                  <MessageCircle className="w-5 h-5" /> Enviar mis respuestas por WhatsApp
+                </a>
+              )}
 
               <div className="flex items-center justify-between">
                 <button onClick={back} className="flex items-center gap-1.5 text-gray-400 hover:text-gray-600 text-sm">
