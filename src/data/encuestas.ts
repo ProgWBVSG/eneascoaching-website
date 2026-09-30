@@ -77,7 +77,7 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
     {
       key: 'rol', tipo: 'choice', requerida: true,
       pregunta: '¿A qué te dedicás?',
-      opciones: ['Psicólogo/a o terapeuta', 'Coach', 'Recursos Humanos', 'Abogado/a', 'Otro'],
+      opciones: ['Psicólogo/a o terapeuta', 'Coach', 'Recursos Humanos', 'Ejecutivo/a o líder de equipo', 'Abogado/a', 'Otro'],
     },
     {
       key: 'frustracion', tipo: 'text', requerida: true,
