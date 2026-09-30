@@ -1485,7 +1485,7 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const config = ENCUESTAS[survey];
-  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/encuesta-${survey}`;
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/encuesta-${survey === 'eneagrama' ? 'profesionales' : survey}`;
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(link); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }
     catch { prompt('Copiá el link manualmente:', link); }
@@ -1519,7 +1519,7 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
         {Object.values(ENCUESTAS).map(e => (
           <button key={e.key} onClick={() => { setSurvey(e.key); setExpandedId(null); }}
             className={`px-4 py-2 rounded-full text-sm font-semibold border-2 ${survey === e.key ? 'bg-brand-dark text-white border-brand-dark' : 'bg-white border-gray-200 text-gray-600'}`}>
-            {e.marca === 'ENEASCOACHING' ? 'Eneagrama' : 'Reuniones con Ceci'}
+            {e.key === 'eneagrama' ? 'Profesionales (Eneagrama)' : 'Reuniones con Ceci'}
           </button>
         ))}
       </div>

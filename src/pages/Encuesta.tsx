@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { EncuestaConfig } from '../data/encuestas';
 import { ArrowLeft, ArrowRight, Send, Loader2, Check, MessageCircle, ShieldCheck } from 'lucide-react';
@@ -31,6 +31,13 @@ const Encuesta: React.FC<{ config: EncuestaConfig }> = ({ config }) => {
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+
+  // Título neutro en la pestaña: el general del sitio nombra el Eneagrama
+  useEffect(() => {
+    const anterior = document.title;
+    document.title = `Encuesta · ${config.marca === 'REUNIONES CON CECI' ? 'Reuniones con Ceci' : 'Cecilia B. Sánchez'}`;
+    return () => { document.title = anterior; };
+  }, [config.marca]);
 
   const preg = step >= 0 && step < config.preguntas.length ? config.preguntas[step] : null;
   const esContacto = step === config.preguntas.length;

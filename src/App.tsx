@@ -95,6 +95,8 @@ const App: React.FC = () => {
         <Route path="/test-reuniones" element={<TestReuniones />} />
         <Route path="/test-comunicacion" element={<TestComunicacion />} />
         <Route path="/encuesta-reuniones" element={<Encuesta key="reuniones" config={ENCUESTA_REUNIONES} />} />
+        <Route path="/encuesta-profesionales" element={<Encuesta key="eneagrama" config={ENCUESTA_ENEAGRAMA} />} />
+        {/* Dirección vieja, se mantiene para links ya compartidos */}
         <Route path="/encuesta-eneagrama" element={<Encuesta key="eneagrama" config={ENCUESTA_ENEAGRAMA} />} />
 
         {/* Main site with navbar/footer */}

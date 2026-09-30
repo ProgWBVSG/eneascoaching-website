@@ -68,37 +68,21 @@ export const ENCUESTA_REUNIONES: EncuestaConfig = {
 
 export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
   key: 'eneagrama',
-  marca: 'ENEASCOACHING',
+  // Estudio de mercado para la academia y la comunidad: sin nombrar el
+  // Eneagrama ni ofertas, para no sesgar a quien todavía no lo conoce.
+  marca: 'CECILIA B. SÁNCHEZ',
   titulo: 'Contame qué te está costando',
-  intro: 'Estoy preparando algo nuevo sobre Eneagrama y antes de armarlo quiero escucharte a vos. Son 6 preguntas, 2 minutos.',
+  intro: 'Estoy armando un espacio nuevo para profesionales que acompañan a personas y equipos. Antes de armarlo, quiero escucharte a vos. Son 5 preguntas, 2 minutos.',
   preguntas: [
     {
       key: 'rol', tipo: 'choice', requerida: true,
       pregunta: '¿A qué te dedicás?',
-      opciones: ['Coach eneagramista', 'Coach ontológico/a', 'Abogado/a', 'Psicólogo/a o terapeuta', 'Otro'],
-    },
-    {
-      key: 'interes', tipo: 'cards', requerida: true,
-      pregunta: 'Si tuvieras que elegir un camino hoy, ¿cuál elegirías?',
-      cards: [
-        {
-          label: 'Diplomatura en Eneagrama',
-          sublabel: 'Programa en 3 etapas: de las bases a aplicarlo en una organización entera. Para quien quiere formarse a fondo y, más adelante, poder acompañar a otros.',
-        },
-        {
-          label: 'Mentoría en Eneagrama',
-          sublabel: 'Acompañamiento 1 a 1 con Cecilia: te hacés el test, descubrís tu tipo y, si liderás un equipo, lo llevás a la práctica en tu negocio.',
-        },
-        {
-          label: 'Todavía no sé, quiero que me ayuden a elegir',
-          sublabel: 'Contame tu situación en las próximas preguntas y te oriento.',
-        },
-      ],
+      opciones: ['Psicólogo/a o terapeuta', 'Coach', 'Recursos Humanos', 'Abogado/a', 'Otro'],
     },
     {
       key: 'frustracion', tipo: 'text', requerida: true,
-      pregunta: '¿Cuál es tu frustración número uno hoy con el Eneagrama, ya sea para aplicarlo en tu vida o en tu trabajo?',
-      placeholder: 'Contame qué es lo que más te frustra...',
+      pregunta: '¿Qué es lo que más te frena hoy en tu trabajo acompañando a personas o equipos?',
+      placeholder: 'Contame qué es lo que más te cuesta...',
     },
     {
       key: 'porque', tipo: 'text', requerida: true,
@@ -107,12 +91,12 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
     },
     {
       key: 'intentos', tipo: 'text', requerida: true,
-      pregunta: '¿Ya intentaste resolverlo antes, con libros, cursos, tests o con alguien? Contame qué hiciste y qué pasó.',
+      pregunta: '¿Ya intentaste resolverlo antes, con cursos, formaciones, supervisión o por tu cuenta? Contame qué hiciste y qué pasó.',
       placeholder: 'Contame tu experiencia previa...',
     },
     {
       key: 'tiempo', tipo: 'choice',
-      pregunta: '¿Hace cuánto conocés el Eneagrama?',
+      pregunta: '¿Hace cuánto trabajás acompañando a personas o equipos?',
       opciones: ['Entre 3 y 6 meses', 'Entre 6 y 12 meses', 'Entre 2 y 4 años', 'Entre 5 y 7 años', 'Más de 10 años'],
     },
   ],
