@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
-import { BookOpen, Award, Layers, Globe } from 'lucide-react';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake } from 'lucide-react';
 
 const Diploma: React.FC = () => {
   return (
@@ -35,7 +35,7 @@ const Diploma: React.FC = () => {
           <div>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
               La formación para <strong>profesionalizarte como Coach Eneagramista certificada</strong> y llevar esta herramienta a otras personas: acompañar procesos, facilitar talleres y enseñar el Eneagrama con método propio.
-              En 3 meses, 100% online, salís con tu certificación y una nueva forma de generar ingresos ayudando a otros a despertar conscientes.
+              En 6 meses, 100% online y en grupo, salís con tu certificación y una nueva forma de generar ingresos ayudando a otros a despertar conscientes. Y no termina ahí: seguís en contacto y entrás a la comunidad Eneascoaching.
             </p>
             <h3 className="text-xl font-heading font-bold mb-4">¿Es para vos?</h3>
             <ul className="space-y-2 text-gray-600 mb-6">
@@ -48,14 +48,17 @@ const Diploma: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col gap-6">
-            {/* Diplomatura Grupal */}
+            {/* Diplomatura (siempre grupal) */}
             <div className="bg-brand-beige p-8 rounded-sm border border-brand-gold/20 relative overflow-hidden shadow-sm">
               <div className="absolute top-4 right-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                 23% OFF
               </div>
-              <h3 className="text-2xl font-heading font-bold mb-1 text-brand-dark">Diplomatura Grupal</h3>
+              <h3 className="text-2xl font-heading font-bold mb-3 text-brand-dark">Diplomatura</h3>
+              <span className="inline-flex items-center gap-2 bg-white border border-brand-gold/40 text-brand-dark text-sm font-medium px-4 py-1.5 rounded-full mb-3">
+                <Users size={16} className="text-brand-gold" /> Grupal: aprendemos y nos acompañamos
+              </span>
               <p className="text-sm font-semibold text-brand-gold mb-6">Próxima cohorte: consultá la fecha</p>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="bg-white p-2.5 rounded-full shadow-sm"><Award size={20} className="text-brand-gold" /></div>
@@ -68,21 +71,28 @@ const Diploma: React.FC = () => {
                   <div className="bg-white p-2.5 rounded-full shadow-sm"><BookOpen size={20} className="text-brand-gold" /></div>
                   <div>
                     <p className="font-bold text-gray-900 text-sm">Duración</p>
-                    <p className="text-xs text-gray-500">3 Meses</p>
+                    <p className="text-xs text-gray-500">6 meses</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="bg-white p-2.5 rounded-full shadow-sm"><Globe size={20} className="text-brand-gold" /></div>
                   <div>
                     <p className="font-bold text-gray-900 text-sm">Modalidad</p>
-                    <p className="text-xs text-gray-500">100% Online (En Vivo)</p>
+                    <p className="text-xs text-gray-500">100% online, en vivo y en grupo</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="bg-white p-2.5 rounded-full shadow-sm"><HeartHandshake size={20} className="text-brand-gold" /></div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">Después del certificado</p>
+                    <p className="text-xs text-gray-500">Seguís en contacto y entrás a la comunidad Eneascoaching</p>
                   </div>
                 </div>
               </div>
 
               <div className="mt-6 pt-6 border-t border-brand-gold/20">
-                <a 
-                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura%20Grupal" 
+                <a
+                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura"
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="block w-full text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-4 rounded transition-colors"
@@ -92,45 +102,6 @@ const Diploma: React.FC = () => {
               </div>
             </div>
 
-            {/* Diplomatura Individual */}
-            <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm relative overflow-hidden">
-              <h3 className="text-2xl font-heading font-bold mb-6 text-brand-dark">Diplomatura Individual</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="bg-brand-beige p-2.5 rounded-full"><Award size={20} className="text-brand-gold" /></div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">Certificación</p>
-                    <p className="text-xs text-gray-500">Privada ENEASCOACHING®</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-brand-beige p-2.5 rounded-full"><BookOpen size={20} className="text-brand-gold" /></div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">Duración</p>
-                    <p className="text-xs text-gray-500">3 Meses</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-brand-beige p-2.5 rounded-full"><Globe size={20} className="text-brand-gold" /></div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">Modalidad</p>
-                    <p className="text-xs text-gray-500">100% Online (1 a 1)</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <a 
-                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura%20Individual" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="block w-full text-center border-2 border-brand-gold text-brand-gold hover:bg-brand-gold hover:text-white font-bold py-2.5 px-4 rounded transition-colors"
-                >
-                  Consultar precio
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -181,6 +152,17 @@ const Diploma: React.FC = () => {
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Después del certificado */}
+      <section className="py-20 px-6 bg-brand-dark text-white text-center">
+        <div className="container mx-auto max-w-3xl flex flex-col items-center gap-5">
+          <div className="w-14 h-14 rounded-full bg-brand-gold/15 flex items-center justify-center"><HeartHandshake size={28} className="text-brand-gold" /></div>
+          <h2 className="text-3xl font-heading font-bold">La formación no termina con el certificado</h2>
+          <p className="text-lg text-gray-300 leading-relaxed">
+            Durante los 6 meses aprendés en grupo, con colegas que atraviesan el mismo proceso. Y cuando terminás, seguimos en contacto: entrás a la comunidad Eneascoaching para seguir practicando, consultar casos y crecer con otras profesionales que usan la misma herramienta.
+          </p>
         </div>
       </section>
 
