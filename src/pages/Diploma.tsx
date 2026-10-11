@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
-import { BookOpen, Award, Layers, Globe, Users, HeartHandshake } from 'lucide-react';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay } from 'lucide-react';
 
 const Diploma: React.FC = () => {
   return (
@@ -54,9 +54,14 @@ const Diploma: React.FC = () => {
                 23% OFF
               </div>
               <h3 className="text-2xl font-heading font-bold mb-3 text-brand-dark">Diplomatura</h3>
-              <span className="inline-flex items-center gap-2 bg-white border border-brand-gold/40 text-brand-dark text-sm font-medium px-4 py-1.5 rounded-full mb-3">
-                <Users size={16} className="text-brand-gold" /> Grupal: aprendemos y nos acompañamos
-              </span>
+              <div className="flex flex-wrap gap-2 mb-3">
+                <span className="inline-flex items-center gap-2 bg-white border border-brand-gold/40 text-brand-dark text-sm font-medium px-4 py-1.5 rounded-full">
+                  <Users size={16} className="text-brand-gold" /> Grupal: aprendemos y nos acompañamos
+                </span>
+                <span className="inline-flex items-center gap-2 bg-white border border-brand-gold/40 text-brand-dark text-sm font-medium px-4 py-1.5 rounded-full">
+                  <MonitorPlay size={16} className="text-brand-gold" /> Campus con material y clases grabadas
+                </span>
+              </div>
               <p className="text-sm font-semibold text-brand-gold mb-6">Próxima cohorte: consultá la fecha</p>
 
               <div className="space-y-4">
@@ -92,12 +97,21 @@ const Diploma: React.FC = () => {
 
               <div className="mt-6 pt-6 border-t border-brand-gold/20">
                 <a
-                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura"
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                  href="https://wa.me/5493515632496?text=Hola%20Cecilia%2C%20quiero%20agendar%20una%20reuni%C3%B3n%20informativa%20sobre%20la%20Diplomatura"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block w-full text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-4 rounded transition-colors"
                 >
-                  Consultar precio
+                  Agendar reunión informativa gratuita
+                </a>
+                <p className="text-xs text-gray-500 text-center mt-2">Sin compromiso: te contamos fechas, precio y cómo es el campus.</p>
+                <a
+                  href="https://wa.me/5493515632496?text=Hola,%20quisiera%20consultar%20el%20precio%20de%20la%20Diplomatura"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center text-sm text-brand-dark underline underline-offset-4 mt-3 hover:text-brand-gold"
+                >
+                  o consultá el precio por WhatsApp
                 </a>
               </div>
             </div>
