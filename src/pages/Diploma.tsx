@@ -26,6 +26,18 @@ const Diploma: React.FC = () => {
           <p className="text-sm md:text-base text-brand-gold font-medium tracking-widest uppercase mb-8 mt-6">Certificación Privada ENEASCOACHING®</p>
           <div className="w-20 h-1 bg-white mx-auto mb-8"></div>
           <p className="text-xl italic font-light">"Hombre conócete a ti mismo y conocerás el universo" - Oráculo de Delfos</p>
+
+          <div className="mt-12 relative w-full max-w-3xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video">
+            <iframe
+              src="https://www.youtube.com/embed/o6tt2542Qlk"
+              title="Presentación de la Diplomatura en Eneagrama"
+              loading="lazy"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
         </div>
       </div>
 
