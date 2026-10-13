@@ -61,6 +61,31 @@ const About: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Acreditaciones */}
+      <section className="py-16 px-6 bg-white text-center">
+        <div className="container mx-auto max-w-4xl flex flex-col items-center">
+          <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">Formación y acreditaciones</h2>
+          <div className="h-1 w-20 bg-brand-gold mx-auto mb-6"></div>
+          <p className="text-gray-600 max-w-2xl mb-10">
+            Coach profesional acreditada y miembro de la Confederación Interamericana de Coaching (CIC), con certificación de Executive and Business Coach otorgada por CCE (Continuing Coach Education).
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
+            <img
+              src="/acreditaciones/cic-acreditacion.jpg"
+              alt="Confederación Interamericana de Coaching (CIC): Coach Profesional Acreditado, Miembro"
+              loading="lazy"
+              className="w-full max-w-md mx-auto rounded-sm"
+            />
+            <img
+              src="/acreditaciones/cce-certificado.png"
+              alt="Certificado CCE: Cecilia Sánchez, Executive and Business Coach"
+              loading="lazy"
+              className="w-full max-w-sm mx-auto rounded-sm shadow-md border border-gray-200"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
