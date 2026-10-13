@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
-import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay } from 'lucide-react';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download } from 'lucide-react';
 
 const Diploma: React.FC = () => {
   return (
@@ -74,7 +74,7 @@ const Diploma: React.FC = () => {
                   <MonitorPlay size={16} className="text-brand-gold" /> Campus con material y clases grabadas
                 </span>
               </div>
-              <p className="text-sm font-semibold text-brand-gold mb-6">Próxima cohorte: consultá la fecha</p>
+              <p className="text-sm font-semibold text-brand-gold mb-6">Próximo inicio: consultá la fecha</p>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -177,6 +177,16 @@ const Diploma: React.FC = () => {
                 <li>• Práctica supervisada</li>
               </ul>
             </div>
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <a
+              href="/Diplomatura-Eneagrama-Liderazgo-y-Vinculos-Conscientes.pdf"
+              download="Diplomatura-Eneagrama-Liderazgo-y-Vinculos-Conscientes.pdf"
+              className="inline-flex items-center gap-3 bg-brand-dark hover:bg-brand-gold text-white font-bold py-3 px-8 rounded transition-colors"
+            >
+              <Download size={20} /> Descargar material del programa
+            </a>
           </div>
         </div>
       </section>
