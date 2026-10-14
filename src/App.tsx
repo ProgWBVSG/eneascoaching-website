@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import FloatingAIAssistant from './components/FloatingAIAssistant';
 import ScrollToTop from './components/ScrollToTop';
+import MetaPixelTracker from './components/MetaPixelTracker';
 import LoadingScreen from './components/LoadingScreen';
 
 // Pages
@@ -13,6 +14,7 @@ import About from './pages/About';
 import GroupMentorship from './pages/GroupMentorship';
 import PremiumMentorship from './pages/PremiumMentorship';
 import Diploma from './pages/Diploma';
+import Agendar from './pages/Agendar';
 import FreeContent from './pages/FreeContent';
 import EneaTest from './pages/EneaTest';
 import EneaTestCompleto from './pages/EneaTestCompleto';
@@ -76,6 +78,7 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <MetaPixelTracker />
       <Routes>
         {/* Standalone pages — sin navbar ni footer */}
         <Route path="/enea-test-juridico" element={<EneaTest />} />
@@ -106,6 +109,7 @@ const App: React.FC = () => {
           <Route path="/mentorias/grupal" element={<GroupMentorship />} />
           <Route path="/mentorias/premium" element={<PremiumMentorship />} />
           <Route path="/diplomatura" element={<Diploma />} />
+          <Route path="/agendar" element={<Agendar />} />
           <Route path="/contenido-gratuito" element={<FreeContent />} />
         </Route>
       </Routes>

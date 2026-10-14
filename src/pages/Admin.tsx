@@ -8,11 +8,11 @@ import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
 import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
 import { ENCUESTAS } from '../data/encuestas';
-import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare } from 'lucide-react';
+import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare, CalendarCheck } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas';
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas' | 'agenda';
 const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion', 'encuestas'];
 
 interface Invite {
@@ -271,6 +271,7 @@ const Admin: React.FC = () => {
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
+            { id: 'agenda', label: 'Reuniones agendadas' },
             { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
             <button
@@ -296,6 +297,7 @@ const Admin: React.FC = () => {
         {tab === 'liderazgo' && <TestLiderazgoTab token={token} />}
         {tab === 'reuniones' && <TestReunionesTab token={token} />}
         {tab === 'comunicacion' && <TestComunicacionTab token={token} />}
+        {tab === 'agenda' && <AgendaTab token={token} />}
         {tab === 'encuestas' && <EncuestasTab token={token} />}
 
         {!NON_TEST_TABS.includes(tab) &&loading && <div className="text-center py-20 text-gray-400">Cargando...</div>}
@@ -1464,6 +1466,119 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
         })}
       </div>
       </>
+      )}
+    </div>
+  );
+};
+
+// ── Tab de reuniones agendadas (calendario público /agendar) ─────────
+interface AgendaItem {
+  id: string; nombre: string; trabajo: string; telefono: string | null; zona_horaria: string | null;
+  fecha: string; hora: string; estado: 'pendiente' | 'confirmada' | 'cancelada'; created_at: string;
+}
+
+const AgendaTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<AgendaItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filtro, setFiltro] = useState<'proximas' | 'pasadas' | 'canceladas'>('proximas');
+  const [msg, setMsg] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=agenda-list', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token]);
+  useEffect(() => { load(); }, [load]);
+
+  const cambiar = async (id: string, estado: AgendaItem['estado']) => {
+    setMsg('');
+    const res = await fetch('/api/cursos?action=agenda-update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+      body: JSON.stringify({ id, estado }),
+    });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); setMsg(d.error || 'No se pudo actualizar'); }
+    load();
+  };
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=agenda-delete&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+
+  const inst = (i: AgendaItem) => new Date(`${i.fecha}T${i.hora}:00-03:00`);
+  const fmtAr = (i: AgendaItem) =>
+    `${new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Argentina/Buenos_Aires' }).format(inst(i))} · ${i.hora} hs (Argentina)`;
+  const fmtLocal = (i: AgendaItem) => i.zona_horaria && i.zona_horaria !== 'America/Argentina/Buenos_Aires'
+    ? `En su zona (${i.zona_horaria.replace(/_/g, ' ')}): ${new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: i.zona_horaria }).format(inst(i))} hs`
+    : '';
+  const linkConfirmar = (i: AgendaItem) => {
+    const tel = (i.telefono || '').replace(/\D/g, '');
+    if (!tel) return '';
+    const txt = `Hola ${i.nombre}, soy Cecilia. Te confirmo nuestra reunión informativa para el ${fmtAr(i)}. ¡Te espero!`;
+    return `https://wa.me/${tel}?text=${encodeURIComponent(txt)}`;
+  };
+
+  const ahora = Date.now();
+  const lista = items.filter(i => {
+    const pasada = inst(i).getTime() + 15 * 60e3 < ahora;
+    if (filtro === 'canceladas') return i.estado === 'cancelada';
+    if (i.estado === 'cancelada') return false;
+    return filtro === 'pasadas' ? pasada : !pasada;
+  });
+  if (filtro === 'pasadas') lista.reverse();
+  const pendientes = items.filter(i => i.estado === 'pendiente' && inst(i).getTime() > ahora).length;
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/agendar`;
+
+  const badge = (e: AgendaItem['estado']) =>
+    e === 'confirmada' ? 'bg-green-100 text-green-700' : e === 'cancelada' ? 'bg-gray-100 text-gray-500' : 'bg-amber-100 text-amber-700';
+
+  return (
+    <div>
+      <div className="bg-white border border-gray-200 rounded-sm p-5 mb-5">
+        <div className="flex items-center gap-2 mb-1"><CalendarCheck className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Reuniones agendadas</h3></div>
+        <p className="text-sm text-gray-500">Link del calendario: <span className="font-mono text-xs break-all">{link}</span></p>
+        <p className="text-sm text-gray-500 mt-1">{pendientes} pendiente{pendientes === 1 ? '' : 's'} de confirmar. Horarios y días se cambian en el código (src/data/agenda.ts).</p>
+      </div>
+
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {([['proximas', 'Próximas'], ['pasadas', 'Pasadas'], ['canceladas', 'Canceladas']] as const).map(([k, l]) => (
+          <button key={k} onClick={() => setFiltro(k)} className={`px-4 py-2 text-sm font-semibold rounded border ${filtro === k ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-gray-600 border-gray-200'}`}>{l}</button>
+        ))}
+        <button onClick={load} className="ml-auto p-2 text-gray-500 hover:text-brand-gold" aria-label="Actualizar"><RefreshCw className="w-4 h-4" /></button>
+      </div>
+      {msg && <p className="text-sm text-red-600 mb-3">{msg}</p>}
+
+      {loading ? <p className="text-gray-400 text-sm">Cargando…</p> : lista.length === 0 ? (
+        <p className="text-gray-400 text-sm py-8 text-center">No hay reuniones en esta lista.</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {lista.map(i => (
+            <div key={i.id} className="bg-white border border-gray-200 rounded-sm p-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div>
+                  <p className="font-bold text-brand-dark capitalize">{fmtAr(i)}</p>
+                  {fmtLocal(i) && <p className="text-xs text-gray-500">{fmtLocal(i)}</p>}
+                </div>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${badge(i.estado)}`}>{i.estado}</span>
+              </div>
+              <p className="mt-2 text-sm"><strong>{i.nombre}</strong> · {i.trabajo}</p>
+              {i.telefono && <p className="text-sm text-gray-500">WhatsApp: {i.telefono}</p>}
+              <div className="mt-3 flex gap-2 flex-wrap">
+                {i.estado !== 'confirmada' && <button onClick={() => cambiar(i.id, 'confirmada')} className="px-3 py-1.5 text-sm font-semibold rounded bg-green-600 text-white">Confirmar</button>}
+                {i.estado === 'confirmada' && linkConfirmar(i) && <a href={linkConfirmar(i)} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-sm font-semibold rounded bg-[#25D366] text-white">Avisarle por WhatsApp</a>}
+                {i.estado === 'cancelada'
+                  ? <button onClick={() => cambiar(i.id, 'pendiente')} className="px-3 py-1.5 text-sm font-semibold rounded border border-gray-300">Reactivar</button>
+                  : <button onClick={() => cambiar(i.id, 'cancelada')} className="px-3 py-1.5 text-sm font-semibold rounded border border-gray-300">Cancelar (libera el horario)</button>}
+                {deleteConfirm === i.id
+                  ? <button onClick={() => del(i.id)} className="px-3 py-1.5 text-sm font-semibold rounded bg-red-600 text-white">Seguro, borrar</button>
+                  : <button onClick={() => setDeleteConfirm(i.id)} className="px-2 py-1.5 text-gray-400 hover:text-red-600" aria-label="Eliminar"><Trash2 className="w-4 h-4" /></button>}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

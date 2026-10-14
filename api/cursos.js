@@ -47,6 +47,26 @@ async function finalizeSale(supabase, sale, payment) {
   return code;
 }
 
+// ── Agenda de reuniones (horario Argentina, UTC-3). Igual que src/data/agenda.ts ──
+const AG_VENTANAS = [['09:00', '12:00'], ['16:30', '22:00']];
+const AG_DIAS = [1, 2, 3, 4, 5];
+const AG_MIN = 15, AG_DIAS_ADELANTE = 45, AG_HORAS_ANTICIPACION = 12;
+const agMin = (h) => { const [a, b] = h.split(':').map(Number); return a * 60 + b; };
+const agHora = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+const AG_HORARIOS = AG_VENTANAS.flatMap(([ini, fin]) => {
+  const out = [];
+  for (let m = agMin(ini); m + AG_MIN <= agMin(fin); m += AG_MIN) out.push(agHora(m));
+  return out;
+});
+function agSlotValido(fecha, hora) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha || '') || !AG_HORARIOS.includes(hora)) return false;
+  if (!AG_DIAS.includes(new Date(`${fecha}T12:00:00Z`).getUTCDay())) return false;
+  const t = new Date(`${fecha}T${hora}:00-03:00`).getTime();
+  if (isNaN(t)) return false;
+  const ahora = Date.now();
+  return t >= ahora + AG_HORAS_ANTICIPACION * 3600e3 && t <= ahora + AG_DIAS_ADELANTE * 86400e3;
+}
+
 export default async function handler(req, res) {
   const supabase = sb();
   const action = req.query.action;
@@ -313,6 +333,33 @@ export default async function handler(req, res) {
       if (error) {
         // La respuesta completa queda en los logs de Vercel para poder recuperarla
         console.error('encuesta-submit error:', error, 'RESPUESTA_NO_GUARDADA:', JSON.stringify(req.body));
+        return res.status(500).json({ error: 'No se pudo guardar' });
+      }
+      return res.status(200).json({ success: true });
+    }
+
+    // Agenda: horarios ocupados (público)
+    if (action === 'agenda-slots' && req.method === 'GET') {
+      const desde = new Date(Date.now() - 86400e3).toISOString().slice(0, 10);
+      const { data, error } = await supabase.from('agenda_reuniones').select('fecha,hora').neq('estado', 'cancelada').gte('fecha', desde);
+      if (error) { console.error('agenda-slots error:', error); return res.status(500).json({ error: 'No se pudo cargar' }); }
+      return res.status(200).json({ ocupados: (data || []).map(r => `${r.fecha}|${r.hora}`) });
+    }
+
+    // Agenda: reservar (público)
+    if (action === 'agenda-book' && req.method === 'POST') {
+      const { nombre, trabajo, telefono, zona_horaria, fecha, hora } = req.body || {};
+      if (!nombre || !trabajo || !agSlotValido(fecha, hora)) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('agenda_reuniones').insert({
+        nombre: String(nombre).trim().slice(0, 120),
+        trabajo: String(trabajo).trim().slice(0, 160),
+        telefono: telefono ? String(telefono).trim().slice(0, 40) : null,
+        zona_horaria: zona_horaria ? String(zona_horaria).slice(0, 60) : null,
+        fecha, hora,
+      });
+      if (error) {
+        if (error.code === '23505') return res.status(409).json({ error: 'Ese horario ya fue reservado' });
+        console.error('agenda-book error:', error, 'RESERVA_NO_GUARDADA:', JSON.stringify(req.body));
         return res.status(500).json({ error: 'No se pudo guardar' });
       }
       return res.status(200).json({ success: true });
@@ -623,6 +670,27 @@ export default async function handler(req, res) {
     }
     if (action === 'reuniones-submission' && req.method === 'DELETE') {
       await supabase.from('test_reuniones_submissions').delete().eq('id', req.query.id);
+      return res.status(200).json({ success: true });
+    }
+
+    // Agenda de reuniones (admin)
+    if (action === 'agenda-list' && req.method === 'GET') {
+      const { data, error } = await supabase.from('agenda_reuniones').select('*').order('fecha', { ascending: true }).order('hora', { ascending: true });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
+    }
+    if (action === 'agenda-update' && req.method === 'POST') {
+      const { id, estado } = req.body || {};
+      if (!id || !['pendiente', 'confirmada', 'cancelada'].includes(estado)) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('agenda_reuniones').update({ estado }).eq('id', id);
+      if (error) {
+        if (error.code === '23505') return res.status(409).json({ error: 'Ese horario ya lo tomó otra persona' });
+        return res.status(500).json({ error: error.message });
+      }
+      return res.status(200).json({ success: true });
+    }
+    if (action === 'agenda-delete' && req.method === 'DELETE') {
+      await supabase.from('agenda_reuniones').delete().eq('id', req.query.id);
       return res.status(200).json({ success: true });
     }
 
