@@ -4,6 +4,7 @@ import {
   AGENDA_DIAS, AGENDA_DIAS_ADELANTE, AGENDA_HORAS_ANTICIPACION, AGENDA_MINUTOS, HORARIOS_DEL_DIA,
   ZONAS, ZONA_ARGENTINA, instante, fmtHora, fmtDia, hoyArgentina,
 } from '../data/agenda';
+import { trackEvent } from '../lib/metaPixel';
 
 const WA_NUMERO = '5493515632496';
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -105,6 +106,7 @@ const Agendar: React.FC = () => {
       });
       if (res.status === 409) { setError('Ese horario acaba de ser reservado. Elegí otro, por favor.'); setHora(null); cargar(); return; }
       if (!res.ok) throw new Error();
+      trackEvent('Schedule', { content_name: 'Reunión informativa Diplomatura' });
       setReservada({ ok: true });
     } catch {
       // Si no se pudo guardar, igual puede mandar el mensaje por WhatsApp
