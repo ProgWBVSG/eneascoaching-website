@@ -365,6 +365,24 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // Inscripción a la Diplomatura (público)
+    if (action === 'inscripcion-submit' && req.method === 'POST') {
+      const b = req.body || {};
+      const txt = (v, n) => (v ? String(v).trim().slice(0, n) : null);
+      if (!b.nombre || !b.email || !b.telefono) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('inscripciones_diplomatura').insert({
+        nombre: txt(b.nombre, 120), email: txt(b.email, 160), telefono: txt(b.telefono, 40),
+        pais: txt(b.pais, 80), profesion: txt(b.profesion, 160), origen: txt(b.origen, 80),
+        forma_pago: txt(b.forma_pago, 80), medio_pago: txt(b.medio_pago, 80),
+        comentario: txt(b.comentario, 1000), cohorte: txt(b.cohorte, 60),
+      });
+      if (error) {
+        console.error('inscripcion-submit error:', error, 'INSCRIPCION_NO_GUARDADA:', JSON.stringify(b));
+        return res.status(500).json({ error: 'No se pudo guardar' });
+      }
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 
@@ -670,6 +688,30 @@ export default async function handler(req, res) {
     }
     if (action === 'reuniones-submission' && req.method === 'DELETE') {
       await supabase.from('test_reuniones_submissions').delete().eq('id', req.query.id);
+      return res.status(200).json({ success: true });
+    }
+
+    // Inscripciones a la Diplomatura (admin)
+    if (action === 'inscripciones-list' && req.method === 'GET') {
+      const { data, error } = await supabase.from('inscripciones_diplomatura').select('*').order('created_at', { ascending: false });
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json(data || []);
+    }
+    if (action === 'inscripcion-update' && req.method === 'POST') {
+      const { id, estado, notas } = req.body || {};
+      const cambios = {};
+      if (estado !== undefined) {
+        if (!['nueva', 'pago_pendiente', 'pagada', 'cancelada'].includes(estado)) return res.status(400).json({ error: 'Estado inválido' });
+        cambios.estado = estado;
+      }
+      if (notas !== undefined) cambios.notas = String(notas).slice(0, 2000);
+      if (!id || !Object.keys(cambios).length) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('inscripciones_diplomatura').update(cambios).eq('id', id);
+      if (error) return res.status(500).json({ error: error.message });
+      return res.status(200).json({ success: true });
+    }
+    if (action === 'inscripcion-delete' && req.method === 'DELETE') {
+      await supabase.from('inscripciones_diplomatura').delete().eq('id', req.query.id);
       return res.status(200).json({ success: true });
     }
 

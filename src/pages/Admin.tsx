@@ -8,11 +8,12 @@ import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
 import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
 import { ENCUESTAS } from '../data/encuestas';
+import { ESTADOS_INSCRIPCION, type EstadoInscripcion } from '../data/inscripcion';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare, CalendarCheck } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas' | 'agenda';
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas' | 'agenda' | 'inscripciones';
 const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion', 'encuestas'];
 
 interface Invite {
@@ -271,6 +272,7 @@ const Admin: React.FC = () => {
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
+            { id: 'inscripciones', label: 'Inscripciones' },
             { id: 'agenda', label: 'Reuniones agendadas' },
             { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
@@ -297,6 +299,7 @@ const Admin: React.FC = () => {
         {tab === 'liderazgo' && <TestLiderazgoTab token={token} />}
         {tab === 'reuniones' && <TestReunionesTab token={token} />}
         {tab === 'comunicacion' && <TestComunicacionTab token={token} />}
+        {tab === 'inscripciones' && <InscripcionesTab token={token} />}
         {tab === 'agenda' && <AgendaTab token={token} />}
         {tab === 'encuestas' && <EncuestasTab token={token} />}
 
@@ -1466,6 +1469,136 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
         })}
       </div>
       </>
+      )}
+    </div>
+  );
+};
+
+// ── Tab de inscripciones a la Diplomatura (/inscripcion) ─────────────
+interface InscripcionItem {
+  id: string; nombre: string; email: string; telefono: string; pais: string | null; profesion: string | null;
+  origen: string | null; forma_pago: string | null; medio_pago: string | null; comentario: string | null;
+  cohorte: string | null; estado: EstadoInscripcion; notas: string | null; created_at: string;
+}
+
+const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<InscripcionItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filtro, setFiltro] = useState<EstadoInscripcion | 'activas'>('activas');
+  const [notas, setNotas] = useState<Record<string, string>>({});
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=inscripciones-list', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } finally { setLoading(false); }
+  }, [token]);
+  useEffect(() => { load(); }, [load]);
+
+  const update = async (id: string, cambios: { estado?: EstadoInscripcion; notas?: string }) => {
+    await fetch('/api/cursos?action=inscripcion-update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+      body: JSON.stringify({ id, ...cambios }),
+    });
+    load();
+  };
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=inscripcion-delete&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+
+  const wa = (i: InscripcionItem, texto: string) => {
+    const tel = i.telefono.replace(/\D/g, '');
+    return tel ? `https://wa.me/${tel}?text=${encodeURIComponent(texto)}` : '';
+  };
+  const primerNombre = (i: InscripcionItem) => i.nombre.trim().split(' ')[0];
+  const msgPago = (i: InscripcionItem) =>
+    `Hola ${primerNombre(i)}, soy Cecilia. ¡Gracias por inscribirte a la Diplomatura que inicia el ${i.cohorte || ''}! Te paso los datos para el pago (${(i.forma_pago || '').toLowerCase()}, ${i.medio_pago || ''}):\n\n`;
+  const msgBienvenida = (i: InscripcionItem) =>
+    `Hola ${primerNombre(i)}, ¡confirmamos tu pago! Ya sos parte de la Diplomatura en Eneagrama que inicia el ${i.cohorte || ''}. En los próximos días te paso el acceso al campus y el link del primer encuentro. ¡Bienvenida/o!`;
+
+  const cuenta = (e: EstadoInscripcion) => items.filter(i => i.estado === e).length;
+  const lista = items.filter(i => filtro === 'activas' ? i.estado === 'nueva' || i.estado === 'pago_pendiente' : i.estado === filtro);
+  const est = (e: EstadoInscripcion) => ESTADOS_INSCRIPCION.find(x => x.id === e) || ESTADOS_INSCRIPCION[0];
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/inscripcion`;
+
+  return (
+    <div>
+      <div className="bg-white border border-gray-200 rounded-sm p-5 mb-5">
+        <div className="flex items-center gap-2 mb-1"><GraduationCap className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Inscripciones a la Diplomatura</h3></div>
+        <p className="text-sm text-gray-500">Link de inscripción: <span className="font-mono text-xs break-all">{link}</span></p>
+        <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+          {ESTADOS_INSCRIPCION.map(e => (
+            <div key={e.id} className="border border-gray-100 rounded p-2">
+              <p className="text-2xl font-bold text-brand-dark">{cuenta(e.id)}</p>
+              <p className="text-xs text-gray-500">{e.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-4 flex-wrap">
+        {([['activas', 'Por gestionar'], ['pagada', 'Pagadas'], ['cancelada', 'Canceladas']] as const).map(([k, l]) => (
+          <button key={k} onClick={() => setFiltro(k)} className={`px-4 py-2 text-sm font-semibold rounded border ${filtro === k ? 'bg-brand-gold text-white border-brand-gold' : 'bg-white text-gray-600 border-gray-200'}`}>{l}</button>
+        ))}
+        <button onClick={load} className="ml-auto p-2 text-gray-500 hover:text-brand-gold" aria-label="Actualizar"><RefreshCw className="w-4 h-4" /></button>
+      </div>
+
+      {loading ? <p className="text-gray-400 text-sm">Cargando…</p> : lista.length === 0 ? (
+        <p className="text-gray-400 text-sm py-8 text-center">No hay inscripciones en esta lista.</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {lista.map(i => (
+            <div key={i.id} className="bg-white border border-gray-200 rounded-sm p-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div>
+                  <p className="font-bold text-brand-dark">{i.nombre}</p>
+                  <p className="text-xs text-gray-500">{new Date(i.created_at).toLocaleString('es-AR')} · Cohorte {i.cohorte || '-'}</p>
+                </div>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${est(i.estado).color}`}>{est(i.estado).label}</span>
+              </div>
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm text-gray-700">
+                <p>WhatsApp: {i.telefono}</p>
+                <p className="break-all">Email: {i.email}</p>
+                {i.pais && <p>País: {i.pais}</p>}
+                {i.profesion && <p>Se dedica a: {i.profesion}</p>}
+                <p>Pago: {i.forma_pago || '-'} · {i.medio_pago || '-'}</p>
+                {i.origen && <p>Nos conoció por: {i.origen}</p>}
+              </div>
+              {i.comentario && <p className="mt-2 text-sm text-gray-600 italic">"{i.comentario}"</p>}
+              <textarea
+                className="mt-3 w-full border border-gray-200 rounded px-3 py-2 text-sm"
+                placeholder="Notas internas (monto acordado, cuotas pagadas, etc.)"
+                value={notas[i.id] ?? i.notas ?? ''}
+                onChange={e => setNotas(n => ({ ...n, [i.id]: e.target.value }))}
+                onBlur={() => { if (notas[i.id] !== undefined && notas[i.id] !== (i.notas ?? '')) update(i.id, { notas: notas[i.id] }); }}
+              />
+              <div className="mt-3 flex gap-2 flex-wrap">
+                {i.estado === 'nueva' && (
+                  <a href={wa(i, msgPago(i))} target="_blank" rel="noopener noreferrer" onClick={() => update(i.id, { estado: 'pago_pendiente' })} className="px-3 py-1.5 text-sm font-semibold rounded bg-[#25D366] text-white">Enviar datos de pago</a>
+                )}
+                {(i.estado === 'nueva' || i.estado === 'pago_pendiente') && (
+                  <button onClick={() => update(i.id, { estado: 'pagada' })} className="px-3 py-1.5 text-sm font-semibold rounded bg-green-600 text-white">Marcar pagada</button>
+                )}
+                {i.estado === 'pagada' && (
+                  <a href={wa(i, msgBienvenida(i))} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-sm font-semibold rounded bg-[#25D366] text-white">Enviar bienvenida</a>
+                )}
+                {i.estado !== 'nueva' && i.estado !== 'cancelada' && (
+                  <button onClick={() => update(i.id, { estado: i.estado === 'pagada' ? 'pago_pendiente' : 'nueva' })} className="px-3 py-1.5 text-sm rounded border border-gray-300">Volver un paso</button>
+                )}
+                {i.estado === 'cancelada'
+                  ? <button onClick={() => update(i.id, { estado: 'nueva' })} className="px-3 py-1.5 text-sm font-semibold rounded border border-gray-300">Reactivar</button>
+                  : <button onClick={() => update(i.id, { estado: 'cancelada' })} className="px-3 py-1.5 text-sm rounded border border-gray-300">Cancelar</button>}
+                {deleteConfirm === i.id
+                  ? <button onClick={() => del(i.id)} className="px-3 py-1.5 text-sm font-semibold rounded bg-red-600 text-white">Seguro, borrar</button>
+                  : <button onClick={() => setDeleteConfirm(i.id)} className="px-2 py-1.5 text-gray-400 hover:text-red-600" aria-label="Eliminar"><Trash2 className="w-4 h-4" /></button>}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

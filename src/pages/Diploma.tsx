@@ -1,7 +1,7 @@
 import React from 'react';
 import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download } from 'lucide-react';
 
-const WA_EMPEZAR = 'https://wa.me/5493515632496?text=Hola%20Cecilia%2C%20quiero%20empezar%20la%20Diplomatura.%20%C2%BFC%C3%B3mo%20me%20inscribo%3F';
+import { COHORTE_DIPLOMATURA } from '../data/inscripcion';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-6 rounded transition-colors';
 
 const Diploma: React.FC = () => {
@@ -42,7 +42,7 @@ const Diploma: React.FC = () => {
           </div>
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-xl mx-auto">
-            <a href={WA_EMPEZAR} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} flex-1 py-4 text-lg`}>Quiero empezar</a>
+            <a href="/inscripcion" className={`${btnPrimary} flex-1 py-4 text-lg`}>Quiero empezar</a>
             <a href="/agendar" className="inline-flex items-center justify-center text-center flex-1 border border-white/60 hover:bg-white hover:text-brand-dark text-white font-semibold py-4 px-6 rounded transition-colors">Agendar reunión informativa</a>
           </div>
         </div>
@@ -82,7 +82,7 @@ const Diploma: React.FC = () => {
                   <MonitorPlay size={16} className="text-brand-gold" /> Campus con material y clases grabadas
                 </span>
               </div>
-              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia el 27 de octubre</p>
+              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia el {COHORTE_DIPLOMATURA}</p>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -116,7 +116,7 @@ const Diploma: React.FC = () => {
               </div>
 
               <div className="mt-6 pt-6 border-t border-brand-gold/20 flex flex-col gap-3">
-                <a href={WA_EMPEZAR} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full`}>Quiero empezar</a>
+                <a href="/inscripcion" className={`${btnPrimary} w-full`}>Quiero empezar</a>
                 <a href="/agendar" className="block w-full text-center border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-3 px-4 rounded transition-colors">Agendar reunión informativa gratuita</a>
                 <p className="text-xs text-gray-500 text-center">Sin compromiso: te contamos fechas, precio y cómo es el campus.</p>
                 <a
@@ -182,7 +182,7 @@ const Diploma: React.FC = () => {
           </div>
 
           <div className="mt-12 flex flex-col sm:flex-row gap-3 justify-center items-stretch">
-            <a href={WA_EMPEZAR} target="_blank" rel="noopener noreferrer" className={btnPrimary}>Quiero empezar</a>
+            <a href="/inscripcion" className={btnPrimary}>Quiero empezar</a>
             <a
               href="/Diplomatura-Eneagrama-Liderazgo-y-Vinculos-Conscientes.pdf"
               download="Diplomatura-Eneagrama-Liderazgo-y-Vinculos-Conscientes.pdf"
@@ -210,14 +210,14 @@ const Diploma: React.FC = () => {
         <h2 className="text-3xl font-heading font-bold mb-6">Convertite en diplomado en Eneagrama y gestión de talentos</h2>
         <p className="text-xl text-gray-600 mb-10">Formate con quien ya acompañó a <strong className="text-brand-dark">+60 personas que hicieron la diplomatura</strong>.</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-xl mx-auto">
-          <a href={WA_EMPEZAR} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} flex-1 py-4 text-lg`}>Quiero empezar</a>
+          <a href="/inscripcion" className={`${btnPrimary} flex-1 py-4 text-lg`}>Quiero empezar</a>
           <a href="/agendar" className="inline-flex items-center justify-center text-center flex-1 border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-4 px-6 rounded transition-colors">Agendar reunión informativa</a>
         </div>
       </section>
 
       {/* Barra fija en celular */}
       <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] p-3 pr-24 flex gap-2">
-        <a href={WA_EMPEZAR} target="_blank" rel="noopener noreferrer" className={`${btnPrimary} flex-1 px-2 text-sm`}>Quiero empezar</a>
+        <a href="/inscripcion" className={`${btnPrimary} flex-1 px-2 text-sm`}>Quiero empezar</a>
         <a href="/agendar" className="inline-flex items-center justify-center text-center flex-1 border-2 border-brand-gold text-brand-dark font-bold px-2 rounded text-sm">Reunión gratis</a>
       </div>
     </div>
