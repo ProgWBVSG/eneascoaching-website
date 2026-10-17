@@ -2,7 +2,7 @@
 // Si hay que cambiar días u horarios, se edita acá y en api/cursos.js (AG_*).
 export const AGENDA_VENTANAS: [string, string][] = [['09:00', '12:00'], ['16:30', '22:00']];
 export const AGENDA_DIAS = [0, 1, 2, 3, 4, 5, 6]; // 0 = domingo … 6 = sábado
-export const AGENDA_MINUTOS = 15; // duración de la reunión
+export const AGENDA_MINUTOS = 20; // duración de la reunión
 export const AGENDA_PASO = 30; // cada cuántos minutos arranca un horario (deja margen entre reuniones)
 export const AGENDA_DIAS_ADELANTE = 45;
 export const AGENDA_HORAS_ANTICIPACION = 12;

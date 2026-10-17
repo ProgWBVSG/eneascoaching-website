@@ -1656,7 +1656,7 @@ const AgendaTab: React.FC<{ token: string }> = ({ token }) => {
 
   const ahora = Date.now();
   const lista = items.filter(i => {
-    const pasada = inst(i).getTime() + 15 * 60e3 < ahora;
+    const pasada = inst(i).getTime() + 20 * 60e3 < ahora;
     if (filtro === 'canceladas') return i.estado === 'cancelada';
     if (i.estado === 'cancelada') return false;
     return filtro === 'pasadas' ? pasada : !pasada;
