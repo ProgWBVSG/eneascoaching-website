@@ -83,6 +83,17 @@ const Agendar: React.FC = () => {
   };
 
   const horarios = fecha ? libresDelDia(fecha) : [];
+  const grupos = useMemo(() => {
+    if (!fecha) return [] as { titulo: string; items: string[] }[];
+    const buckets: { titulo: string; items: string[] }[] = [
+      { titulo: 'Mañana', items: [] }, { titulo: 'Tarde', items: [] }, { titulo: 'Noche', items: [] },
+    ];
+    for (const h of horarios) {
+      const hl = Number(fmtHora(instante(fecha, h), tz).slice(0, 2));
+      buckets[hl < 13 ? 0 : hl < 19 ? 1 : 2].items.push(h);
+    }
+    return buckets.filter(g => g.items.length > 0);
+  }, [fecha, horarios, tz]);
   const instanteElegido = fecha && hora ? instante(fecha, hora) : null;
   const distintaZona = tz !== ZONA_ARGENTINA;
 
@@ -198,26 +209,33 @@ const Agendar: React.FC = () => {
               {fecha && (
                 <div className="mt-8 border-t border-gray-100 pt-6">
                   <h3 className="font-heading font-bold mb-1 flex items-center justify-center gap-2"><Clock size={18} className="text-brand-gold" /> {cap(fmtDia(instante(fecha, '12:00'), ZONA_ARGENTINA))}</h3>
-                  <p className="text-xs text-gray-500 mb-4">Horarios en {zonas.find(z => z.tz === tz)?.label || tz}</p>
+                  <p className="text-xs text-gray-500 mb-5">Reunión de {AGENDA_MINUTOS} minutos · horarios en {zonas.find(z => z.tz === tz)?.label || tz}</p>
                   {horarios.length === 0 ? (
                     <p className="text-gray-500 text-sm">No quedan horarios este día.</p>
                   ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                      {horarios.map(h => {
-                        const d = instante(fecha, h);
-                        const otroDia = fmtDia(d, tz) !== fmtDia(instante(fecha, '12:00'), tz) && distintaZona;
-                        return (
-                          <button
-                            key={h}
-                            onClick={() => { setHora(h); setError(''); }}
-                            className={`py-2.5 rounded border text-sm font-semibold transition-colors ${
-                              hora === h ? 'bg-brand-gold border-brand-gold text-white' : 'border-brand-gold/50 text-brand-dark hover:bg-brand-gold/15'
-                            }`}
-                          >
-                            {fmtHora(d, tz)}{otroDia && <span className="block text-[10px] font-normal opacity-70">{fmtDia(d, tz).split(' ')[0]}</span>}
-                          </button>
-                        );
-                      })}
+                    <div className="flex flex-col gap-6">
+                      {grupos.map(g => (
+                        <div key={g.titulo}>
+                          <p className="text-sm font-semibold text-gray-500 mb-3">{g.titulo}</p>
+                          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                            {g.items.map(h => {
+                              const d = instante(fecha, h);
+                              const otroDia = distintaZona && fmtDia(d, tz) !== fmtDia(instante(fecha, '12:00'), tz);
+                              return (
+                                <button
+                                  key={h}
+                                  onClick={() => { setHora(h); setError(''); }}
+                                  className={`py-3 rounded border text-sm font-semibold transition-colors ${
+                                    hora === h ? 'bg-brand-gold border-brand-gold text-white shadow-sm' : 'border-brand-gold/50 text-brand-dark hover:bg-brand-gold/15'
+                                  }`}
+                                >
+                                  {fmtHora(d, tz)}{otroDia && <span className="block text-[10px] font-normal opacity-70">{fmtDia(d, tz).split(' ')[0]}</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

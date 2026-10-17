@@ -2,7 +2,8 @@
 // Si hay que cambiar días u horarios, se edita acá y en api/cursos.js (AG_*).
 export const AGENDA_VENTANAS: [string, string][] = [['09:00', '12:00'], ['16:30', '22:00']];
 export const AGENDA_DIAS = [1, 2, 3, 4, 5]; // 0 = domingo … 6 = sábado
-export const AGENDA_MINUTOS = 15;
+export const AGENDA_MINUTOS = 15; // duración de la reunión
+export const AGENDA_PASO = 30; // cada cuántos minutos arranca un horario (deja margen entre reuniones)
 export const AGENDA_DIAS_ADELANTE = 45;
 export const AGENDA_HORAS_ANTICIPACION = 12;
 export const ZONA_ARGENTINA = 'America/Argentina/Buenos_Aires';
@@ -12,7 +13,7 @@ const aHora = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${S
 
 export const HORARIOS_DEL_DIA: string[] = AGENDA_VENTANAS.flatMap(([ini, fin]) => {
   const out: string[] = [];
-  for (let m = aMin(ini); m + AGENDA_MINUTOS <= aMin(fin); m += AGENDA_MINUTOS) out.push(aHora(m));
+  for (let m = aMin(ini); m + AGENDA_MINUTOS <= aMin(fin); m += AGENDA_PASO) out.push(aHora(m));
   return out;
 });
 
