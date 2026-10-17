@@ -49,7 +49,7 @@ async function finalizeSale(supabase, sale, payment) {
 
 // ── Agenda de reuniones (horario Argentina, UTC-3). Igual que src/data/agenda.ts ──
 const AG_VENTANAS = [['09:00', '12:00'], ['16:30', '22:00']];
-const AG_DIAS = [1, 2, 3, 4, 5];
+const AG_DIAS = [0, 1, 2, 3, 4, 5, 6];
 const AG_MIN = 15, AG_PASO = 30, AG_DIAS_ADELANTE = 45, AG_HORAS_ANTICIPACION = 12;
 const agMin = (h) => { const [a, b] = h.split(':').map(Number); return a * 60 + b; };
 const agHora = (m) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;

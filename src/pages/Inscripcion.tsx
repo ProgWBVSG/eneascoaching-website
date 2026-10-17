@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader2, GraduationCap, CheckCircle2 } from 'lucide-react';
 import { COHORTE_DIPLOMATURA, FORMAS_PAGO, MEDIOS_PAGO, ORIGENES } from '../data/inscripcion';
 
@@ -12,6 +12,8 @@ const Inscripcion: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
   const [listo, setListo] = useState<{ ok: boolean } | null>(null);
+  // Al confirmar, la pantalla se acorta: volver arriba para que no quede mostrando el pie de página
+  useEffect(() => { if (listo) window.scrollTo({ top: 0, behavior: 'auto' }); }, [listo]);
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setF(prev => ({ ...prev, [k]: e.target.value }));
@@ -42,7 +44,7 @@ const Inscripcion: React.FC = () => {
     } catch {
       // Si no se pudo guardar, la inscripción igual llega por WhatsApp
       setListo({ ok: false });
-    } finally { setEnviando(false); window.scrollTo({ top: 0 }); }
+    } finally { setEnviando(false); }
   };
 
   const input = 'w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold bg-white';

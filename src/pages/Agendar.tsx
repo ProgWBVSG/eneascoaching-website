@@ -42,6 +42,8 @@ const Agendar: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
   const [reservada, setReservada] = useState<{ ok: boolean } | null>(null);
+  // Al confirmar, la pantalla se acorta: volver arriba para que no quede mostrando el pie de página
+  useEffect(() => { if (reservada) window.scrollTo({ top: 0, behavior: 'auto' }); }, [reservada]);
 
   const cargar = async () => {
     setCargando(true); setErrorCarga(false);
