@@ -82,7 +82,7 @@ const Diploma: React.FC = () => {
                   <MonitorPlay size={16} className="text-brand-gold" /> Campus con material y clases grabadas
                 </span>
               </div>
-              <p className="text-sm font-semibold text-brand-gold mb-6">Próximo inicio: consultá la fecha</p>
+              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia el 30 de octubre</p>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
