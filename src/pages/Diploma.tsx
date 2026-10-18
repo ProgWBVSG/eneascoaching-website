@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download, Medal, PenLine, NotebookPen } from 'lucide-react';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download, Medal } from 'lucide-react';
 import DiplomaMockup from '../components/DiplomaMockup';
 
 import { COHORTE_DIPLOMATURA } from '../data/inscripcion';
@@ -209,8 +209,6 @@ const Diploma: React.FC = () => {
               {[
                 { icon: Award, t: 'Tu diploma de la Diplomatura, con certificación privada ENEASCOACHING®' },
                 { icon: Medal, t: 'La medalla del Eneagrama' },
-                { icon: PenLine, t: 'La lapicera "Soy Coach Eneagramista"' },
-                { icon: NotebookPen, t: 'La agenda Eneascoaching' },
                 { icon: Users, t: '6 meses de acceso gratis a la comunidad de eneagramistas' },
               ].map(({ icon: Icon, t }) => (
                 <li key={t} className="flex items-center justify-center gap-3"><Icon size={20} className="text-brand-gold shrink-0" /> {t}</li>
