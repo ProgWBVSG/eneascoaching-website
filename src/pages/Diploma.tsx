@@ -1,6 +1,5 @@
 import React from 'react';
-import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download, Medal } from 'lucide-react';
-import DiplomaMockup from '../components/DiplomaMockup';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download } from 'lucide-react';
 
 import { COHORTE_DIPLOMATURA } from '../data/inscripcion';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-6 rounded transition-colors';
@@ -205,17 +204,41 @@ const Diploma: React.FC = () => {
               Durante los 6 meses aprendés en grupo, con colegas que atraviesan el mismo proceso. Y cuando terminás, seguimos en contacto: entrás a la comunidad Eneascoaching para seguir practicando, consultar casos y crecer con otras profesionales que usan la misma herramienta.
             </p>
             <h3 className="mt-4 text-xl font-heading font-bold text-brand-gold">Al graduarte recibís</h3>
-            <ul className="flex flex-col gap-3 text-gray-200">
+            <ul className="w-full grid grid-cols-3 gap-2 sm:gap-3 text-center">
               {[
-                { icon: Award, t: 'Tu diploma de la Diplomatura, con certificación privada ENEASCOACHING®' },
-                { icon: Medal, t: 'La medalla del Eneagrama' },
-                { icon: Users, t: '6 meses de acceso gratis a la comunidad de eneagramistas' },
-              ].map(({ icon: Icon, t }) => (
-                <li key={t} className="flex items-center justify-center gap-3"><Icon size={20} className="text-brand-gold shrink-0" /> {t}</li>
+                { img: '/diplomatura/diploma.webp', t: 'Diploma con certificación ENEASCOACHING®' },
+                { img: '/diplomatura/medalla.webp', t: 'La medalla del Eneagrama' },
+                { img: '/diplomatura/comunidad.webp', t: '6 meses gratis en la comunidad de eneagramistas' },
+              ].map(({ img, t }) => (
+                <li key={t} className="flex flex-col items-center gap-2 sm:gap-3 bg-white/5 border border-white/10 rounded-sm px-2 py-4 sm:px-4 sm:py-5">
+                  <img src={img} alt="" loading="lazy" className="w-14 h-14 sm:w-20 sm:h-20 object-contain drop-shadow-lg" />
+                  <span className="text-gray-200 text-xs sm:text-sm leading-snug">{t}</span>
+                </li>
               ))}
             </ul>
           </div>
-          <DiplomaMockup />
+
+          {/* Diploma enmarcado con la medalla y el sello de comunidad */}
+          <div className="relative w-full max-w-[520px] mx-auto px-6 sm:px-10 pt-4 pb-10">
+            <img
+              src="/diplomatura/diploma.webp"
+              alt="Diploma de la Diplomatura en Eneagrama, Liderazgo y Vínculos Conscientes"
+              loading="lazy"
+              className="w-full h-auto drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)]"
+            />
+            <img
+              src="/diplomatura/medalla.webp"
+              alt="Medalla del Eneagrama"
+              loading="lazy"
+              className="absolute left-0 bottom-0 w-[34%] h-auto drop-shadow-[0_14px_18px_rgba(0,0,0,0.55)]"
+            />
+            <img
+              src="/diplomatura/comunidad.webp"
+              alt="Comunidad de eneagramistas"
+              loading="lazy"
+              className="absolute right-0 bottom-2 w-[24%] h-auto drop-shadow-[0_14px_18px_rgba(0,0,0,0.55)]"
+            />
+          </div>
         </div>
       </section>
 
