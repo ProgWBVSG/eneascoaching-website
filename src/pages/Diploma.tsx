@@ -1,5 +1,6 @@
 import React from 'react';
-import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download } from 'lucide-react';
+import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download, Medal, PenLine, NotebookPen } from 'lucide-react';
+import DiplomaMockup from '../components/DiplomaMockup';
 
 import { COHORTE_DIPLOMATURA } from '../data/inscripcion';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-6 rounded transition-colors';
@@ -195,13 +196,28 @@ const Diploma: React.FC = () => {
       </section>
 
       {/* Después del certificado */}
-      <section className="py-20 px-6 bg-brand-dark text-white text-center">
-        <div className="container mx-auto max-w-3xl flex flex-col items-center gap-5">
-          <div className="w-14 h-14 rounded-full bg-brand-gold/15 flex items-center justify-center"><HeartHandshake size={28} className="text-brand-gold" /></div>
-          <h2 className="text-3xl font-heading font-bold">La formación no termina con el certificado</h2>
-          <p className="text-lg text-gray-300 leading-relaxed">
-            Durante los 6 meses aprendés en grupo, con colegas que atraviesan el mismo proceso. Y cuando terminás, seguimos en contacto: entrás a la comunidad Eneascoaching para seguir practicando, consultar casos y crecer con otras profesionales que usan la misma herramienta.
-          </p>
+      <section className="py-20 px-6 bg-brand-dark text-white overflow-hidden">
+        <div className="container mx-auto max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col items-center text-center gap-5">
+            <div className="w-14 h-14 rounded-full bg-brand-gold/15 flex items-center justify-center"><HeartHandshake size={28} className="text-brand-gold" /></div>
+            <h2 className="text-3xl font-heading font-bold">La formación no termina con el certificado</h2>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              Durante los 6 meses aprendés en grupo, con colegas que atraviesan el mismo proceso. Y cuando terminás, seguimos en contacto: entrás a la comunidad Eneascoaching para seguir practicando, consultar casos y crecer con otras profesionales que usan la misma herramienta.
+            </p>
+            <h3 className="mt-4 text-xl font-heading font-bold text-brand-gold">Al graduarte recibís</h3>
+            <ul className="flex flex-col gap-3 text-gray-200">
+              {[
+                { icon: Award, t: 'Tu diploma de la Diplomatura, con certificación privada ENEASCOACHING®' },
+                { icon: Medal, t: 'La medalla del Eneagrama' },
+                { icon: PenLine, t: 'La lapicera "Soy Coach Eneagramista"' },
+                { icon: NotebookPen, t: 'La agenda Eneascoaching' },
+                { icon: Users, t: '6 meses de acceso gratis a la comunidad de eneagramistas' },
+              ].map(({ icon: Icon, t }) => (
+                <li key={t} className="flex items-center justify-center gap-3"><Icon size={20} className="text-brand-gold shrink-0" /> {t}</li>
+              ))}
+            </ul>
+          </div>
+          <DiplomaMockup />
         </div>
       </section>
 
