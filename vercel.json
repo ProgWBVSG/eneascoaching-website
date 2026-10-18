@@ -1,4 +1,7 @@
 {
+  "redirects": [
+    { "source": "/comunidad", "destination": "https://academia.cecimentorcoach.com", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]

@@ -60,12 +60,12 @@ const Navbar: React.FC = () => {
 
             <Link to="/recursos" className="text-sm font-medium hover:text-brand-gold transition-colors">RECURSOS</Link>
 
-            <Link
-              to="/comunidad"
+            <a
+              href="https://academia.cecimentorcoach.com"
               className="gold-gradient text-white px-4 py-2 text-sm font-bold tracking-wide transition-all rounded-sm shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               COMUNIDAD
-            </Link>
+            </a>
 
             <a
               href="https://wa.me/5493515632496"
@@ -103,12 +103,12 @@ const Navbar: React.FC = () => {
           </div>
 
           <Link to="/recursos" className="text-lg font-heading font-medium text-brand-dark border-b border-brand-gold/20 pb-2">Recursos</Link>
-          <Link
-            to="/comunidad"
+          <a
+            href="https://academia.cecimentorcoach.com"
             className="gold-gradient text-white text-center text-lg font-heading font-bold py-3 rounded-lg shadow-md"
           >
             ✨ Comunidad
-          </Link>
+          </a>
           <a href="https://wa.me/5493515632496" className="text-lg font-heading font-medium text-brand-gold">WhatsApp</a>
         </div>
       </div>

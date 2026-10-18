@@ -26,7 +26,6 @@ import Comprar from './pages/Comprar';
 import CompraExito from './pages/CompraExito';
 import Comunidad from './pages/Comunidad';
 import ComunidadAdmin from './pages/ComunidadAdmin';
-import ComunidadVSL from './pages/ComunidadVSL';
 import Recursos from './pages/Recursos';
 import RecursosAdmin from './pages/RecursosAdmin';
 import TestDinero from './pages/TestDinero';
@@ -61,6 +60,9 @@ const useLegacyHashRedirect = () => {
   }, []);
 };
 
+// /comunidad ahora es la Academia (en Vercel también hay un redirect)
+const IrAAcademia = () => { window.location.replace('https://academia.cecimentorcoach.com'); return null; };
+
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   useLegacyHashRedirect();
@@ -89,7 +91,7 @@ const App: React.FC = () => {
         <Route path="/aula-admin" element={<AulaAdmin />} />
         <Route path="/comprar/:id" element={<Comprar />} />
         <Route path="/compra-exito/:ref" element={<CompraExito />} />
-        <Route path="/comunidad" element={<ComunidadVSL />} />
+        <Route path="/comunidad" element={<IrAAcademia />} />
         <Route path="/comunidad/:code" element={<Comunidad />} />
         <Route path="/comunidad-admin" element={<ComunidadAdmin />} />
         <Route path="/recursos" element={<Recursos />} />
