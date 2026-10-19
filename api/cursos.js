@@ -375,6 +375,7 @@ export default async function handler(req, res) {
         pais: txt(b.pais, 80), profesion: txt(b.profesion, 160), origen: txt(b.origen, 80),
         forma_pago: txt(b.forma_pago, 80), medio_pago: txt(b.medio_pago, 80),
         comentario: txt(b.comentario, 1000), cohorte: txt(b.cohorte, 60),
+        notas: b.acepta_terminos ? `Aceptó términos y seña no reembolsable el ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}` : null,
       });
       if (error) {
         console.error('inscripcion-submit error:', error, 'INSCRIPCION_NO_GUARDADA:', JSON.stringify(b));

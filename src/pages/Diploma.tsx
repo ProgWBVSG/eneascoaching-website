@@ -1,10 +1,11 @@
 import React from 'react';
 import { BookOpen, Award, Layers, Globe, Users, HeartHandshake, MonitorPlay, Download } from 'lucide-react';
 
-import { COHORTE_DIPLOMATURA } from '../data/inscripcion';
+import { cohortesAbiertas } from '../data/inscripcion';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-3 px-6 rounded transition-colors';
 
 const Diploma: React.FC = () => {
+  const abiertas = cohortesAbiertas();
   return (
     <div className="pt-20 pb-20 md:pb-0">
       {/* Hero */}
@@ -82,7 +83,7 @@ const Diploma: React.FC = () => {
                   <MonitorPlay size={16} className="text-brand-gold" /> Campus con material y clases grabadas
                 </span>
               </div>
-              <p className="text-sm font-semibold text-brand-gold mb-6">Inicia el {COHORTE_DIPLOMATURA}</p>
+              <p className="text-sm font-semibold text-brand-gold mb-6">{abiertas[0] ? `Próximo inicio: ${abiertas[0].dia}` : 'Próximo inicio: consultá la fecha'}</p>
 
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -193,6 +194,34 @@ const Diploma: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Próximos inicios */}
+      {abiertas.length > 0 && (
+        <section id="fechas" className="py-20 px-6 bg-white">
+          <div className="container mx-auto max-w-5xl text-center">
+            <h2 className="text-3xl font-heading font-bold mb-3">Elegí cuándo empezar</h2>
+            <p className="text-gray-600 mb-10">Abrimos dos cohortes por año. Reservás tu lugar con una seña y el resto lo coordinás con Cecilia.</p>
+            <div className={`grid grid-cols-1 ${abiertas.length > 1 ? 'md:grid-cols-2' : 'max-w-md mx-auto'} ${abiertas.length > 2 ? 'lg:grid-cols-3' : ''} gap-6`}>
+              {abiertas.map((c, i) => (
+                <div key={c.id} className={`flex flex-col items-center rounded-sm border p-8 bg-brand-beige ${i === 0 ? 'border-brand-gold shadow-lg' : 'border-brand-gold/20'}`}>
+                  <p className="text-2xl font-heading font-bold text-brand-dark">{c.corto}</p>
+                  <p className="text-sm text-gray-500">Inicia el {c.dia.split(' ')[0].toLowerCase()} · {c.inicio.slice(0, 4)}</p>
+                  <div className="w-12 h-px bg-brand-gold/40 my-5" />
+                  <ul className="text-sm text-gray-700 space-y-1.5 mb-6">
+                    <li>6 meses · grupal</li>
+                    <li>Online y en vivo</li>
+                    <li>Graduación: {c.graduacion}</li>
+                  </ul>
+                  <a href={`/inscripcion?cohorte=${c.id}`} className={`${i === 0 ? btnPrimary : 'inline-flex items-center justify-center border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-3 px-6 rounded transition-colors'} w-full mt-auto`}>
+                    Inscribirme
+                  </a>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-8">Cupos limitados por cohorte. La seña es no reembolsable y se descuenta del total. <a href="/terminos" className="underline hover:text-brand-gold">Ver términos y condiciones</a></p>
+          </div>
+        </section>
+      )}
 
       {/* Después del certificado */}
       <section className="py-20 px-6 bg-brand-dark text-white overflow-hidden">

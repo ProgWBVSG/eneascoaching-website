@@ -16,6 +16,7 @@ import PremiumMentorship from './pages/PremiumMentorship';
 import Diploma from './pages/Diploma';
 import Agendar from './pages/Agendar';
 import Inscripcion from './pages/Inscripcion';
+import Terminos from './pages/Terminos';
 import FreeContent from './pages/FreeContent';
 import EneaTest from './pages/EneaTest';
 import EneaTestCompleto from './pages/EneaTestCompleto';
@@ -114,6 +115,7 @@ const App: React.FC = () => {
           <Route path="/diplomatura" element={<Diploma />} />
           <Route path="/agendar" element={<Agendar />} />
           <Route path="/inscripcion" element={<Inscripcion />} />
+          <Route path="/terminos" element={<Terminos />} />
           <Route path="/contenido-gratuito" element={<FreeContent />} />
         </Route>
       </Routes>

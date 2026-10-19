@@ -75,8 +75,9 @@ const Footer: React.FC = () => {
             Mentora | Coach Eneagramista | Abogada Eneatípica
           </p>
           <p className="text-gray-500 text-xs">
-            &copy; 2025 ENEASCOACHING - Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} ENEASCOACHING - Todos los derechos reservados.
           </p>
+          <Link to="/terminos" className="inline-block mt-2 text-gray-500 hover:text-brand-gold text-xs underline">Términos y condiciones · Política de privacidad</Link>
         </div>
       </div>
     </footer>
