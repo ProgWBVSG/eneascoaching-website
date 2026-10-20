@@ -17,7 +17,7 @@ const MetaPixelTracker: React.FC = () => {
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const link = (e.target as HTMLElement | null)?.closest('a[href*="wa.me"], a[href*="api.whatsapp.com"]');
-      if (link) trackEvent('Lead', { content_name: window.location.pathname });
+      if (link && !link.hasAttribute('data-no-lead')) trackEvent('Lead', { content_name: window.location.pathname });
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);

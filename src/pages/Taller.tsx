@@ -1,0 +1,274 @@
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { CalendarDays, Check, Clock, MapPin, Mic, Loader2, CreditCard, MessageCircle } from 'lucide-react';
+import { tallerPorId, inscripcionAbierta, pesos } from '../data/talleres';
+import { trackEvent } from '../lib/metaPixel';
+
+const WHATSAPP = '5493515632496';
+const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-4 px-8 rounded transition-colors';
+
+const DOLORES = [
+  'Me enredo o me quedo en blanco',
+  'Me pongo nervioso/a al hablar frente a otros',
+  'Me cuesta decir lo que pienso o poner límites',
+  'No logro que me entiendan en el trabajo',
+  'Otro',
+];
+const EQUIPO = [
+  'Sí, soy dueño/a o socio/a de un negocio',
+  'Sí, tengo personas a cargo',
+  'No lidero un equipo',
+];
+const ORIGEN = ['Instagram', 'Un anuncio', 'WhatsApp', 'Me lo recomendaron', 'Otro'];
+
+const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
+  const params = useParams<{ id: string }>();
+  const taller = tallerPorId(idProp || params.id);
+
+  const [nombre, setNombre] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [dolor, setDolor] = useState('');
+  const [equipo, setEquipo] = useState('');
+  const [origen, setOrigen] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [listo, setListo] = useState(false);
+
+  useEffect(() => {
+    if (taller) trackEvent('ViewContent', { content_name: `Taller ${taller.titulo}`, content_category: 'Taller', value: taller.precio, currency: 'ARS' });
+  }, [taller]);
+
+  if (!taller) {
+    return (
+      <div className="pt-32 pb-24 px-6 text-center">
+        <h1 className="text-2xl font-heading font-bold text-brand-dark mb-4">No encontramos este taller</h1>
+        <a href="/" className="text-brand-gold font-semibold underline">Volver al inicio</a>
+      </div>
+    );
+  }
+
+  const abierta = inscripcionAbierta(taller);
+  const fechasTexto = taller.fechas.map(f => f.dia).join(' y ');
+  const irAlFormulario = () => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' });
+  const linkWa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+    `Hola Cecilia, me inscribí al taller "${taller.titulo}" (${fechasTexto}). ¿Cómo hago el pago?`,
+  )}`;
+
+  const enviar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim() || !telefono.trim() || !email.trim() || !dolor || !equipo) {
+      setError('Completá tus datos y las dos preguntas para reservar tu lugar.');
+      return;
+    }
+    setEnviando(true); setError(null);
+    try {
+      const answers = [
+        { key: 'dolor', q: '¿Qué es lo que más te cuesta hoy al comunicar?', a: dolor },
+        { key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: equipo },
+        { key: 'origen', q: '¿Cómo te enteraste del taller?', a: origen || 'Sin dato' },
+      ];
+      const res = await fetch('/api/cursos?action=encuesta-submit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ survey: taller.survey, role: equipo, answers, name: nombre, phone: telefono, email, notify: true }),
+      });
+      if (!res.ok) throw new Error();
+      trackEvent('Lead', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+      setListo(true);
+    } catch {
+      setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
+    } finally { setEnviando(false); }
+  };
+
+  const pagar = () => {
+    trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+  };
+
+  return (
+    <div className="pt-20 pb-24 md:pb-0">
+      {/* Hero */}
+      <section className="bg-brand-dark text-white py-16 md:py-24 px-6 relative overflow-hidden">
+        <Mic className="absolute right-[-40px] top-10 w-72 h-72 md:w-96 md:h-96 text-brand-gold opacity-[0.06] pointer-events-none" strokeWidth={1} />
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h1 className="text-4xl md:text-6xl font-heading font-bold uppercase tracking-wide mb-5">{taller.titulo}</h1>
+          <p className="text-xl md:text-2xl text-brand-gold font-light mb-8">{taller.subtitulo}</p>
+          <div className="w-24 h-px bg-brand-gold mx-auto mb-8"></div>
+          <p className="text-2xl md:text-3xl font-heading leading-snug mb-6">{taller.frase}</p>
+          <p className="text-gray-300 mb-8">{taller.formato}</p>
+          <div className="flex flex-wrap gap-3 justify-center mb-10">
+            {taller.fechas.map(f => (
+              <span key={f.fecha} className="inline-flex items-center gap-2 border border-brand-gold/50 text-white text-sm font-medium px-4 py-2 rounded-full">
+                <CalendarDays size={16} className="text-brand-gold" /> {f.dia}
+              </span>
+            ))}
+          </div>
+          {abierta ? (
+            <button onClick={irAlFormulario} className={`${btnPrimary} text-lg`}>Quiero mi lugar</button>
+          ) : (
+            <p className="text-brand-gold font-semibold">La inscripción a este taller ya cerró.</p>
+          )}
+        </div>
+      </section>
+
+      {/* El problema */}
+      <section className="py-16 md:py-20 px-6 bg-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-2xl md:text-3xl font-heading italic text-brand-dark leading-relaxed">“{taller.cita}”</p>
+        </div>
+      </section>
+
+      {/* Qué aprenderás */}
+      <section className="py-16 md:py-20 px-6 bg-brand-beige">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Qué aprenderás?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {taller.aprenderas.map(a => (
+              <div key={a} className="bg-white rounded-sm p-6 shadow-sm border border-brand-gold/20 flex flex-col items-center gap-3">
+                <div className="bg-brand-gold/10 p-2 rounded-full"><Check size={18} className="text-brand-gold" /></div>
+                <p className="text-gray-700 leading-relaxed">{a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cómo es */}
+      <section className="py-16 md:py-20 px-6 bg-white">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <img src="/fotosCecilia/foto_cecilia_clase.jpg" alt="Cecilia B. Sánchez dando una clase"
+            className="w-full max-w-sm mx-auto rounded-sm shadow-lg object-cover aspect-[4/5]" loading="lazy" />
+          <div className="text-center">
+            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Cómo es el taller</h2>
+            <p className="text-gray-600 leading-relaxed mb-8">
+              Dos encuentros prácticos con <strong>Cecilia B. Sánchez</strong>, mentora de comunicación, abogada y especialista en eneagrama. No es teoría: practicás con tus propias situaciones.
+            </p>
+            <ul className="space-y-3 text-brand-dark inline-block text-left">
+              <li className="flex items-center gap-3"><CalendarDays size={18} className="text-brand-gold shrink-0" /> {fechasTexto}</li>
+              {taller.horario && <li className="flex items-center gap-3"><Clock size={18} className="text-brand-gold shrink-0" /> {taller.horario}</li>}
+              {taller.modalidad && <li className="flex items-center gap-3"><MapPin size={18} className="text-brand-gold shrink-0" /> {taller.modalidad}</li>}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Inversión */}
+      <section className="py-16 md:py-20 px-6 bg-brand-dark text-white">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold mb-8">Inversión total</h2>
+          <div className="flex items-baseline justify-center gap-5 mb-8">
+            {taller.precioAntes && <span className="text-2xl text-gray-400 line-through">{pesos(taller.precioAntes)}</span>}
+            <span className="text-5xl font-heading font-bold text-brand-gold">{pesos(taller.precio)}</span>
+          </div>
+          <p className="font-semibold mb-4">Incluye:</p>
+          <ul className="space-y-3 mb-10 inline-block text-left">
+            {taller.incluye.map(i => (
+              <li key={i} className="flex items-start gap-3"><Check size={18} className="text-brand-gold shrink-0 mt-1" /> <span>{i}</span></li>
+            ))}
+          </ul>
+          {taller.cupos && <p className="text-brand-gold font-semibold mb-6">Cupos limitados: {taller.cupos} lugares.</p>}
+          {abierta && <div><button onClick={irAlFormulario} className={`${btnPrimary} text-lg`}>Reservar mi lugar</button></div>}
+        </div>
+      </section>
+
+      {/* Inscripción */}
+      {abierta && (
+        <section id="inscripcion" className="py-16 md:py-20 px-6 bg-brand-beige scroll-mt-20">
+          <div className="max-w-xl mx-auto">
+            {!listo ? (
+              <form onSubmit={enviar} className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 space-y-6">
+                <div className="text-center">
+                  <h2 className="text-3xl font-heading font-bold text-brand-dark mb-2">Reservá tu lugar</h2>
+                  <p className="text-gray-600">Dejanos tus datos y en el siguiente paso confirmás el pago.</p>
+                </div>
+                <div className="space-y-4">
+                  <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name"
+                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                  <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp (con código de área)" type="tel" autoComplete="tel"
+                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" autoComplete="email"
+                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                </div>
+                <fieldset>
+                  <legend className="font-semibold text-brand-dark mb-3">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
+                  <div className="space-y-2">
+                    {DOLORES.map(o => (
+                      <label key={o} className={`flex items-center gap-3 border rounded px-4 py-3 cursor-pointer ${dolor === o ? 'border-brand-gold bg-brand-gold/5' : 'border-gray-200'}`}>
+                        <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059]" /> {o}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <fieldset>
+                  <legend className="font-semibold text-brand-dark mb-3">¿Liderás un equipo de trabajo?</legend>
+                  <div className="space-y-2">
+                    {EQUIPO.map(o => (
+                      <label key={o} className={`flex items-center gap-3 border rounded px-4 py-3 cursor-pointer ${equipo === o ? 'border-brand-gold bg-brand-gold/5' : 'border-gray-200'}`}>
+                        <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059]" /> {o}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <div>
+                  <label className="font-semibold text-brand-dark mb-3 block">¿Cómo te enteraste del taller?</label>
+                  <select value={origen} onChange={e => setOrigen(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-4 py-3 bg-white focus:outline-none focus:border-brand-gold">
+                    <option value="">Elegí una opción</option>
+                    {ORIGEN.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+                {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+                <button type="submit" disabled={enviando} className={`${btnPrimary} w-full disabled:opacity-60`}>
+                  {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reservar mi lugar'}
+                </button>
+              </form>
+            ) : (
+              <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
+                <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado, {nombre.split(' ')[0]}!</h2>
+                <p className="text-gray-600 mb-8">Último paso: confirmá tu inscripción con el pago de {pesos(taller.precio)}.</p>
+                {taller.cursoId ? (
+                  <a href={`/comprar/${taller.cursoId}`} onClick={pagar} className={`${btnPrimary} w-full gap-2`}>
+                    <CreditCard size={20} /> Pagar con Mercado Pago
+                  </a>
+                ) : (
+                  <a href={linkWa} onClick={pagar} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2`}>
+                    <MessageCircle size={20} /> Confirmar el pago por WhatsApp
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Preguntas frecuentes */}
+      <section className="py-16 md:py-20 px-6 bg-white">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl font-heading font-bold text-brand-dark mb-10">Preguntas frecuentes</h2>
+          <div className="space-y-8">
+            <div>
+              <p className="font-semibold text-brand-dark mb-2">¿Necesito experiencia previa?</p>
+              <p className="text-gray-600">No. El taller es práctico y está pensado para cualquier persona que quiera comunicarse mejor, en su trabajo y en su vida cotidiana.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-brand-dark mb-2">¿Cómo pago?</p>
+              <p className="text-gray-600">Después de dejar tus datos, confirmás el pago de {pesos(taller.precio)} en el siguiente paso.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-brand-dark mb-2">¿Tengo otra duda?</p>
+              <p className="text-gray-600">Escribinos por <a href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola Cecilia, tengo una consulta sobre el taller "${taller.titulo}"`)}`} target="_blank" rel="noopener noreferrer" className="text-brand-gold font-semibold underline">WhatsApp</a> y te respondemos.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Botón fijo en celular */}
+      {abierta && !listo && (
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-brand-dark/95 py-3 pl-3 pr-24">
+          <button onClick={irAlFormulario} className={`${btnPrimary} w-full py-3`}>Quiero mi lugar</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Taller;

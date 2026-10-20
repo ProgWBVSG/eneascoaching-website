@@ -27,6 +27,8 @@ export interface EncuestaConfig {
   preguntaAviso: string;   // "Si armo algo puntual..., ¿querés que te avise?"
   gracias: string;
   whatsapp: string;        // número sin +
+  etiqueta?: string;       // nombre del botón en el panel de Admin
+  link?: string;           // ruta pública, si no es /encuesta-<key>
 }
 
 export const ENCUESTA_REUNIONES: EncuestaConfig = {
@@ -105,7 +107,22 @@ export const ENCUESTA_ENEAGRAMA: EncuestaConfig = {
   whatsapp: '5493515632496',
 };
 
+// Inscriptos a talleres: se guardan en la misma tabla para verlos en el panel
+export const INSCRIPTOS_TALLER: EncuestaConfig = {
+  key: 'taller-hacerte-entender',
+  marca: 'TALLER HACERTE ENTENDER',
+  etiqueta: 'Taller Hacerte entender',
+  link: '/hacerte-entender',
+  titulo: 'Inscriptos al taller',
+  intro: '',
+  preguntas: [],
+  preguntaAviso: '',
+  gracias: '',
+  whatsapp: '5493515632496',
+};
+
 export const ENCUESTAS: Record<string, EncuestaConfig> = {
   reuniones: ENCUESTA_REUNIONES,
   eneagrama: ENCUESTA_ENEAGRAMA,
+  [INSCRIPTOS_TALLER.key]: INSCRIPTOS_TALLER,
 };
