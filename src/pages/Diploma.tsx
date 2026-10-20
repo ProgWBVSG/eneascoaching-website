@@ -65,7 +65,7 @@ const Diploma: React.FC = () => {
               <li className="flex items-center gap-2"><div className="w-2 h-2 bg-brand-gold rounded-full"></div> Si querés llevar este abordaje a tus sesiones</li>
             </ul>
             <p className="text-sm text-gray-600 bg-brand-beige border-l-4 border-brand-gold pl-4 py-3 rounded-r">
-              ¿No querés formarte como coach, sino potenciar tu <strong>liderazgo y tus vínculos</strong> en tu empresa o equipo? Entonces lo tuyo es la <a href="/mentorias/premium" className="text-brand-gold font-semibold underline">Mentoría en Eneagrama</a>.
+              ¿No querés formarte como coach, sino potenciar tu <strong>liderazgo y tus vínculos</strong> en tu empresa o equipo? Entonces lo tuyo es la <a href="/mentorias/lideres" className="text-brand-gold font-semibold underline">Mentoría para Líderes de Equipo</a>.
             </p>
           </div>
           <div className="flex flex-col gap-6">

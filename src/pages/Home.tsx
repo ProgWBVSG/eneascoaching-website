@@ -140,17 +140,17 @@ const Home: React.FC = () => {
               <div className="absolute top-0 left-0 w-full h-1 bg-brand-gold"></div>
               <div className="h-64 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors z-10"></div>
-                <img src="/fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Mentoría Premium" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                <img src="/fotosCecilia/foto_cecilia_mentoria_premium.jpg" alt="Mentoría para Líderes de Equipo" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute bottom-4 left-4 z-20">
                   <span className="bg-white text-brand-dark text-xs px-3 py-1 uppercase tracking-wider font-bold">Mentoría · 1 a 1</span>
                 </div>
               </div>
               <div className="p-8">
-                <h3 className="text-2xl font-heading font-bold mb-3 text-white">Mentoría en Eneagrama</h3>
+                <h3 className="text-2xl font-heading font-bold mb-3 text-white">Mentoría para Líderes de Equipo</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  Para líderes, dueños de negocio, coaches y RRHH. Potenciá tu liderazgo y tus vínculos conscientes en un proceso 1 a 1.
+                  Para gerentes, dueños de negocio y líderes de RRHH. Entendé a cada persona de tu equipo y liderá con más claridad en un proceso 1 a 1.
                 </p>
-                <Button to="/mentorias/premium" variant="primary" className="w-full">Agendá reunión gratuita</Button>
+                <Button to="/mentorias/lideres" variant="primary" className="w-full">Agendá reunión gratuita</Button>
               </div>
             </div>
 
@@ -203,7 +203,7 @@ const Home: React.FC = () => {
               </p>
               <div className="mt-auto">
                 <h4 className="font-bold text-brand-dark font-heading">María G.</h4>
-                <p className="text-xs text-brand-gold font-bold uppercase tracking-wider">Mentoría Premium</p>
+                <p className="text-xs text-brand-gold font-bold uppercase tracking-wider">Mentoría 1 a 1</p>
               </div>
             </div>
 
@@ -227,7 +227,7 @@ const Home: React.FC = () => {
               </p>
               <div className="mt-auto">
                 <h4 className="font-bold text-brand-dark font-heading">Majo E.</h4>
-                <p className="text-xs text-brand-gold font-bold uppercase tracking-wider">Mentoría Premium</p>
+                <p className="text-xs text-brand-gold font-bold uppercase tracking-wider">Mentoría 1 a 1</p>
               </div>
             </div>
           </div>

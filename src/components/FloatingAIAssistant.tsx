@@ -24,7 +24,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué mentorías ofrecen?',
         answer:
-            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría Premium 1:1: 12 sesiones personalizadas (USD 850)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500 de contado o USD 1.800 en 6 a 8 cuotas)',
+            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría para Líderes de Equipo 1:1: 12 sesiones personalizadas para quienes tienen personas a cargo (USD 850)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500 de contado o USD 1.800 en 6 a 8 cuotas)',
     },
     {
         question: '¿La mentoría grupal es online?',
@@ -34,7 +34,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Cómo agendo una reunión gratuita?',
         answer:
-            'Podés agendar tu reunión gratuita de 15 minutos desde la página de Mentoría Premium, haciendo clic en "Agendar reunión gratuita de 15 minutos". También podés escribirnos por WhatsApp usando el botón verde de abajo.',
+            'Podés agendar tu reunión gratuita de 20 minutos en cecimentorcoach.com/agendar: elegís el día y el horario que te quede mejor.',
     },
     {
         question: '¿Quién es Cecilia?',

@@ -51,9 +51,9 @@ const Navbar: React.FC = () => {
                   <span className="block text-sm font-semibold text-brand-dark">Diplomatura</span>
                   <span className="block text-xs text-gray-500">Profesionalizate como coach eneagramista y enseñá</span>
                 </Link>
-                <Link to="/mentorias/premium" className="block px-4 py-3 hover:bg-brand-beige">
-                  <span className="block text-sm font-semibold text-brand-dark">Mentoría en Eneagrama</span>
-                  <span className="block text-xs text-gray-500">Liderazgo y vínculos conscientes · 1 a 1</span>
+                <Link to="/mentorias/lideres" className="block px-4 py-3 hover:bg-brand-beige">
+                  <span className="block text-sm font-semibold text-brand-dark">Mentoría para Líderes de Equipo</span>
+                  <span className="block text-xs text-gray-500">Para quienes tienen personas a cargo · 1 a 1</span>
                 </Link>
               </div>
             </div>
@@ -98,7 +98,7 @@ const Navbar: React.FC = () => {
             </button>
             <div className={`pl-4 flex flex-col space-y-3 mt-3 overflow-hidden transition-all duration-300 ${dropdownOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
               <Link to="/diplomatura" className="text-base text-gray-600">Diplomatura — Formate y enseñá</Link>
-              <Link to="/mentorias/premium" className="text-base text-gray-600">Mentoría en Eneagrama — 1 a 1</Link>
+              <Link to="/mentorias/lideres" className="text-base text-gray-600">Mentoría para Líderes de Equipo — 1 a 1</Link>
             </div>
           </div>
 

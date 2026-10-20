@@ -111,6 +111,8 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/sobre-mi" element={<About />} />
           <Route path="/mentorias/grupal" element={<GroupMentorship />} />
+          <Route path="/mentorias/lideres" element={<PremiumMentorship />} />
+          {/* Dirección vieja, se mantiene para links ya compartidos */}
           <Route path="/mentorias/premium" element={<PremiumMentorship />} />
           <Route path="/diplomatura" element={<Diploma />} />
           <Route path="/agendar" element={<Agendar />} />
