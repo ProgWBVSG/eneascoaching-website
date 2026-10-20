@@ -24,7 +24,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué mentorías ofrecen?',
         answer:
-            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría Premium 1:1: 12 sesiones personalizadas (USD 850)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500)',
+            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría Premium 1:1: 12 sesiones personalizadas (USD 850)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500 de contado o USD 1.800 en 6 a 8 cuotas)',
     },
     {
         question: '¿La mentoría grupal es online?',

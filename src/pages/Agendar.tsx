@@ -36,8 +36,8 @@ const Agendar: React.FC = () => {
   const [fecha, setFecha] = useState<string | null>(null);
   const [hora, setHora] = useState<string | null>(null);
 
-  const [nombre, setNombre] = useState('');
-  const [trabajo, setTrabajo] = useState('');
+  const [nombre, setNombre] = useState(() => (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('nombre') : null) || '');
+  const [trabajo, setTrabajo] = useState(() => (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('trabajo') : null) || '');
   const [telefono, setTelefono] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');

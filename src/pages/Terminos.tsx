@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 // Términos y condiciones de inscripción + política de privacidad.
 // Borrador para que lo revise Cecilia (abogada) antes de darlo por definitivo.
-const ACTUALIZACION = '19 de octubre de 2026';
+const ACTUALIZACION = '20 de octubre de 2026';
 
 const Seccion: React.FC<{ titulo: string; children: React.ReactNode }> = ({ titulo, children }) => (
   <section className="mt-10">
@@ -25,13 +25,13 @@ const Terminos: React.FC = () => {
         </Seccion>
 
         <Seccion titulo="2. Inscripción y reserva del lugar">
-          <p>La inscripción se inicia completando el formulario de la web y eligiendo la fecha de inicio (cohorte). Completar el formulario no genera ningún cobro.</p>
-          <p>El lugar en la cohorte elegida queda <strong>reservado únicamente cuando se acredita la seña</strong>. Los cupos de cada cohorte son limitados y se asignan por orden de acreditación de la seña.</p>
-          <p>El monto de la seña, el valor total y las opciones de pago (pago único o en cuotas) se informan por WhatsApp antes de abonar.</p>
+          <p>La inscripción se inicia completando la postulación en la web y eligiendo la fecha de inicio (cohorte). Enviar la postulación no genera ningún cobro. Luego se coordina una llamada con Cecilia para confirmar la inscripción.</p>
+          <p>Según la cohorte, el lugar queda <strong>reservado únicamente cuando se acredita la seña</strong> o, en las cohortes sin seña, el primer pago. Los cupos de cada cohorte son limitados y se asignan por orden de acreditación.</p>
+          <p>El valor de la Diplomatura es de USD 1.500 en un solo pago o USD 1.800 en 6 a 8 cuotas. Se puede abonar en dólares o, en Argentina, en pesos al valor que se informa al momento de pagar. El monto de la seña se informa antes de abonar.</p>
         </Seccion>
 
         <Seccion titulo="3. Seña no reembolsable">
-          <p>La seña reserva un lugar que deja de ofrecerse a otras personas y permite organizar el grupo y los materiales. Por eso, <strong>la seña no es reembolsable</strong> si la persona inscripta desiste o no comienza la cursada, cualquiera sea el motivo.</p>
+          <p>En las cohortes que la requieren, la seña reserva un lugar que deja de ofrecerse a otras personas y permite organizar el grupo y los materiales. Por eso, <strong>la seña no es reembolsable</strong> si la persona inscripta desiste o no comienza la cursada, cualquiera sea el motivo.</p>
           <p>La seña se descuenta del valor total de la Diplomatura.</p>
           <p>Si la persona no puede comenzar en la fecha elegida y lo avisa antes del inicio, podrá solicitar que la seña se aplique a la cohorte siguiente, sujeto a disponibilidad de cupo. Esta posibilidad se puede usar una sola vez.</p>
           <p>Si Eneascoaching cancela o reprograma una cohorte, la persona podrá elegir entre pasar a la nueva fecha o recibir la devolución total de lo abonado.</p>

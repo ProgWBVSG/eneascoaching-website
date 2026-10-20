@@ -8,7 +8,7 @@ import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
 import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
 import { ENCUESTAS } from '../data/encuestas';
-import { ESTADOS_INSCRIPCION, type EstadoInscripcion } from '../data/inscripcion';
+import { ESTADOS_INSCRIPCION, PRIORIDADES, PRECIO, type EstadoInscripcion, type Prioridad } from '../data/inscripcion';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare, CalendarCheck } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
@@ -272,7 +272,7 @@ const Admin: React.FC = () => {
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
-            { id: 'inscripciones', label: 'Inscripciones' },
+            { id: 'inscripciones', label: 'Postulaciones' },
             { id: 'agenda', label: 'Reuniones agendadas' },
             { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
@@ -1479,6 +1479,7 @@ interface InscripcionItem {
   id: string; nombre: string; email: string; telefono: string; pais: string | null; profesion: string | null;
   origen: string | null; forma_pago: string | null; medio_pago: string | null; comentario: string | null;
   cohorte: string | null; estado: EstadoInscripcion; notas: string | null; created_at: string;
+  respuestas: { id: string; pregunta: string; respuesta: string }[] | null; prioridad: Prioridad | null; moneda: string | null;
 }
 
 const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
@@ -1516,19 +1517,22 @@ const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
   };
   const primerNombre = (i: InscripcionItem) => i.nombre.trim().split(' ')[0];
   const msgPago = (i: InscripcionItem) =>
-    `Hola ${primerNombre(i)}, soy Cecilia. ¡Gracias por inscribirte a la Diplomatura que inicia el ${i.cohorte || ''}! Te paso los datos para el pago (${(i.forma_pago || '').toLowerCase()}, ${i.medio_pago || ''}):\n\n`;
+    `Hola ${primerNombre(i)}, soy Cecilia. ¡Gracias por postularte a la Diplomatura que inicia el ${(i.cohorte || '').toLowerCase()}! Te paso las opciones: USD ${PRECIO.contado} en un pago o USD ${PRECIO.cuotas} en ${PRECIO.cuotasMin} a ${PRECIO.cuotasMax} cuotas${i.moneda?.startsWith('Pesos') ? ' (en pesos al valor del día)' : ''}. Los datos para el pago son:\n\n`;
   const msgBienvenida = (i: InscripcionItem) =>
     `Hola ${primerNombre(i)}, ¡confirmamos tu pago! Ya sos parte de la Diplomatura en Eneagrama que inicia el ${i.cohorte || ''}. En los próximos días te paso el acceso al campus y el link del primer encuentro. ¡Bienvenida/o!`;
 
   const cuenta = (e: EstadoInscripcion) => items.filter(i => i.estado === e).length;
-  const lista = items.filter(i => filtro === 'activas' ? i.estado === 'nueva' || i.estado === 'pago_pendiente' : i.estado === filtro);
+  const pesoPrio = (i: InscripcionItem) => ({ alta: 0, media: 1, baja: 2 }[i.prioridad || 'media'] ?? 1);
+  const lista = items
+    .filter(i => filtro === 'activas' ? i.estado === 'nueva' || i.estado === 'pago_pendiente' : i.estado === filtro)
+    .sort((a, b) => filtro === 'activas' ? pesoPrio(a) - pesoPrio(b) : 0);
   const est = (e: EstadoInscripcion) => ESTADOS_INSCRIPCION.find(x => x.id === e) || ESTADOS_INSCRIPCION[0];
   const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/inscripcion`;
 
   return (
     <div>
       <div className="bg-white border border-gray-200 rounded-sm p-5 mb-5">
-        <div className="flex items-center gap-2 mb-1"><GraduationCap className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Inscripciones a la Diplomatura</h3></div>
+        <div className="flex items-center gap-2 mb-1"><GraduationCap className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Postulaciones a la Diplomatura</h3></div>
         <p className="text-sm text-gray-500">Link de inscripción: <span className="font-mono text-xs break-all">{link}</span></p>
         <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
           {ESTADOS_INSCRIPCION.map(e => (
@@ -1558,17 +1562,33 @@ const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
                   <p className="font-bold text-brand-dark">{i.nombre}</p>
                   <p className="text-xs text-gray-500">{new Date(i.created_at).toLocaleString('es-AR')} · Cohorte {i.cohorte || '-'}</p>
                 </div>
-                <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${est(i.estado).color}`}>{est(i.estado).label}</span>
+                <div className="flex gap-2 flex-wrap">
+                  {i.prioridad && <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${PRIORIDADES[i.prioridad]?.color || ''}`}>{PRIORIDADES[i.prioridad]?.label}</span>}
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${est(i.estado).color}`}>{est(i.estado).label}</span>
+                </div>
               </div>
               <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-sm text-gray-700">
                 <p>WhatsApp: {i.telefono}</p>
                 <p className="break-all">Email: {i.email}</p>
                 {i.pais && <p>País: {i.pais}</p>}
                 {i.profesion && <p>Se dedica a: {i.profesion}</p>}
-                <p>Pago: {i.forma_pago || '-'} · {i.medio_pago || '-'}</p>
+                {!i.respuestas?.length && <p>Pago: {i.forma_pago || '-'} · {i.medio_pago || '-'}</p>}
+                {i.moneda && <p>Moneda: {i.moneda}</p>}
                 {i.origen && <p>Nos conoció por: {i.origen}</p>}
               </div>
-              {i.comentario && <p className="mt-2 text-sm text-gray-600 italic">"{i.comentario}"</p>}
+              {i.respuestas?.length ? (
+                <details className="mt-3 text-sm" open={i.estado === 'nueva'}>
+                  <summary className="cursor-pointer font-semibold text-brand-dark">Respuestas de la postulación</summary>
+                  <dl className="mt-2 flex flex-col gap-2">
+                    {i.respuestas.map(r => (
+                      <div key={r.id} className="border-l-2 border-brand-gold/40 pl-3">
+                        <dt className="text-gray-500 text-xs">{r.pregunta}</dt>
+                        <dd className="text-gray-800">{r.respuesta}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              ) : i.comentario && <p className="mt-2 text-sm text-gray-600 italic">"{i.comentario}"</p>}
               <textarea
                 className="mt-3 w-full border border-gray-200 rounded px-3 py-2 text-sm"
                 placeholder="Notas internas (monto acordado, cuotas pagadas, etc.)"

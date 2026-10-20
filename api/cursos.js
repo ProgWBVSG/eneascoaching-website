@@ -370,13 +370,34 @@ export default async function handler(req, res) {
       const b = req.body || {};
       const txt = (v, n) => (v ? String(v).trim().slice(0, n) : null);
       if (!b.nombre || !b.email || !b.telefono) return res.status(400).json({ error: 'Datos inválidos' });
-      const { error } = await supabase.from('inscripciones_diplomatura').insert({
+      // Respuestas de la postulación: lista de { id, pregunta, valor, respuesta } (las preguntas se definen en la web)
+      const respuestas = Array.isArray(b.respuestas)
+        ? b.respuestas.slice(0, 40).map(r => ({
+            id: txt(r && r.id, 60), pregunta: txt(r && r.pregunta, 300),
+            valor: txt(r && r.valor, 1000), respuesta: txt(r && r.respuesta, 1000),
+          })).filter(r => r.id && r.respuesta)
+        : [];
+      const r = (id) => respuestas.find(x => x.id === id);
+      const inversion = r('inversion')?.valor;
+      const prioridad = inversion === 'contado' || inversion === 'cuotas' ? 'alta' : inversion === 'accesible' ? 'baja' : 'media';
+      const row = {
         nombre: txt(b.nombre, 120), email: txt(b.email, 160), telefono: txt(b.telefono, 40),
-        pais: txt(b.pais, 80), profesion: txt(b.profesion, 160), origen: txt(b.origen, 80),
-        forma_pago: txt(b.forma_pago, 80), medio_pago: txt(b.medio_pago, 80),
-        comentario: txt(b.comentario, 1000), cohorte: txt(b.cohorte, 60),
-        notas: b.acepta_terminos ? `Aceptó términos y seña no reembolsable el ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}` : null,
-      });
+        pais: txt(b.pais, 80), cohorte: txt(b.cohorte, 60),
+        profesion: txt(r('profesion')?.respuesta || b.profesion, 160),
+        origen: txt(r('origen')?.respuesta || b.origen, 80),
+        moneda: txt(r('moneda')?.respuesta, 60),
+        forma_pago: txt(r('inversion')?.respuesta || b.forma_pago, 160),
+        comentario: txt(r('motivo')?.respuesta || b.comentario, 1000),
+        respuestas, prioridad,
+        notas: b.acepta_terminos ? `Aceptó términos y condiciones el ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}` : null,
+      };
+      let { error } = await supabase.from('inscripciones_diplomatura').insert(row);
+      if (error && error.code === 'PGRST204') {
+        // Columnas nuevas todavía sin crear: guardar igual, con las respuestas dentro del comentario
+        const { respuestas: rs, prioridad: _p, moneda: _m, ...base } = row;
+        base.comentario = rs.map(x => `${x.pregunta}: ${x.respuesta}`).join(' | ').slice(0, 4000);
+        ({ error } = await supabase.from('inscripciones_diplomatura').insert(base));
+      }
       if (error) {
         console.error('inscripcion-submit error:', error, 'INSCRIPCION_NO_GUARDADA:', JSON.stringify(b));
         return res.status(500).json({ error: 'No se pudo guardar' });
