@@ -272,7 +272,7 @@ const Admin: React.FC = () => {
             { id: 'liderazgo', label: 'Test Liderazgo' },
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
-            { id: 'inscripciones', label: 'Postulaciones' },
+            { id: 'inscripciones', label: 'Solicitudes' },
             { id: 'agenda', label: 'Reuniones agendadas' },
             { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
@@ -1517,7 +1517,7 @@ const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
   };
   const primerNombre = (i: InscripcionItem) => i.nombre.trim().split(' ')[0];
   const msgPago = (i: InscripcionItem) =>
-    `Hola ${primerNombre(i)}, soy Cecilia. ¡Gracias por postularte a la Diplomatura que inicia el ${(i.cohorte || '').toLowerCase()}! Te paso las opciones: USD ${PRECIO.contado} en un pago o USD ${PRECIO.cuotas} en ${PRECIO.cuotasMin} a ${PRECIO.cuotasMax} cuotas${i.moneda?.startsWith('Pesos') ? ' (en pesos al valor del día)' : ''}. Los datos para el pago son:\n\n`;
+    `Hola ${primerNombre(i)}, soy Cecilia. ¡Gracias por tu solicitud para la Diplomatura que inicia el ${(i.cohorte || '').toLowerCase()}! Te paso las opciones: USD ${PRECIO.contado} en un pago o USD ${PRECIO.cuotas} en ${PRECIO.cuotasMin} a ${PRECIO.cuotasMax} cuotas${i.moneda?.startsWith('Pesos') ? ' (en pesos al valor del día)' : ''}. Los datos para el pago son:\n\n`;
   const msgBienvenida = (i: InscripcionItem) =>
     `Hola ${primerNombre(i)}, ¡confirmamos tu pago! Ya sos parte de la Diplomatura en Eneagrama que inicia el ${i.cohorte || ''}. En los próximos días te paso el acceso al campus y el link del primer encuentro. ¡Bienvenida/o!`;
 
@@ -1532,7 +1532,7 @@ const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
   return (
     <div>
       <div className="bg-white border border-gray-200 rounded-sm p-5 mb-5">
-        <div className="flex items-center gap-2 mb-1"><GraduationCap className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Postulaciones a la Diplomatura</h3></div>
+        <div className="flex items-center gap-2 mb-1"><GraduationCap className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Solicitudes para la Diplomatura</h3></div>
         <p className="text-sm text-gray-500">Link de inscripción: <span className="font-mono text-xs break-all">{link}</span></p>
         <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
           {ESTADOS_INSCRIPCION.map(e => (
@@ -1578,7 +1578,7 @@ const InscripcionesTab: React.FC<{ token: string }> = ({ token }) => {
               </div>
               {i.respuestas?.length ? (
                 <details className="mt-3 text-sm" open={i.estado === 'nueva'}>
-                  <summary className="cursor-pointer font-semibold text-brand-dark">Respuestas de la postulación</summary>
+                  <summary className="cursor-pointer font-semibold text-brand-dark">Respuestas de la solicitud</summary>
                   <dl className="mt-2 flex flex-col gap-2">
                     {i.respuestas.map(r => (
                       <div key={r.id} className="border-l-2 border-brand-gold/40 pl-3">

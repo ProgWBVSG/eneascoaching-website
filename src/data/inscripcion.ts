@@ -44,12 +44,12 @@ export const PREGUNTAS_POSTULACION: Pregunta[] = [
     opciones: op('Psicólogo/a o terapeuta', 'Coach', 'Recursos Humanos', 'Ejecutivo/a o líder de equipo', 'Abogado/a', 'Docente', 'Otro'),
   },
   {
-    id: 'motivo', label: '¿Qué está pasando hoy en tu vida que te impulsa a buscar esta formación?',
-    ayuda: 'En pocas palabras.', tipo: 'texto', requerida: true, max: 300,
-  },
-  {
     id: 'objetivo', label: '¿Para qué querés hacer la Diplomatura?', tipo: 'opciones', requerida: true,
     opciones: op('Sumarla a mis sesiones o a mi trabajo actual', 'Tener una nueva salida profesional', 'Liderar y acompañar mejor a mi equipo', 'Mi crecimiento personal'),
+  },
+  {
+    id: 'motivo', label: '¿Qué está pasando hoy en tu vida que te impulsa a buscar esta formación?',
+    ayuda: 'En pocas palabras.', tipo: 'texto', requerida: true, max: 300,
   },
   {
     id: 'experiencia', label: '¿Cuánto conocés el eneagrama?', tipo: 'opciones', requerida: true,
@@ -68,10 +68,6 @@ export const PREGUNTAS_POSTULACION: Pregunta[] = [
   {
     id: 'moneda', label: '¿En qué moneda pagarías?', tipo: 'opciones', requerida: true,
     opciones: op('Pesos argentinos', 'Dólares (pago internacional)'),
-  },
-  {
-    id: 'origen', label: '¿Cómo conociste a Cecilia?', tipo: 'opciones', requerida: false,
-    opciones: op('Instagram', 'YouTube', 'Recomendación de alguien', 'Google', 'Otro'),
   },
 ];
 

@@ -25,7 +25,7 @@ const Terminos: React.FC = () => {
         </Seccion>
 
         <Seccion titulo="2. Inscripción y reserva del lugar">
-          <p>La inscripción se inicia completando la postulación en la web y eligiendo la fecha de inicio (cohorte). Enviar la postulación no genera ningún cobro. Luego se coordina una llamada con Cecilia para confirmar la inscripción.</p>
+          <p>La inscripción se inicia completando la solicitud en la web y eligiendo la fecha de inicio (cohorte). Enviar la solicitud no genera ningún cobro. Luego se coordina una llamada con Cecilia para confirmar la inscripción.</p>
           <p>Según la cohorte, el lugar queda <strong>reservado únicamente cuando se acredita la seña</strong> o, en las cohortes sin seña, el primer pago. Los cupos de cada cohorte son limitados y se asignan por orden de acreditación.</p>
           <p>El valor de la Diplomatura es de USD 1.500 en un solo pago o USD 1.800 en 6 a 8 cuotas. Se puede abonar en dólares o, en Argentina, en pesos al valor que se informa al momento de pagar. El monto de la seña se informa antes de abonar.</p>
         </Seccion>
