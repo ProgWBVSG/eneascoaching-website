@@ -24,7 +24,7 @@ const faqs: FAQ[] = [
     {
         question: '¿Qué mentorías ofrecen?',
         answer:
-            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría para Líderes de Equipo 1:1: 12 sesiones personalizadas para quienes tienen personas a cargo (USD 850)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500 de contado o USD 1.800 en 6 a 8 cuotas)',
+            'Ofrecemos 3 opciones:\n\n• Mentoría Grupal: 8 encuentros online (USD 55)\n• Mentoría para Líderes de Equipo 1:1: 2 meses de proceso personalizado para quienes tienen personas a cargo; incluye liderazgo de equipos, comunicación y oratoria (USD 1.000)\n• Diplomatura en Eneagrama: Formación certificada grupal de 6 meses, inicia el 27 de octubre (USD 1.500 de contado o USD 1.800 en 6 a 8 cuotas)',
     },
     {
         question: '¿La mentoría grupal es online?',

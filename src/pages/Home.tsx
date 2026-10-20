@@ -148,7 +148,7 @@ const Home: React.FC = () => {
               <div className="p-8">
                 <h3 className="text-2xl font-heading font-bold mb-3 text-white">Mentoría para Líderes de Equipo</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                  Para gerentes, dueños de negocio y líderes de RRHH. Entendé a cada persona de tu equipo y liderá con más claridad en un proceso 1 a 1.
+                  Para gerentes, dueños de negocio y líderes de RRHH. Entendé a cada persona de tu equipo, mejorá tu comunicación y tu oratoria, y liderá con más claridad en 2 meses de proceso 1 a 1.
                 </p>
                 <Button to="/mentorias/lideres" variant="primary" className="w-full">Agendá reunión gratuita</Button>
               </div>
