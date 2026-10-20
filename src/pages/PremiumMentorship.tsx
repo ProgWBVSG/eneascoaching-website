@@ -80,18 +80,18 @@ const PremiumMentorship: React.FC = () => {
         </div>
       </section>
 
-      {/* Lo que cambia */}
+      {/* Lo que mejora en tu liderazgo */}
       <section className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-heading font-bold text-brand-dark mb-10">Lo que cambia en tu día a día</h2>
+          <h2 className="text-3xl font-heading font-bold text-brand-dark mb-10">Lo que mejora en tu liderazgo</h2>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             {[
-              'Dejás de tomar como personal las reacciones de tu equipo y entendés de dónde vienen.',
-              'Das feedback sin generar defensas y delegás sabiendo a quién y cómo.',
-              'Hablás en reuniones y presentaciones con más seguridad y menos nervios.',
-              'Resolvés conflictos antes de que escalen, con conversaciones claras.',
-              'Tomás decisiones con más calma, desde lo que querés lograr y no desde la urgencia.',
-              'Tu equipo trabaja con más confianza y menos desgaste.',
+              'Tu equipo te sigue por confianza, no solo por el cargo.',
+              'Das feedback que se escucha y se aplica, sin generar defensas.',
+              'Delegás sabiendo qué darle a cada persona y cómo pedírselo.',
+              'Liderás reuniones y presentaciones con autoridad y seguridad.',
+              'Resolvés los conflictos del equipo antes de que escalen.',
+              'Tomás decisiones con claridad, incluso bajo presión.',
             ].map(t => (
               <li key={t} className="flex items-start gap-3 bg-brand-beige rounded-sm p-4 text-left">
                 <TrendingUp className="text-brand-gold shrink-0 mt-0.5" size={20} /> <span>{t}</span>
