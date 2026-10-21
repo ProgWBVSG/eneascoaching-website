@@ -12,10 +12,12 @@ export interface Taller {
   modalidad: string;          // vacío = no se muestra
   aprenderas: string[];
   incluye: string[];
-  precio: number;             // en pesos argentinos
+  precio: number;             // en pesos argentinos (transferencia)
+  precioUSD: number;          // para quien paga desde afuera o en dólares
   precioAntes: number | null; // precio tachado (solo si es real)
   cupos: number | null;       // null = no se muestra
-  cursoId: string;            // id del curso en el Aula para cobrar con MercadoPago; vacío = se cobra por WhatsApp
+  // Datos para transferir en pesos. Vacíos = los manda Cecilia por WhatsApp.
+  transferencia: { alias: string; cbu: string; titular: string };
   survey: string;             // se guarda en encuesta_respuestas.survey (se ve en el panel de Admin)
 }
 
@@ -48,9 +50,10 @@ export const TALLERES: Taller[] = [
       'Test de check-in para evaluar tu comunicación',
     ],
     precio: 45000,
+    precioUSD: 30, // $45.000 al dólar del 20/10/2026 (~$1.545) ≈ USD 29, redondeado
     precioAntes: 85000,
     cupos: null,
-    cursoId: '',
+    transferencia: { alias: '', cbu: '', titular: '' },
     survey: 'taller-hacerte-entender',
   },
 ];

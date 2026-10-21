@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { CalendarDays, Check, Clock, MapPin, Mic, Loader2, CreditCard, MessageCircle } from 'lucide-react';
+import { CalendarDays, Check, Clock, MapPin, Mic, Loader2, Landmark, DollarSign } from 'lucide-react';
 import { tallerPorId, inscripcionAbierta, pesos } from '../data/talleres';
 import { trackEvent } from '../lib/metaPixel';
 
@@ -51,9 +51,10 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const abierta = inscripcionAbierta(taller);
   const fechasTexto = taller.fechas.map(f => f.dia).join(' y ');
   const irAlFormulario = () => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' });
-  const linkWa = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    `Hola Cecilia, me inscribí al taller "${taller.titulo}" (${fechasTexto}). ¿Cómo hago el pago?`,
+  const linkPago = (forma: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+    `Hola Cecilia, me inscribí al taller "${taller.titulo}" (${fechasTexto}). Quiero pagar ${forma}.`,
   )}`;
+  const tr = taller.transferencia;
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,8 +81,8 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     } finally { setEnviando(false); }
   };
 
-  const pagar = () => {
-    trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+  const pagar = (moneda: 'ARS' | 'USD') => () => {
+    trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: moneda === 'ARS' ? taller.precio : taller.precioUSD, currency: moneda });
   };
 
   return (
@@ -159,6 +160,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             {taller.precioAntes && <span className="text-2xl text-gray-400 line-through">{pesos(taller.precioAntes)}</span>}
             <span className="text-5xl font-heading font-bold text-brand-gold">{pesos(taller.precio)}</span>
           </div>
+          <p className="text-gray-300 -mt-4 mb-8">o USD {taller.precioUSD} si pagás en dólares</p>
           <p className="font-semibold mb-4">Incluye:</p>
           <ul className="space-y-3 mb-10 inline-block text-left">
             {taller.incluye.map(i => (
@@ -224,16 +226,26 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             ) : (
               <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
                 <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado, {nombre.split(' ')[0]}!</h2>
-                <p className="text-gray-600 mb-8">Último paso: confirmá tu inscripción con el pago de {pesos(taller.precio)}.</p>
-                {taller.cursoId ? (
-                  <a href={`/comprar/${taller.cursoId}`} onClick={pagar} className={`${btnPrimary} w-full gap-2`}>
-                    <CreditCard size={20} /> Pagar con Mercado Pago
-                  </a>
-                ) : (
-                  <a href={linkWa} onClick={pagar} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2`}>
-                    <MessageCircle size={20} /> Confirmar el pago por WhatsApp
-                  </a>
+                <p className="text-gray-600 mb-6">Último paso: elegí cómo pagar y confirmamos tu inscripción.</p>
+                {tr.alias && (
+                  <div className="bg-brand-beige rounded p-4 mb-6 text-sm text-brand-dark space-y-1">
+                    <p className="font-semibold">Datos para transferir {pesos(taller.precio)}</p>
+                    <p>Alias: <strong>{tr.alias}</strong></p>
+                    {tr.cbu && <p>CBU: {tr.cbu}</p>}
+                    {tr.titular && <p>Titular: {tr.titular}</p>}
+                    <p className="text-gray-500 pt-1">Después mandanos el comprobante por WhatsApp.</p>
+                  </div>
                 )}
+                <div className="space-y-3">
+                  <a href={linkPago(`por transferencia (${pesos(taller.precio)})`)} onClick={pagar('ARS')} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2`}>
+                    <Landmark size={20} /> {tr.alias ? 'Enviar comprobante' : 'Transferencia'} · {pesos(taller.precio)}
+                  </a>
+                  <a href={linkPago(`en dólares (USD ${taller.precioUSD})`)} onClick={pagar('USD')} data-no-lead target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-4 px-8 rounded transition-colors">
+                    <DollarSign size={20} /> En dólares · USD {taller.precioUSD}
+                  </a>
+                </div>
+                <p className="text-xs text-gray-500 mt-4">Te escribimos por WhatsApp para confirmar tu lugar.</p>
               </div>
             )}
           </div>
@@ -251,7 +263,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cómo pago?</p>
-              <p className="text-gray-600">Después de dejar tus datos, confirmás el pago de {pesos(taller.precio)} en el siguiente paso.</p>
+              <p className="text-gray-600">Por transferencia ({pesos(taller.precio)}) o en dólares (USD {taller.precioUSD}). Después de dejar tus datos elegís la forma de pago y te confirmamos el lugar por WhatsApp.</p>
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Tengo otra duda?</p>
