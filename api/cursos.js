@@ -47,6 +47,42 @@ async function finalizeSale(supabase, sale, payment) {
   return code;
 }
 
+// ── MailerLite (mails de los talleres). Si falta el token o falla, no frena nada ──
+const ML = 'https://connect.mailerlite.com/api';
+const mlFetch = async (path, opts = {}) => {
+  const token = env('MAILERLITE_TOKEN');
+  if (!token) return null;
+  const r = await fetch(`${ML}${path}`, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}`, ...(opts.headers || {}) },
+  });
+  return r.ok ? r.json() : null;
+};
+const mlGrupo = async (nombre) => {
+  const found = await mlFetch(`/groups?filter[name]=${encodeURIComponent(nombre)}&limit=50`);
+  const g = (found?.data || []).find(x => x.name === nombre);
+  if (g) return g.id;
+  const created = await mlFetch('/groups', { method: 'POST', body: JSON.stringify({ name: nombre }) });
+  return created?.data?.id || null;
+};
+const mlCampo = async (clave) => {
+  const found = await mlFetch(`/fields?filter[keyword]=${encodeURIComponent(clave)}&limit=50`);
+  if ((found?.data || []).some(f => f.key === clave)) return;
+  await mlFetch('/fields', { method: 'POST', body: JSON.stringify({ name: clave, type: 'text' }) });
+};
+async function mlSuscribir(email, nombre, grupoNombre, campos = {}) {
+  try {
+    if (!email) return false;
+    const grupo = await mlGrupo(grupoNombre);
+    for (const k of Object.keys(campos)) await mlCampo(k);
+    const r = await mlFetch('/subscribers', {
+      method: 'POST',
+      body: JSON.stringify({ email, fields: { name: nombre || '', ...campos }, groups: grupo ? [grupo] : [] }),
+    });
+    return !!r;
+  } catch (e) { console.error('MailerLite:', e); return false; }
+}
+
 // ── Agenda de reuniones (horario Argentina, UTC-3). Igual que src/data/agenda.ts ──
 const AG_VENTANAS = [['09:00', '12:00'], ['16:30', '22:00']];
 const AG_DIAS = [0, 1, 2, 3, 4, 5, 6];
@@ -405,8 +441,72 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // Talleres: inscripción desde la landing (sin token)
+    if (action === 'taller-inscripcion' && req.method === 'POST') {
+      const { survey, titulo, role, answers, name, phone, email } = req.body || {};
+      if (!survey || !String(survey).startsWith('taller-') || !name || !phone || !email || !Array.isArray(answers)) {
+        return res.status(400).json({ error: 'Datos inválidos' });
+      }
+      const { error } = await supabase.from('encuesta_respuestas').insert({
+        survey, role: role || null,
+        answers: [...answers.slice(0, 20), { key: 'estado', q: 'Estado', a: 'Pendiente de pago' }],
+        name: String(name).trim().slice(0, 120), phone: String(phone).trim().slice(0, 40),
+        email: String(email).trim().slice(0, 160), notify: true,
+      });
+      if (error) {
+        console.error('taller-inscripcion error:', error, 'INSCRIPCION_NO_GUARDADA:', JSON.stringify(req.body));
+        return res.status(500).json({ error: 'No se pudo guardar' });
+      }
+      if (titulo) await mlSuscribir(String(email).trim(), String(name).trim(), `Taller ${titulo} · Inscriptos`);
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
+
+    // Talleres: activar el acceso de un inscripto que ya pagó
+    if (action === 'taller-activar' && req.method === 'POST') {
+      const { id, titulo } = req.body || {};
+      if (!id || !titulo) return res.status(400).json({ error: 'Datos inválidos' });
+      const { data: ins } = await supabase.from('encuesta_respuestas').select('*').eq('id', id).maybeSingle();
+      if (!ins) return res.status(404).json({ error: 'Inscripción no encontrada' });
+
+      // El aula del taller es un curso del Aula llamado "Taller <título>" (se crea solo la primera vez)
+      const nombreCurso = `Taller ${titulo}`;
+      let { data: curso } = await supabase.from('cursos').select('id').eq('title', nombreCurso).maybeSingle();
+      if (!curso) {
+        const { data: nuevo, error: ce } = await supabase.from('cursos')
+          .insert({ title: nombreCurso, description: null, published: true, position: 99, price: 0, for_sale: false })
+          .select('id').single();
+        if (ce) return res.status(500).json({ error: ce.message });
+        curso = nuevo;
+      }
+
+      // Reusar el código si ya estaba activado
+      const answers = Array.isArray(ins.answers) ? ins.answers : [];
+      const previo = answers.find(a => a && a.key === 'acceso');
+      let code = previo ? String(previo.a) : '';
+      if (!code) {
+        for (let i = 0; i < 10; i++) {
+          code = genCode(8);
+          const { data: ex } = await supabase.from('curso_accesos').select('id').eq('code', code).maybeSingle();
+          if (!ex) break;
+        }
+        const { error: ae } = await supabase.from('curso_accesos')
+          .insert({ code, curso_id: curso.id, client_name: ins.name, is_general: false });
+        if (ae) return res.status(500).json({ error: ae.message });
+      }
+      const link = `${SITE()}/curso/${code}`;
+      const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+      const nuevas = [
+        ...answers.filter(a => a && a.key !== 'estado' && a.key !== 'acceso'),
+        { key: 'estado', q: 'Estado', a: `Activado el ${fecha}` },
+        { key: 'acceso', q: 'Código del aula', a: code },
+      ];
+      await supabase.from('encuesta_respuestas').update({ answers: nuevas }).eq('id', id);
+      const mail = await mlSuscribir(ins.email, ins.name, `Taller ${titulo} · Activados`, { acceso_taller: link });
+      return res.status(200).json({ code, link, mail });
+    }
 
     // Cursos
     if (action === 'courses') {

@@ -8,6 +8,7 @@ import { AFIRMACIONES_LIDERAZGO, getBanda } from '../data/liderazgoLikert';
 import { PREGUNTAS_REUNIONES, PERFILES_REUNIONES, type Area } from '../data/testReuniones';
 import { PREGUNTAS_COMUNICACION, PERFILES_COMUNICACION, type Estilo } from '../data/testComunicacion';
 import { ENCUESTAS } from '../data/encuestas';
+import { TALLERES, fechasTexto } from '../data/talleres';
 import { ESTADOS_INSCRIPCION, PRIORIDADES, PRECIO, type EstadoInscripcion, type Prioridad } from '../data/inscripcion';
 import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Link as LinkIcon, Check as CheckIcon, CloudDownload, Loader2, Star, GraduationCap, LayoutGrid, Library, Users, ArrowRight, Mail, PlayCircle, Coins, Compass, MessageSquare, CalendarCheck } from 'lucide-react';
 import { generateResultadoPDF } from '../lib/pdf-generator';
@@ -1753,6 +1754,33 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const config = ENCUESTAS[survey];
+  const taller = TALLERES.find(t => t.survey === survey) || null;
+  const [activando, setActivando] = useState<string | null>(null);
+  const [activados, setActivados] = useState<Record<string, { link: string; mail: boolean }>>({});
+  const [errorActivar, setErrorActivar] = useState<string | null>(null);
+  const activar = async (sub: EncuestaRespuesta) => {
+    if (!taller) return;
+    setActivando(sub.id); setErrorActivar(null);
+    try {
+      const res = await fetch('/api/cursos?action=taller-activar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-token': token },
+        body: JSON.stringify({ id: sub.id, titulo: taller.titulo }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'No se pudo activar');
+      setActivados(a => ({ ...a, [sub.id]: { link: data.link, mail: !!data.mail } }));
+      load();
+    } catch (e) { setErrorActivar(e instanceof Error ? e.message : 'No se pudo activar'); }
+    finally { setActivando(null); }
+  };
+  const msgAcceso = (nombre: string, linkAula: string) => taller ? encodeURIComponent(
+    `Hola ${nombre.split(' ')[0]}! Soy Cecilia. Ya recibí tu pago: te doy la bienvenida al taller "${taller.titulo}".
+
+Este es tu acceso al aula, donde vas a encontrar el calendario de los encuentros (${fechasTexto(taller)}), las clases grabadas y el e-book:
+${linkAula}
+
+Guardalo, es personal. ¡Nos vemos el sábado!`,
+  ) : '';
   const link = `${typeof window !== 'undefined' ? window.location.origin : ''}${config.link || `/encuesta-${survey === 'eneagrama' ? 'profesionales' : survey}`}`;
   const copyLink = async () => {
     try { await navigator.clipboard.writeText(link); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }
@@ -1831,6 +1859,8 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
         {items.map(sub => {
           const isOpen = expandedId === sub.id;
           const frustracion = sub.answers?.find(a => a.key === 'frustracion')?.a;
+          const estado = sub.answers?.find(a => a.key === 'estado')?.a;
+          const activado = activados[sub.id];
           return (
             <div key={sub.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <button onClick={() => setExpandedId(isOpen ? null : sub.id)} className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-gray-50">
@@ -1838,7 +1868,8 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-brand-dark">{sub.name}</p>
                     {sub.role && <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{sub.role}</span>}
-                    {sub.notify && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Quiere aviso</span>}
+                    {sub.notify && !taller && <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Quiere aviso</span>}
+                    {taller && estado && <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${estado.startsWith('Activado') ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>{estado.startsWith('Activado') ? 'Activado' : 'Pendiente de pago'}</span>}
                   </div>
                   <p className="text-sm text-brand-gold font-medium mt-0.5">{sub.phone}{sub.email && <span className="text-gray-500 font-normal"> · {sub.email}</span>}</p>
                   {frustracion && <p className="text-sm text-gray-600 mt-1 line-clamp-2 italic">"{frustracion}"</p>}
@@ -1857,6 +1888,30 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
                       </div>
                     ))}
                   </div>
+                  {taller && (
+                    <div className="bg-white rounded-lg border border-brand-gold/30 p-4 mb-4">
+                      {activado ? (
+                        <div className="space-y-2">
+                          <p className="text-sm font-semibold text-green-700">Acceso activado</p>
+                          <p className="text-xs text-gray-500 break-all">{activado.link}</p>
+                          <p className="text-xs text-gray-500">{activado.mail ? 'Se sumó a MailerLite (grupo Activados) para el mail de bienvenida.' : 'No se pudo cargar en MailerLite: mandale el link por WhatsApp.'}</p>
+                          <a href={`https://wa.me/${sub.phone.replace(/\D/g, '')}?text=${msgAcceso(sub.name, activado.link)}`} target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                            <Mail className="w-4 h-4" /> Mandarle el acceso por WhatsApp
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-600">Cuando confirmes el comprobante de pago, activá su acceso al aula del taller.</p>
+                          <button onClick={() => activar(sub)} disabled={activando === sub.id}
+                            className="text-sm font-semibold bg-brand-gold hover:bg-amber-600 text-white px-4 py-2 rounded-lg disabled:opacity-60">
+                            {activando === sub.id ? 'Activando...' : estado?.startsWith('Activado') ? 'Ver o reenviar acceso' : 'Activar acceso'}
+                          </button>
+                          {errorActivar && activando === null && <p className="text-xs text-red-500">{errorActivar}</p>}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between">
                     <a href={`https://wa.me/${sub.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-sm font-semibold text-green-600 hover:text-green-700">

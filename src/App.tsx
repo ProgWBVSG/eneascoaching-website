@@ -35,6 +35,7 @@ import TestReuniones from './pages/TestReuniones';
 import TestComunicacion from './pages/TestComunicacion';
 import Encuesta from './pages/Encuesta';
 import Taller from './pages/Taller';
+import Talleres from './pages/Talleres';
 import { ENCUESTA_REUNIONES, ENCUESTA_ENEAGRAMA } from './data/encuestas';
 
 const MainLayout: React.FC = () => (
@@ -120,6 +121,7 @@ const App: React.FC = () => {
           <Route path="/inscripcion" element={<Inscripcion />} />
           <Route path="/terminos" element={<Terminos />} />
           <Route path="/contenido-gratuito" element={<FreeContent />} />
+          <Route path="/talleres" element={<Talleres />} />
           <Route path="/taller/:id" element={<Taller />} />
           <Route path="/hacerte-entender" element={<Taller id="hacerte-entender" />} />
         </Route>

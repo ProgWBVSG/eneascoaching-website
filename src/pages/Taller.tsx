@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { CalendarDays, Check, Clock, MapPin, Mic, Loader2, Landmark, DollarSign } from 'lucide-react';
-import { tallerPorId, inscripcionAbierta, pesos } from '../data/talleres';
+import {
+  CalendarDays, Check, Clock, MapPin, Mic, Loader2, Copy, MessageCircle, DollarSign,
+  ClipboardList, Landmark, PlayCircle, Users, GraduationCap,
+} from 'lucide-react';
+import { tallerPorId, inscripcionAbierta, pesos, fechasTexto } from '../data/talleres';
 import { trackEvent } from '../lib/metaPixel';
+import { toEmbedUrl } from '../lib/videoEmbed';
 
 const WHATSAPP = '5493515632496';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-4 px-8 rounded transition-colors';
 
-const DOLORES = [
+const DOLOR_FORM = [
   'Me enredo o me quedo en blanco',
   'Me pongo nervioso/a al hablar frente a otros',
   'Me cuesta decir lo que pienso o poner límites',
@@ -34,6 +38,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
+  const [copiado, setCopiado] = useState(false);
 
   useEffect(() => {
     if (taller) trackEvent('ViewContent', { content_name: `Taller ${taller.titulo}`, content_category: 'Taller', value: taller.precio, currency: 'ARS' });
@@ -43,18 +48,27 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     return (
       <div className="pt-32 pb-24 px-6 text-center">
         <h1 className="text-2xl font-heading font-bold text-brand-dark mb-4">No encontramos este taller</h1>
-        <a href="/" className="text-brand-gold font-semibold underline">Volver al inicio</a>
+        <a href="/talleres" className="text-brand-gold font-semibold underline">Ver los talleres</a>
       </div>
     );
   }
 
   const abierta = inscripcionAbierta(taller);
-  const fechasTexto = taller.fechas.map(f => f.dia).join(' y ');
+  const fechas = fechasTexto(taller);
+  const video = toEmbedUrl(taller.videoUrl);
   const irAlFormulario = () => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' });
-  const linkPago = (forma: string) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-    `Hola Cecilia, me inscribí al taller "${taller.titulo}" (${fechasTexto}). Quiero pagar ${forma}.`,
+  const primerNombre = nombre.trim().split(' ')[0];
+  const linkComprobante = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+    `Hola Cecilia, soy ${nombre.trim()}. Me inscribí al taller "${taller.titulo}" (${fechas}) y te mando el comprobante de la transferencia de ${pesos(taller.precio)} al alias ${taller.alias}.`,
   )}`;
-  const tr = taller.transferencia;
+  const linkDolares = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+    `Hola Cecilia, soy ${nombre.trim()}. Me inscribí al taller "${taller.titulo}" (${fechas}) y quiero pagar en dólares (USD ${taller.precioUSD}). ¿Cómo hago?`,
+  )}`;
+
+  const copiarAlias = async () => {
+    try { await navigator.clipboard.writeText(taller.alias); setCopiado(true); setTimeout(() => setCopiado(false), 2000); }
+    catch { prompt('Copiá el alias:', taller.alias); }
+  };
 
   const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,13 +83,14 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         { key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: equipo },
         { key: 'origen', q: '¿Cómo te enteraste del taller?', a: origen || 'Sin dato' },
       ];
-      const res = await fetch('/api/cursos?action=encuesta-submit', {
+      const res = await fetch('/api/cursos?action=taller-inscripcion', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ survey: taller.survey, role: equipo, answers, name: nombre, phone: telefono, email, notify: true }),
+        body: JSON.stringify({ survey: taller.survey, titulo: taller.titulo, role: equipo, answers, name: nombre, phone: telefono, email }),
       });
       if (!res.ok) throw new Error();
       trackEvent('Lead', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
       setListo(true);
+      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 50);
     } catch {
       setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
     } finally { setEnviando(false); }
@@ -87,19 +102,28 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
 
   return (
     <div className="pt-20 pb-24 md:pb-0">
-      {/* Hero */}
-      <section className="bg-brand-dark text-white py-16 md:py-24 px-6 relative overflow-hidden">
+      {/* 1 · Hero con video */}
+      <section className="bg-brand-dark text-white py-14 md:py-20 px-6 relative overflow-hidden">
         <Mic className="absolute right-[-40px] top-10 w-72 h-72 md:w-96 md:h-96 text-brand-gold opacity-[0.06] pointer-events-none" strokeWidth={1} />
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl md:text-6xl font-heading font-bold uppercase tracking-wide mb-5">{taller.titulo}</h1>
-          <p className="text-xl md:text-2xl text-brand-gold font-light mb-8">{taller.subtitulo}</p>
-          <div className="w-24 h-px bg-brand-gold mx-auto mb-8"></div>
-          <p className="text-2xl md:text-3xl font-heading leading-snug mb-6">{taller.frase}</p>
-          <p className="text-gray-300 mb-8">{taller.formato}</p>
-          <div className="flex flex-wrap gap-3 justify-center mb-10">
-            {taller.fechas.map(f => (
-              <span key={f.fecha} className="inline-flex items-center gap-2 border border-brand-gold/50 text-white text-sm font-medium px-4 py-2 rounded-full">
-                <CalendarDays size={16} className="text-brand-gold" /> {f.dia}
+          <h1 className="text-4xl md:text-6xl font-heading font-bold uppercase tracking-wide mb-4">{taller.titulo}</h1>
+          <p className="text-xl md:text-2xl text-brand-gold font-light mb-6">{taller.subtitulo}</p>
+          <p className="text-2xl md:text-3xl font-heading leading-snug mb-8">{taller.frase}</p>
+
+          <div className="relative w-full max-w-2xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video mb-8">
+            {video ? (
+              <iframe src={video} title={`Taller ${taller.titulo}`} loading="lazy" className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+            ) : (
+              <img src="/fotosCecilia/IMG_20250809_171402_158.jpg" alt="Cecilia B. Sánchez hablando en un encuentro" className="w-full h-full object-cover object-[50%_25%]" />
+            )}
+          </div>
+
+          <p className="text-gray-300 mb-5">{taller.formato}</p>
+          <div className="flex flex-wrap gap-3 justify-center mb-8">
+            {taller.encuentros.map(e => (
+              <span key={e.fecha} className="inline-flex items-center gap-2 border border-brand-gold/50 text-white text-sm font-medium px-4 py-2 rounded-full">
+                <CalendarDays size={16} className="text-brand-gold" /> {e.dia}{e.hora ? ` · ${e.hora} h` : ''}
               </span>
             ))}
           </div>
@@ -111,14 +135,29 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         </div>
       </section>
 
-      {/* El problema */}
+      {/* 2 · ¿Te pasa esto? */}
       <section className="py-16 md:py-20 px-6 bg-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-2xl md:text-3xl font-heading italic text-brand-dark leading-relaxed">“{taller.cita}”</p>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Te pasa esto?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {taller.dolores.map(d => (
+              <div key={d} className="bg-brand-beige rounded-sm p-6 border-l-4 border-brand-gold">
+                <p className="text-gray-700 leading-relaxed">{d}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Qué aprenderás */}
+      {/* 3 · Reencuadre */}
+      <section className="py-16 md:py-20 px-6 bg-brand-dark text-white">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-2xl md:text-3xl font-heading italic leading-relaxed mb-6">“{taller.cita}”</p>
+          <p className="text-brand-gold text-lg">No es falta de capacidad. Es una habilidad, y se entrena.</p>
+        </div>
+      </section>
+
+      {/* 4 · Qué aprenderás */}
       <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Qué aprenderás?</h2>
@@ -133,34 +172,61 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         </div>
       </section>
 
-      {/* Cómo es */}
+      {/* 5 · Cómo funciona */}
       <section className="py-16 md:py-20 px-6 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">Cómo funciona</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {[
+              { icon: ClipboardList, t: 'Reservás tu lugar', d: 'Completás el formulario en esta página.' },
+              { icon: Landmark, t: 'Transferís y mandás el comprobante', d: `Al alias ${taller.alias}, y nos mandás el comprobante por WhatsApp.` },
+              { icon: GraduationCap, t: 'Entrás a tu aula', d: 'Te llega tu acceso con el calendario de los encuentros, las clases grabadas y el e-book.' },
+            ].map(({ icon: Icon, t, d }, i) => (
+              <div key={t} className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-brand-gold/10 flex items-center justify-center"><Icon className="w-7 h-7 text-brand-gold" /></div>
+                <p className="text-sm font-bold text-brand-gold">Paso {i + 1}</p>
+                <p className="font-heading font-bold text-brand-dark text-lg">{t}</p>
+                <p className="text-gray-600 text-sm leading-relaxed">{d}</p>
+              </div>
+            ))}
+          </div>
+          <ul className="space-y-3 text-brand-dark inline-block text-left">
+            {taller.encuentros.map(e => (
+              <li key={e.fecha} className="flex items-center gap-3">
+                <CalendarDays size={18} className="text-brand-gold shrink-0" /> {e.dia}{e.hora ? ` · ${e.hora} h (Argentina)` : ''}
+              </li>
+            ))}
+            {taller.modalidad && <li className="flex items-center gap-3"><MapPin size={18} className="text-brand-gold shrink-0" /> {taller.modalidad}</li>}
+            <li className="flex items-center gap-3"><PlayCircle size={18} className="text-brand-gold shrink-0" /> Clases grabadas y e-book en tu aula</li>
+            {!taller.encuentros[0].hora && <li className="flex items-center gap-3"><Clock size={18} className="text-brand-gold shrink-0" /> Horario a confirmar</li>}
+          </ul>
+        </div>
+      </section>
+
+      {/* 6 · Quién te acompaña */}
+      <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <img src="/fotosCecilia/foto_cecilia_clase.jpg" alt="Cecilia B. Sánchez dando una clase"
+          <img src="/fotosCecilia/foto_cecilia_home.jpg" alt="Cecilia B. Sánchez"
             className="w-full max-w-sm mx-auto rounded-sm shadow-lg object-cover aspect-[4/5]" loading="lazy" />
           <div className="text-center">
-            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Cómo es el taller</h2>
-            <p className="text-gray-600 leading-relaxed mb-8">
-              Dos encuentros prácticos con <strong>Cecilia B. Sánchez</strong>, mentora de comunicación, abogada y especialista en eneagrama. No es teoría: practicás con tus propias situaciones.
+            <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Cecilia B. Sánchez</h2>
+            <p className="text-gray-600 leading-relaxed mb-4">
+              Abogada, coach ejecutiva internacional y especialista en eneagrama. Hace años acompaña a personas y equipos a comunicarse con claridad: más de mil personas acompañadas.
             </p>
-            <ul className="space-y-3 text-brand-dark inline-block text-left">
-              <li className="flex items-center gap-3"><CalendarDays size={18} className="text-brand-gold shrink-0" /> {fechasTexto}</li>
-              {taller.horario && <li className="flex items-center gap-3"><Clock size={18} className="text-brand-gold shrink-0" /> {taller.horario}</li>}
-              {taller.modalidad && <li className="flex items-center gap-3"><MapPin size={18} className="text-brand-gold shrink-0" /> {taller.modalidad}</li>}
-            </ul>
+            <p className="text-gray-600 leading-relaxed">En este taller no vas a escuchar teoría: vas a practicar con tus propias situaciones.</p>
           </div>
         </div>
       </section>
 
-      {/* Inversión */}
+      {/* 7 · Inversión */}
       <section className="py-16 md:py-20 px-6 bg-brand-dark text-white">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold mb-8">Inversión total</h2>
-          <div className="flex items-baseline justify-center gap-5 mb-8">
+          <div className="flex items-baseline justify-center gap-5 mb-3">
             {taller.precioAntes && <span className="text-2xl text-gray-400 line-through">{pesos(taller.precioAntes)}</span>}
             <span className="text-5xl font-heading font-bold text-brand-gold">{pesos(taller.precio)}</span>
           </div>
-          <p className="text-gray-300 -mt-4 mb-8">o USD {taller.precioUSD} si pagás en dólares</p>
+          <p className="text-gray-300 mb-8">o USD {taller.precioUSD} si pagás desde afuera de Argentina</p>
           <p className="font-semibold mb-4">Incluye:</p>
           <ul className="space-y-3 mb-10 inline-block text-left">
             {taller.incluye.map(i => (
@@ -172,7 +238,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         </div>
       </section>
 
-      {/* Inscripción */}
+      {/* 8 · Inscripción y pago */}
       {abierta && (
         <section id="inscripcion" className="py-16 md:py-20 px-6 bg-brand-beige scroll-mt-20">
           <div className="max-w-xl mx-auto">
@@ -180,20 +246,20 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
               <form onSubmit={enviar} className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 space-y-6">
                 <div className="text-center">
                   <h2 className="text-3xl font-heading font-bold text-brand-dark mb-2">Reservá tu lugar</h2>
-                  <p className="text-gray-600">Dejanos tus datos y en el siguiente paso confirmás el pago.</p>
+                  <p className="text-gray-600">Dejanos tus datos y en el siguiente paso te mostramos cómo pagar.</p>
                 </div>
                 <div className="space-y-4">
                   <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name"
                     className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
                   <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp (con código de área)" type="tel" autoComplete="tel"
                     className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" autoComplete="email"
+                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" autoComplete="email"
                     className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
                 </div>
                 <fieldset>
                   <legend className="font-semibold text-brand-dark mb-3">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
                   <div className="space-y-2">
-                    {DOLORES.map(o => (
+                    {DOLOR_FORM.map(o => (
                       <label key={o} className={`flex items-center gap-3 border rounded px-4 py-3 cursor-pointer ${dolor === o ? 'border-brand-gold bg-brand-gold/5' : 'border-gray-200'}`}>
                         <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059]" /> {o}
                       </label>
@@ -225,35 +291,54 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
               </form>
             ) : (
               <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
-                <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado, {nombre.split(' ')[0]}!</h2>
-                <p className="text-gray-600 mb-6">Último paso: elegí cómo pagar y confirmamos tu inscripción.</p>
-                {tr.alias && (
-                  <div className="bg-brand-beige rounded p-4 mb-6 text-sm text-brand-dark space-y-1">
-                    <p className="font-semibold">Datos para transferir {pesos(taller.precio)}</p>
-                    <p>Alias: <strong>{tr.alias}</strong></p>
-                    {tr.cbu && <p>CBU: {tr.cbu}</p>}
-                    {tr.titular && <p>Titular: {tr.titular}</p>}
-                    <p className="text-gray-500 pt-1">Después mandanos el comprobante por WhatsApp.</p>
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <a href={linkPago(`por transferencia (${pesos(taller.precio)})`)} onClick={pagar('ARS')} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2`}>
-                    <Landmark size={20} /> {tr.alias ? 'Enviar comprobante' : 'Transferencia'} · {pesos(taller.precio)}
-                  </a>
-                  <a href={linkPago(`en dólares (USD ${taller.precioUSD})`)} onClick={pagar('USD')} data-no-lead target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-4 px-8 rounded transition-colors">
-                    <DollarSign size={20} /> En dólares · USD {taller.precioUSD}
-                  </a>
+                <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado{primerNombre ? `, ${primerNombre}` : ''}!</h2>
+                <p className="text-gray-600 mb-8">Para confirmarlo, transferí {pesos(taller.precio)} y mandanos el comprobante por WhatsApp.</p>
+
+                <div className="bg-brand-beige rounded p-6 mb-6">
+                  <p className="text-sm text-gray-500 mb-1">Alias</p>
+                  <p className="text-3xl font-heading font-bold text-brand-dark mb-4 break-all">{taller.alias}</p>
+                  <button onClick={copiarAlias} className="inline-flex items-center gap-2 text-sm font-semibold text-brand-gold hover:text-[#a68a3c]">
+                    <Copy size={16} /> {copiado ? '¡Copiado!' : 'Copiar alias'}
+                  </button>
+                  <p className="text-sm text-gray-600 mt-4">Monto: <strong>{pesos(taller.precio)}</strong></p>
                 </div>
-                <p className="text-xs text-gray-500 mt-4">Te escribimos por WhatsApp para confirmar tu lugar.</p>
+
+                <a href={linkComprobante} onClick={pagar('ARS')} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2 mb-3`}>
+                  <MessageCircle size={20} /> Enviar comprobante por WhatsApp
+                </a>
+                <a href={linkDolares} onClick={pagar('USD')} data-no-lead target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-3 px-8 rounded transition-colors">
+                  <DollarSign size={18} /> Pago desde afuera (USD {taller.precioUSD})
+                </a>
+                <p className="text-sm text-gray-500 mt-6">Apenas confirmemos tu pago, te llega por mail y por WhatsApp el acceso a tu aula del taller.</p>
               </div>
             )}
           </div>
         </section>
       )}
 
-      {/* Preguntas frecuentes */}
+      {/* 9 · Procesos más profundos (prioridad a las ofertas principales) */}
       <section className="py-16 md:py-20 px-6 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¿Buscás un proceso más profundo?</h2>
+          <p className="text-gray-600 mb-10">El taller es un primer paso. Si querés ir más allá, estos son los programas de Cecilia.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a href="/mentorias/lideres" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
+              <Users className="w-8 h-8 text-brand-gold mx-auto mb-3" />
+              <p className="font-heading font-bold text-xl text-brand-dark mb-2">Mentoría para Líderes de Equipo</p>
+              <p className="text-gray-600 text-sm">Acompañamiento 1 a 1 para liderar reuniones que terminan en decisiones.</p>
+            </a>
+            <a href="/diplomatura" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
+              <GraduationCap className="w-8 h-8 text-brand-gold mx-auto mb-3" />
+              <p className="font-heading font-bold text-xl text-brand-dark mb-2">Diplomatura en Eneagrama</p>
+              <p className="text-gray-600 text-sm">Formate como coach eneagramista certificada en 6 meses.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 10 · Preguntas frecuentes */}
+      <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-3xl font-heading font-bold text-brand-dark mb-10">Preguntas frecuentes</h2>
           <div className="space-y-8">
@@ -263,7 +348,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cómo pago?</p>
-              <p className="text-gray-600">Por transferencia ({pesos(taller.precio)}) o en dólares (USD {taller.precioUSD}). Después de dejar tus datos elegís la forma de pago y te confirmamos el lugar por WhatsApp.</p>
+              <p className="text-gray-600">Por transferencia de {pesos(taller.precio)} al alias {taller.alias}, y nos mandás el comprobante por WhatsApp. Si estás fuera de Argentina, son USD {taller.precioUSD}: escribinos y te pasamos cómo pagar.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-brand-dark mb-2">¿Cuándo recibo el acceso?</p>
+              <p className="text-gray-600">Apenas confirmamos tu pago te llega el link de tu aula, con el calendario de los encuentros, las clases grabadas y el e-book.</p>
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Tengo otra duda?</p>

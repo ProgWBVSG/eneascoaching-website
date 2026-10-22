@@ -27,6 +27,7 @@ const Footer: React.FC = () => {
               <li><Link to="/mentorias/grupal" className="hover:text-brand-gold transition-colors">Mentoría Grupal</Link></li>
               <li><Link to="/mentorias/lideres" className="hover:text-brand-gold transition-colors">Mentoría para Líderes</Link></li>
               <li><Link to="/diplomatura" className="hover:text-brand-gold transition-colors">Diplomatura en Eneagrama</Link></li>
+              <li><Link to="/talleres" className="hover:text-brand-gold transition-colors">Talleres</Link></li>
             </ul>
           </div>
 

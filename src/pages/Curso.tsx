@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { toEmbedUrl, isDirectVideo } from '../lib/videoEmbed';
+import { tallerPorCurso, linkGoogleCalendar, type Taller } from '../data/talleres';
 import {
   CheckCircle, Circle, Download, ChevronRight, ChevronLeft, Lock,
-  AlertCircle, Menu, X, PlayCircle, FileText, Star, Award, Send, Sparkles,
+  AlertCircle, Menu, X, PlayCircle, FileText, Star, Award, Send, Sparkles, CalendarDays,
 } from 'lucide-react';
 
 interface Recurso { id: string; name: string; url: string; }
@@ -127,6 +128,7 @@ const Curso: React.FC = () => {
     );
   }
 
+  const taller = tallerPorCurso(curso.title);
   const isCurrentDone = currentLesson ? completadas.has(currentLesson.id) : false;
   const embed = toEmbedUrl(currentLesson?.video_url);
 
@@ -195,10 +197,11 @@ const Curso: React.FC = () => {
         {/* Contenido */}
         <main className="flex-1 min-w-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            {taller && !showFeedback && <CalendarioTaller taller={taller} />}
             {showFeedback ? (
               <FeedbackPanel code={code} clientName={clientName} cursoTitle={curso.title} onBack={() => setShowFeedback(false)} />
             ) : !currentLesson ? (
-              <div className="text-center py-20 text-gray-400">Este curso todavía no tiene lecciones.</div>
+              <div className="text-center py-20 text-gray-400">{taller ? 'Las clases grabadas y el e-book van a aparecer acá.' : 'Este curso todavía no tiene lecciones.'}</div>
             ) : (
               <>
                 <div className="rounded-2xl overflow-hidden bg-brand-dark shadow-sm mb-5 aspect-video">
@@ -349,3 +352,34 @@ const FeedbackPanel: React.FC<{
 };
 
 export default Curso;
+
+// ── Calendario de encuentros (solo en el aula de un taller) ──────────
+const CalendarioTaller: React.FC<{ taller: Taller }> = ({ taller }) => (
+  <div className="bg-white rounded-2xl border border-brand-gold/30 p-5 mb-6">
+    <h3 className="font-heading font-bold text-brand-dark mb-1 flex items-center gap-2">
+      <CalendarDays className="w-5 h-5 text-brand-gold" /> Calendario del taller
+    </h3>
+    {taller.modalidad && <p className="text-sm text-gray-500 mb-3">{taller.modalidad}</p>}
+    <div className="space-y-2 mt-3">
+      {taller.encuentros.map((e, i) => {
+        const cal = linkGoogleCalendar(taller, e);
+        return (
+          <div key={e.fecha} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-gray-200">
+            <div>
+              <p className="text-sm font-semibold text-brand-dark">Encuentro {i + 1} · {e.dia}</p>
+              <p className="text-xs text-gray-500">{e.hora ? `${e.hora} h (Argentina) · ${e.duracion} min` : 'Horario a confirmar: te avisamos por WhatsApp'}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {cal && <a href={cal} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-brand-gold hover:underline">Agendar</a>}
+              {taller.linkEncuentro && (
+                <a href={taller.linkEncuentro} target="_blank" rel="noopener noreferrer"
+                  className="text-xs font-semibold bg-brand-gold text-white px-3 py-1.5 rounded-lg hover:bg-amber-600">Entrar al encuentro</a>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+    {!taller.linkEncuentro && <p className="text-xs text-gray-500 mt-3">El link para entrar a cada encuentro te llega por WhatsApp.</p>}
+  </div>
+);
