@@ -138,9 +138,9 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       <section className="py-16 md:py-20 px-6 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Te pasa esto?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 pb-3 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {taller.dolores.map(d => (
-              <div key={d} className="bg-brand-beige rounded-sm p-6 border-l-4 border-brand-gold">
+              <div key={d} className="bg-brand-beige rounded-sm p-6 border-l-4 border-brand-gold shrink-0 w-[82%] md:w-auto snap-center flex items-center">
                 <p className="text-gray-700 leading-relaxed">{d}</p>
               </div>
             ))}
@@ -160,9 +160,9 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Qué aprenderás?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 pb-3 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {taller.aprenderas.map(a => (
-              <div key={a} className="bg-white rounded-sm p-6 shadow-sm border border-brand-gold/20 flex flex-col items-center gap-3">
+              <div key={a} className="bg-white rounded-sm p-6 shadow-sm border border-brand-gold/20 flex flex-col items-center gap-3 shrink-0 w-[82%] md:w-auto snap-center">
                 <div className="bg-brand-gold/10 p-2 rounded-full"><Check size={18} className="text-brand-gold" /></div>
                 <p className="text-gray-700 leading-relaxed">{a}</p>
               </div>
@@ -175,13 +175,13 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       <section className="py-16 md:py-20 px-6 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">Cómo funciona</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="flex md:grid md:grid-cols-3 gap-6 mb-12 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 pb-3 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { icon: ClipboardList, t: 'Reservás tu lugar', d: 'Completás el formulario en esta página.' },
               { icon: Landmark, t: 'Transferís y mandás el comprobante', d: `Al alias ${taller.alias}, y nos mandás el comprobante por WhatsApp.` },
               { icon: GraduationCap, t: 'Entrás a tu aula', d: 'Te llega tu acceso con el calendario de los encuentros, las clases grabadas y el e-book.' },
             ].map(({ icon: Icon, t, d }, i) => (
-              <div key={t} className="flex flex-col items-center gap-3">
+              <div key={t} className="flex flex-col items-center gap-3 shrink-0 w-[78%] md:w-auto snap-center">
                 <div className="w-14 h-14 rounded-full bg-brand-gold/10 flex items-center justify-center"><Icon className="w-7 h-7 text-brand-gold" /></div>
                 <p className="text-sm font-bold text-brand-gold">Paso {i + 1}</p>
                 <p className="font-heading font-bold text-brand-dark text-lg">{t}</p>
@@ -300,6 +300,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
                     <Copy size={16} /> {copiado ? '¡Copiado!' : 'Copiar alias'}
                   </button>
                   <p className="text-sm text-gray-600 mt-4">Monto: <strong>{pesos(taller.precio)}</strong></p>
+                  <div className="mt-5 pt-4 border-t border-brand-gold/30 text-xs text-gray-500 leading-relaxed">
+                    <p>{taller.cuenta.tipo} · N.º {taller.cuenta.numero}</p>
+                    <p>CBU {taller.cuenta.cbu}</p>
+                    <p>Titular: {taller.cuenta.titular}</p>
+                  </div>
                 </div>
 
                 <a href={linkComprobante} onClick={pagar('ARS')} data-no-lead target="_blank" rel="noopener noreferrer" className={`${btnPrimary} w-full gap-2 mb-3`}>

@@ -37,6 +37,7 @@ export interface Taller {
   precioAntes: number | null; // precio tachado (solo si es real)
   cupos: number | null;       // null = no se muestra
   alias: string;              // alias para transferir en pesos
+  cuenta: { cbu: string; numero: string; tipo: string; titular: string }; // datos completos, se muestran chicos
   survey: string;             // se guarda en encuesta_respuestas.survey (Admin)
 }
 
@@ -82,7 +83,8 @@ export const TALLERES: Taller[] = [
     precioUSD: 30, // $45.000 al dólar del 20/10/2026 (~$1.545) ≈ USD 29, redondeado
     precioAntes: 85000,
     cupos: null,
-    alias: 'abogar204',
+    alias: 'ABOGAR204',
+    cuenta: { cbu: '4530000800016927273511', numero: '1692727351', tipo: 'Caja de ahorro en pesos', titular: 'Guillermo Franco Vidal Sanchez' },
     survey: 'taller-hacerte-entender',
   },
 ];
