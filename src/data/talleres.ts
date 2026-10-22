@@ -24,7 +24,8 @@ export interface Taller {
   cita: string;               // frase destacada (reencuadre)
   formato: string;            // "Taller práctico de comunicación y oratoria · 2 sábados"
   resumen: string;            // una línea para la tarjeta en /talleres
-  videoUrl: string;           // video de venta (YouTube). Vacío = se muestra una foto de Cecilia
+  videoUrl: string;           // video de venta (YouTube). Vacío = no se muestra
+  imagen: string;             // foto de la tarjeta en /talleres
   dolores: string[];          // "¿Te pasa esto?" en segunda persona
   encuentros: Encuentro[];
   modalidad: string;          // "Online en vivo por Zoom" o la dirección. Vacío = no se muestra
@@ -49,6 +50,7 @@ export const TALLERES: Taller[] = [
     formato: 'Taller práctico de comunicación y oratoria · 2 sábados',
     resumen: 'Taller práctico de comunicación y oratoria para expresar tus ideas con claridad y seguridad.',
     videoUrl: '',
+    imagen: '/fotosCecilia/IMG_20250809_171402_158.jpg',
     dolores: [
       'Sabés lo que querés decir, pero cuando te toca hablar te quedás en blanco.',
       'Dijiste tu idea y nadie reaccionó. Cinco minutos después otro dijo lo mismo y lo aplaudieron.',

@@ -110,14 +110,13 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <p className="text-xl md:text-2xl text-brand-gold font-light mb-6">{taller.subtitulo}</p>
           <p className="text-2xl md:text-3xl font-heading leading-snug mb-8">{taller.frase}</p>
 
-          <div className="relative w-full max-w-2xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video mb-8">
-            {video ? (
+          {/* Video de venta: solo aparece cuando se carga videoUrl en talleres.ts */}
+          {video && (
+            <div className="relative w-full max-w-2xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video mb-8">
               <iframe src={video} title={`Taller ${taller.titulo}`} loading="lazy" className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-            ) : (
-              <img src="/fotosCecilia/IMG_20250809_171402_158.jpg" alt="Cecilia B. Sánchez hablando en un encuentro" className="w-full h-full object-cover object-[50%_25%]" />
-            )}
-          </div>
+            </div>
+          )}
 
           <p className="text-gray-300 mb-5">{taller.formato}</p>
           <div className="flex flex-wrap gap-3 justify-center mb-8">

@@ -21,7 +21,12 @@ const Talleres: React.FC = () => {
               {proximos.map(t => {
                 const abierta = inscripcionAbierta(t);
                 return (
-                  <a key={t.id} href={`/taller/${t.id}`} className="block bg-white rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold shadow-sm transition-colors text-center">
+                  <a key={t.id} href={`/taller/${t.id}`} className="flex flex-col md:flex-row bg-white rounded-sm overflow-hidden border border-brand-gold/20 hover:border-brand-gold shadow-sm transition-colors">
+                    <div className="relative h-56 md:h-auto md:w-2/5 shrink-0">
+                      <img src={t.imagen} alt={`Cecilia B. Sánchez · ${t.titulo}`} className="absolute inset-0 w-full h-full object-cover object-[50%_25%]" loading="lazy" />
+                      <div className="absolute inset-0 bg-gradient-to-b md:bg-gradient-to-r from-transparent via-transparent to-white" />
+                    </div>
+                    <div className="flex-1 p-8 text-center">
                     <h2 className="text-2xl md:text-3xl font-heading font-bold text-brand-dark mb-2">{t.titulo}</h2>
                     <p className="text-brand-gold mb-4">{t.subtitulo}</p>
                     <p className="text-gray-600 mb-6">{t.resumen}</p>
@@ -31,6 +36,7 @@ const Talleres: React.FC = () => {
                       <span className="inline-flex items-center gap-1 font-semibold text-brand-gold">
                         {abierta ? 'Ver el taller' : 'Inscripción cerrada'} <ArrowRight size={16} />
                       </span>
+                    </div>
                     </div>
                   </a>
                 );
