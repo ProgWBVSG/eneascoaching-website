@@ -44,7 +44,7 @@ const EbookCard: React.FC<{ e: typeof EBOOKS[number] }> = ({ e }) => {
   };
 
   return (
-    <div className="flex flex-col items-center text-center">
+    <div id={e.id} className="flex flex-col items-center text-center scroll-mt-24">
       <img src={e.portada} alt={`Portada del e-book ${e.titulo}`} loading="lazy" className="w-48 sm:w-56 h-auto drop-shadow-[0_24px_30px_rgba(0,0,0,0.55)]" />
       <h4 className="mt-6 font-heading font-bold text-xl sm:text-2xl text-white max-w-md">{e.titulo}</h4>
       <p className="mt-2 text-gray-300 text-sm">{e.detalle} E-book gratuito.</p>
@@ -60,14 +60,14 @@ const EbookCard: React.FC<{ e: typeof EBOOKS[number] }> = ({ e }) => {
         </button>
         {error && <p className="text-sm text-red-300">{error}</p>}
         {listo && <p className="text-sm text-brand-gold">Listo, ya se está descargando. Si no arrancó, <a href={e.pdf} download className="underline">tocá acá</a>.</p>}
-        {!yaDejoEmail && <p className="text-xs text-gray-400">Te enviamos contenido de Eneagrama por mail. Podés darte de baja cuando quieras.</p>}
+        {!yaDejoEmail && <p className="text-xs text-gray-400">Tu email es solo para enviarte el e-book y contenido de valor de vez en cuando. No hacemos spam ni compartimos tus datos, y podés darte de baja cuando quieras.</p>}
       </form>
     </div>
   );
 };
 
 const EbookGratis: React.FC = () => (
-  <div className="mt-14 pt-12 border-t border-white/10">
+  <div id="ebook" className="mt-14 pt-12 border-t border-white/10 scroll-mt-24">
     <h3 className="font-heading font-bold text-2xl md:text-3xl mb-8">E-books gratuitos</h3>
     <div className="flex flex-wrap justify-center gap-12">
       {EBOOKS.map(e => <EbookCard key={e.id} e={e} />)}
