@@ -461,6 +461,22 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    // E-books gratuitos: quien descarga deja nombre, email y (opcional) teléfono → queda en Admin → E-books
+    if (action === 'ebook-submit' && req.method === 'POST') {
+      const { ebook, name, email, phone } = req.body || {};
+      const txt = (v, n) => (v ? String(v).trim().slice(0, n) : '');
+      if (!ebook || !txt(name, 120) || !/^\S+@\S+\.\S+$/.test(txt(email, 160))) return res.status(400).json({ error: 'Datos inválidos' });
+      const { error } = await supabase.from('encuesta_respuestas').insert({
+        survey: `ebook-${txt(ebook, 40)}`, role: null, answers: [],
+        name: txt(name, 120), phone: txt(phone, 40), email: txt(email, 160), notify: true,
+      });
+      if (error) {
+        console.error('ebook-submit error:', error, 'DESCARGA_NO_GUARDADA:', JSON.stringify(req.body));
+        return res.status(500).json({ error: 'No se pudo guardar' });
+      }
+      return res.status(200).json({ success: true });
+    }
+
     // ─── ADMIN (requiere token) ───────────────────────────────────────
     if (!isAdmin(req)) return res.status(401).json({ error: 'No autorizado' });
 

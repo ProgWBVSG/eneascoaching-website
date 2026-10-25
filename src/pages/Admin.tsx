@@ -14,7 +14,7 @@ import { Lock, LogOut, RefreshCw, Trash2, ChevronDown, ChevronUp, Copy, Plus, Li
 import { generateResultadoPDF } from '../lib/pdf-generator';
 
 type TestKind = 'juridico' | 'completo';
-type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas' | 'agenda' | 'inscripciones';
+type AdminTab = TestKind | 'codigos' | 'cursos-fb' | 'panel' | 'dinero' | 'liderazgo' | 'reuniones' | 'comunicacion' | 'encuestas' | 'agenda' | 'inscripciones' | 'ebooks';
 const NON_TEST_TABS: AdminTab[] = ['codigos', 'cursos-fb', 'panel', 'dinero', 'liderazgo', 'reuniones', 'comunicacion', 'encuestas'];
 
 interface Invite {
@@ -274,6 +274,7 @@ const Admin: React.FC = () => {
             { id: 'reuniones', label: 'Test Reuniones' },
             { id: 'comunicacion', label: 'Test Comunicación' },
             { id: 'inscripciones', label: 'Solicitudes' },
+            { id: 'ebooks', label: 'E-books' },
             { id: 'agenda', label: 'Reuniones agendadas' },
             { id: 'encuestas', label: 'Encuestas' },
           ] as { id: AdminTab; label: string }[]).map(t => (
@@ -301,6 +302,7 @@ const Admin: React.FC = () => {
         {tab === 'reuniones' && <TestReunionesTab token={token} />}
         {tab === 'comunicacion' && <TestComunicacionTab token={token} />}
         {tab === 'inscripciones' && <InscripcionesTab token={token} />}
+        {tab === 'ebooks' && <EbooksTab token={token} />}
         {tab === 'agenda' && <AgendaTab token={token} />}
         {tab === 'encuestas' && <EncuestasTab token={token} />}
 
@@ -1470,6 +1472,74 @@ const TestComunicacionTab: React.FC<{ token: string }> = ({ token }) => {
         })}
       </div>
       </>
+      )}
+    </div>
+  );
+};
+
+// ── Tab de descargas de e-books gratuitos (sección del inicio) ────────
+interface EbookItem { id: string; survey: string; name: string; email: string | null; phone: string; created_at: string }
+
+const EbooksTab: React.FC<{ token: string }> = ({ token }) => {
+  const [items, setItems] = useState<EbookItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [msg, setMsg] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cursos?action=encuesta-submissions', { headers: { 'x-admin-token': token } });
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data.filter((d: EbookItem) => d.survey?.startsWith('ebook-')) : []);
+    } finally { setLoading(false); }
+  }, [token]);
+  useEffect(() => { load(); }, [load]);
+
+  const del = async (id: string) => {
+    await fetch(`/api/cursos?action=encuesta-submission&id=${id}`, { method: 'DELETE', headers: { 'x-admin-token': token } });
+    setDeleteConfirm(null); load();
+  };
+  const copiar = async () => {
+    const mails = items.map(i => i.email).filter(Boolean).join(', ');
+    try { await navigator.clipboard.writeText(mails); setMsg(`Copiados ${items.length} emails`); setTimeout(() => setMsg(''), 2500); }
+    catch { prompt('Copiá los emails:', mails); }
+  };
+  const nombreEbook = (s: string) => ({ 'ebook-ikigai': 'Ikigai' } as Record<string, string>)[s] || s.replace('ebook-', '');
+  const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/#ebook`;
+
+  return (
+    <div>
+      <div className="bg-white border border-gray-200 rounded-sm p-5 mb-5">
+        <div className="flex items-center gap-2 mb-1"><Mail className="w-5 h-5 text-brand-gold" /><h3 className="font-heading font-bold">Descargas de e-books gratuitos</h3></div>
+        <p className="text-sm text-gray-500">Link para compartir: <span className="font-mono text-xs break-all">{link}</span></p>
+        <div className="mt-3 flex items-center gap-4 flex-wrap">
+          <p className="text-2xl font-bold text-brand-dark">{items.length} <span className="text-sm font-normal text-gray-500">descargas</span></p>
+          <button onClick={copiar} disabled={!items.length} className="px-3 py-1.5 text-sm font-semibold rounded border border-gray-300 disabled:opacity-40">Copiar todos los emails</button>
+          <button onClick={load} className="p-2 text-gray-500 hover:text-brand-gold" aria-label="Actualizar"><RefreshCw className="w-4 h-4" /></button>
+          {msg && <span className="text-sm text-green-600">{msg}</span>}
+        </div>
+      </div>
+      {loading ? <p className="text-gray-400 text-sm">Cargando…</p> : items.length === 0 ? (
+        <p className="text-gray-400 text-sm py-8 text-center">Todavía no hay descargas.</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {items.map(i => (
+            <div key={i.id} className="bg-white border border-gray-200 rounded-sm px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <p className="font-semibold text-brand-dark">{i.name}</p>
+                <p className="text-sm text-gray-600 break-all">{i.email}{i.phone ? ` · ${i.phone}` : ''}</p>
+                <p className="text-xs text-gray-400">{nombreEbook(i.survey)} · {new Date(i.created_at).toLocaleString('es-AR')}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {i.phone && <a href={`https://wa.me/${i.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-sm font-semibold rounded bg-[#25D366] text-white">WhatsApp</a>}
+                {deleteConfirm === i.id
+                  ? <button onClick={() => del(i.id)} className="px-3 py-1.5 text-sm font-semibold rounded bg-red-600 text-white">Seguro, borrar</button>
+                  : <button onClick={() => setDeleteConfirm(i.id)} className="px-2 py-1.5 text-gray-400 hover:text-red-600" aria-label="Eliminar"><Trash2 className="w-4 h-4" /></button>}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
