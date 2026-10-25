@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '../components/Button';
+import EbookGratis from '../components/EbookGratis';
 import { Diamond, Users, Star, Award, Mail } from 'lucide-react';
 
 import { useLocation } from 'react-router-dom';
@@ -182,6 +183,7 @@ const Home: React.FC = () => {
           <h3 className="font-heading font-bold text-2xl md:text-3xl mb-4">Accedé a tests, guías y videos de Eneagrama</h3>
           <p className="text-gray-300 mb-6">Todo el contenido de valor de Cecilia, en un solo lugar. Solo dejás tu email.</p>
           <Button to="/recursos" variant="primary">Ver recursos gratuitos</Button>
+          <EbookGratis />
         </div>
       </section>
 
