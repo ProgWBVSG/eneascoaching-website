@@ -4,7 +4,7 @@ import {
   CalendarDays, Check, Clock, MapPin, Mic, Loader2, Copy, MessageCircle, DollarSign,
   ClipboardList, Landmark, PlayCircle, Users, GraduationCap,
 } from 'lucide-react';
-import { tallerPorId, inscripcionAbierta, pesos, fechasTexto } from '../data/talleres';
+import { tallerPorId, inscripcionAbierta, pesos, fechasTexto, rangoHora } from '../data/talleres';
 import { trackEvent } from '../lib/metaPixel';
 import { toEmbedUrl } from '../lib/videoEmbed';
 
@@ -122,7 +122,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <div className="flex flex-wrap gap-3 justify-center mb-8">
             {taller.encuentros.map(e => (
               <span key={e.fecha} className="inline-flex items-center gap-2 border border-brand-gold/50 text-white text-sm font-medium px-4 py-2 rounded-full">
-                <CalendarDays size={16} className="text-brand-gold" /> {e.dia}{e.hora ? ` · ${e.hora} h` : ''}
+                <CalendarDays size={16} className="text-brand-gold" /> {e.dia}{e.hora ? ` · ${rangoHora(e)} h` : ''}
               </span>
             ))}
           </div>
@@ -192,7 +192,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <ul className="space-y-3 text-brand-dark inline-block text-left">
             {taller.encuentros.map(e => (
               <li key={e.fecha} className="flex items-center gap-3">
-                <CalendarDays size={18} className="text-brand-gold shrink-0" /> {e.dia}{e.hora ? ` · ${e.hora} h (Argentina)` : ''}
+                <CalendarDays size={18} className="text-brand-gold shrink-0" /> {e.dia}{e.hora ? ` · ${rangoHora(e)} h (hora de Argentina)` : ''}
               </li>
             ))}
             {taller.modalidad && <li className="flex items-center gap-3"><MapPin size={18} className="text-brand-gold shrink-0" /> {taller.modalidad}</li>}

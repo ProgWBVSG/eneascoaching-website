@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { toEmbedUrl, isDirectVideo } from '../lib/videoEmbed';
-import { tallerPorCurso, linkGoogleCalendar, type Taller } from '../data/talleres';
+import { tallerPorCurso, linkGoogleCalendar, rangoHora, type Taller } from '../data/talleres';
 import {
   CheckCircle, Circle, Download, ChevronRight, ChevronLeft, Lock,
   AlertCircle, Menu, X, PlayCircle, FileText, Star, Award, Send, Sparkles, CalendarDays,
@@ -367,7 +367,7 @@ const CalendarioTaller: React.FC<{ taller: Taller }> = ({ taller }) => (
           <div key={e.fecha} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl border border-gray-200">
             <div>
               <p className="text-sm font-semibold text-brand-dark">Encuentro {i + 1} · {e.dia}</p>
-              <p className="text-xs text-gray-500">{e.hora ? `${e.hora} h (Argentina) · ${e.duracion} min` : 'Horario a confirmar: te avisamos por WhatsApp'}</p>
+              <p className="text-xs text-gray-500">{e.hora ? `${rangoHora(e)} h (hora de Argentina)` : 'Horario a confirmar: te avisamos por WhatsApp'}</p>
             </div>
             <div className="flex items-center gap-3">
               {cal && <a href={cal} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-brand-gold hover:underline">Agendar</a>}

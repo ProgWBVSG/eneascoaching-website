@@ -16,6 +16,14 @@ export interface Encuentro {
   duracion: number; // minutos
 }
 
+// "09:30" + 120 min → "9:30 a 11:30"
+export function rangoHora(e: Encuentro): string {
+  const [h, m] = e.hora.split(':').map(Number);
+  const fin = h * 60 + m + e.duracion;
+  const f = (min: number) => `${Math.floor(min / 60) % 24}:${String(min % 60).padStart(2, '0')}`;
+  return `${f(h * 60 + m)} a ${f(fin)}`;
+}
+
 export interface Taller {
   id: string;                 // va en el link: /taller/hacerte-entender
   titulo: string;
@@ -59,8 +67,8 @@ export const TALLERES: Taller[] = [
       'Te callás para no generar conflicto, y después te quedás pensando lo que deberías haber dicho.',
     ],
     encuentros: [
-      { fecha: '2026-10-31', dia: 'Sábado 31 de octubre', hora: '', duracion: 120 },
-      { fecha: '2026-11-07', dia: 'Sábado 7 de noviembre', hora: '', duracion: 120 },
+      { fecha: '2026-10-31', dia: 'Sábado 31 de octubre', hora: '09:30', duracion: 120 },
+      { fecha: '2026-11-07', dia: 'Sábado 7 de noviembre', hora: '09:30', duracion: 120 },
     ],
     modalidad: '',
     linkEncuentro: '',
