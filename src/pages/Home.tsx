@@ -183,8 +183,8 @@ const Home: React.FC = () => {
           <h3 className="font-heading font-bold text-2xl md:text-3xl mb-4">Accedé a tests, guías y videos de Eneagrama</h3>
           <p className="text-gray-300 mb-6">Todo el contenido de valor de Cecilia, en un solo lugar. Solo dejás tu email.</p>
           <Button to="/recursos" variant="primary">Ver recursos gratuitos</Button>
-          <EbookGratis />
         </div>
+        <div className="max-w-4xl mx-auto"><EbookGratis /></div>
       </section>
 
       {/* Testimonials Section */}

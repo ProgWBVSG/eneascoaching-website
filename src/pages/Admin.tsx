@@ -1505,7 +1505,7 @@ const EbooksTab: React.FC<{ token: string }> = ({ token }) => {
     try { await navigator.clipboard.writeText(mails); setMsg(`Copiados ${items.length} emails`); setTimeout(() => setMsg(''), 2500); }
     catch { prompt('Copiá los emails:', mails); }
   };
-  const nombreEbook = (s: string) => ({ 'ebook-ikigai': 'Ikigai' } as Record<string, string>)[s] || s.replace('ebook-', '');
+  const nombreEbook = (s: string) => ({ 'ebook-ikigai': 'Ikigai', 'ebook-cuatro-acuerdos': 'Los cuatro acuerdos' } as Record<string, string>)[s] || s.replace('ebook-', '');
   const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/#ebook`;
 
   return (

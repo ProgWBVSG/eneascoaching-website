@@ -15,6 +15,13 @@ const EBOOKS = [
     portada: '/ebooks/ikigai-portada.webp',
     pdf: '/ebooks/Ikigai-Un-cuaderno-para-descubrir-lo-que-te-mueve.pdf',
   },
+  {
+    id: 'cuatro-acuerdos',
+    titulo: 'Los cuatro acuerdos: cuaderno de reflexión y práctica',
+    detalle: 'Inspirado en los cuatro acuerdos de don Miguel Ruiz.',
+    portada: '/ebooks/cuatro-acuerdos-portada.webp',
+    pdf: '/ebooks/Los-cuatro-acuerdos-cuaderno-de-reflexion-y-practica.pdf',
+  },
 ];
 
 const bajar = (url: string) => {
@@ -50,8 +57,8 @@ const EbookCard: React.FC<{ e: typeof EBOOKS[number] }> = ({ e }) => {
 
   const campo = 'w-full rounded px-4 py-3 text-base text-brand-dark bg-white focus:outline-none focus:ring-2 focus:ring-brand-gold';
   return (
-    <div id={e.id} className="flex flex-col items-center text-center scroll-mt-24">
-      <img src={e.portada} alt={`Portada del e-book ${e.titulo}`} loading="lazy" className="w-48 sm:w-56 h-auto drop-shadow-[0_24px_30px_rgba(0,0,0,0.55)]" />
+    <div id={e.id} className="w-full sm:w-[360px] flex flex-col items-center text-center scroll-mt-24">
+      <img src={e.portada} alt={`Portada del e-book ${e.titulo}`} loading="lazy" className="h-64 sm:h-72 w-auto object-contain drop-shadow-[0_24px_30px_rgba(0,0,0,0.55)]" />
       <h4 className="mt-6 font-heading font-bold text-xl sm:text-2xl text-white max-w-md">{e.titulo}</h4>
       <p className="mt-2 text-gray-300 text-sm">{e.detalle} E-book gratuito.</p>
       <form onSubmit={descargar} noValidate className="mt-5 w-full max-w-sm flex flex-col gap-3">
@@ -76,7 +83,7 @@ const EbookCard: React.FC<{ e: typeof EBOOKS[number] }> = ({ e }) => {
 const EbookGratis: React.FC = () => (
   <div id="ebook" className="mt-14 pt-12 border-t border-white/10 scroll-mt-24">
     <h3 className="font-heading font-bold text-2xl md:text-3xl mb-8">E-books gratuitos</h3>
-    <div className="flex flex-wrap justify-center gap-12">
+    <div className="flex flex-wrap justify-center items-start gap-x-16 gap-y-14">
       {EBOOKS.map(e => <EbookCard key={e.id} e={e} />)}
     </div>
   </div>
