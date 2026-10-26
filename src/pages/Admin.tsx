@@ -99,6 +99,7 @@ function buildInviteLink(code: string): string {
 const Admin: React.FC = () => {
   const [token, setToken] = useState(() => sessionStorage.getItem(STORAGE_KEY) || '');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(() => { try { return localStorage.getItem('enea_admin_email') || ''; } catch { return ''; } });
   const [loginError, setLoginError] = useState('');
   const [tab, setTab] = useState<AdminTab>('panel');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -155,10 +156,11 @@ const Admin: React.FC = () => {
       const res = await fetch('/api/enea-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
       if (!res.ok) { setLoginError(data.error || 'Error al iniciar sesión'); return; }
+      try { localStorage.setItem('enea_admin_email', email.trim()); } catch { /* sin almacenamiento */ }
       sessionStorage.setItem(STORAGE_KEY, data.token);
       setToken(data.token);
     } catch {
@@ -218,14 +220,26 @@ const Admin: React.FC = () => {
             <p className="text-gray-400 text-sm">ENEA-TEST · Eneascoaching</p>
           </div>
           <form onSubmit={handleLogin} className="bg-white/5 backdrop-blur rounded-2xl p-6 border border-white/10">
+            <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setLoginError(''); }}
+              placeholder="tu@email.com"
+              autoComplete="username"
+              required
+              className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-500 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:border-brand-gold"
+              autoFocus={!email}
+            />
             <label className="block text-sm font-medium text-gray-300 mb-2">Contraseña</label>
             <input
               type="password"
               value={password}
               onChange={e => { setPassword(e.target.value); setLoginError(''); }}
               placeholder="••••••••"
+              autoComplete="current-password"
               className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-500 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-gold"
-              autoFocus
+              autoFocus={!!email}
             />
             {loginError && <p className="text-red-400 text-sm mt-2">{loginError}</p>}
             <button type="submit" className="w-full mt-4 bg-brand-gold hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors">
