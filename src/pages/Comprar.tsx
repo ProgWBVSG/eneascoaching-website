@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   GraduationCap, Video, FileText, Gamepad2, Check, ShieldCheck, Loader2,
-  CreditCard, MessageCircle, AlertCircle,
+  CreditCard, MessageCircle, AlertCircle, CalendarDays,
 } from 'lucide-react';
+import { tallerPorCurso } from '../data/talleres';
 
 const WHATSAPP = '5493515632496';
 
@@ -71,7 +72,17 @@ const Comprar: React.FC = () => {
   const { curso, lecciones_count, recursos_count } = info;
   const fmtPrice = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(curso.price || 0);
 
-  const incluye = [
+  // Los talleres tienen su propia lista: clases en vivo + grabadas + e-book + ejercicios
+  const taller = tallerPorCurso(curso.title);
+  const fechaCorta = (f: string) => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
+  const incluyeTaller = taller ? [
+    { icon: CalendarDays, text: `${taller.encuentros.length} clases en vivo: ${taller.encuentros.map(e => fechaCorta(e.fecha)).join(' y ')}`, show: true },
+    { icon: Video, text: '4 clases grabadas', show: true },
+    { icon: FileText, text: 'E-book', show: true },
+    { icon: Check, text: 'Ejercicios', show: true },
+  ] : null;
+
+  const incluye = incluyeTaller || [
     { icon: Video, text: `${lecciones_count} ${lecciones_count === 1 ? 'clase' : 'clases'} en video`, show: lecciones_count > 0 },
     { icon: FileText, text: `${recursos_count} ${recursos_count === 1 ? 'material descargable' : 'materiales descargables'} (ebooks, guías)`, show: recursos_count > 0 },
     { icon: Gamepad2, text: 'Mini-juegos y ejercicios interactivos', show: true },
