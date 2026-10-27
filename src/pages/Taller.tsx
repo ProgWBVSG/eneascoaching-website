@@ -23,7 +23,6 @@ const EQUIPO = [
   'Sí, tengo personas a cargo',
   'No lidero un equipo',
 ];
-const ORIGEN = ['Instagram', 'Un anuncio', 'WhatsApp', 'Me lo recomendaron', 'Otro'];
 
 const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const params = useParams<{ id: string }>();
@@ -34,7 +33,6 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const [email, setEmail] = useState('');
   const [dolor, setDolor] = useState('');
   const [equipo, setEquipo] = useState('');
-  const [origen, setOrigen] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
@@ -81,7 +79,6 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       const answers = [
         { key: 'dolor', q: '¿Qué es lo que más te cuesta hoy al comunicar?', a: dolor },
         { key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: equipo },
-        { key: 'origen', q: '¿Cómo te enteraste del taller?', a: origen || 'Sin dato' },
       ];
       const res = await fetch('/api/cursos?action=taller-inscripcion', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -294,14 +291,6 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
                     ))}
                   </div>
                 </fieldset>
-                <div>
-                  <label className="font-semibold text-brand-dark mb-3 block">¿Cómo te enteraste del taller?</label>
-                  <select value={origen} onChange={e => setOrigen(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-4 py-3 bg-white focus:outline-none focus:border-brand-gold">
-                    <option value="">Elegí una opción</option>
-                    {ORIGEN.map(o => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
                 {error && <p className="text-red-600 text-sm text-center">{error}</p>}
                 <button type="submit" disabled={enviando} className={`${btnPrimary} w-full disabled:opacity-60`}>
                   {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reservar mi lugar'}
