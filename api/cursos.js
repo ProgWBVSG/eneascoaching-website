@@ -49,7 +49,7 @@ async function mpCrearPago(supabase, curso, email) {
     body: JSON.stringify(pref),
   });
   const data = await r.json();
-  if (!r.ok) { console.error('MP pref error:', data); return { error: 'No se pudo crear el pago' }; }
+  if (!r.ok) { console.error('MP pref error:', data); return { error: 'No se pudo crear el pago', detalle: `${r.status} ${data && (data.message || data.error) || ''}`.trim() }; }
   await supabase.from('curso_ventas').update({ mp_preference_id: data.id }).eq('id', sale.id);
   return { init_point: data.init_point };
 }
@@ -260,7 +260,7 @@ export default async function handler(req, res) {
       if (!MP_TOKEN()) return res.status(500).json({ error: 'Los pagos no están configurados todavía' });
 
       const pago = await mpCrearPago(supabase, curso);
-      if (pago.error) return res.status(500).json({ error: pago.error });
+      if (pago.error) return res.status(500).json({ error: pago.error, detalle: pago.detalle });
       return res.status(200).json(pago);
     }
 
@@ -283,7 +283,7 @@ export default async function handler(req, res) {
         curso = { ...curso, price: precio, for_sale: true };
       }
       const pago = await mpCrearPago(supabase, curso, email);
-      if (pago.error) return res.status(500).json({ error: pago.error });
+      if (pago.error) return res.status(500).json({ error: pago.error, detalle: pago.detalle });
       return res.status(200).json(pago);
     }
 
