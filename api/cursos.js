@@ -264,25 +264,6 @@ export default async function handler(req, res) {
       return res.status(200).json(pago);
     }
 
-    // TEMPORAL: diagnóstico del token de Mercado Pago (no muestra el token)
-    if (action === 'mp-diag') {
-      const t = MP_TOKEN() || '';
-      const out = { definido: !!t, prefijo: t.slice(0, 7), largo: t.length, espacios: t !== t.trim() || /\s/.test(t) };
-      if (t) {
-        try {
-          const me = await fetch('https://api.mercadopago.com/users/me', { headers: { Authorization: `Bearer ${t.trim()}` } });
-          const j = await me.json();
-          out.users_me = { status: me.status, site_id: j.site_id, country: j.country_id, tipo: j.user_type, status_cuenta: j.status && j.status.site_status, mensaje: j.message };
-        } catch (e) { out.users_me = { error: String(e) }; }
-        try {
-          const pr = await fetch('https://api.mercadopago.com/checkout/preferences', { method: 'POST', headers: { Authorization: `Bearer ${t.trim()}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ items: [{ title: 'prueba', quantity: 1, unit_price: 100, currency_id: 'ARS' }] }) });
-          const j = await pr.json();
-          out.pref_minima = { status: pr.status, mensaje: j.message || j.error || 'ok' };
-        } catch (e) { out.pref_minima = { error: String(e) }; }
-      }
-      return res.status(200).json(out);
-    }
-
     // Pago del taller con Mercado Pago: busca o crea el curso "Taller <título>" y arma el pago
     if (action === 'taller-pay-create' && req.method === 'POST') {
       const { titulo, email } = req.body || {};
