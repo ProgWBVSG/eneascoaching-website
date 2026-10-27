@@ -197,6 +197,7 @@ const Curso: React.FC = () => {
         {/* Contenido */}
         <main className="flex-1 min-w-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            {taller && !showFeedback && <EncuestaTaller code={code} />}
             {taller && !showFeedback && <CalendarioTaller taller={taller} />}
             {showFeedback ? (
               <FeedbackPanel code={code} clientName={clientName} cursoTitle={curso.title} onBack={() => setShowFeedback(false)} />
@@ -352,6 +353,67 @@ const FeedbackPanel: React.FC<{
 };
 
 export default Curso;
+
+
+// ── Encuesta del taller (se responde acá, ya con el pago confirmado) ──────────
+const DOLOR_FORM = [
+  'Me enredo o me quedo en blanco',
+  'Me pongo nervioso/a al hablar frente a otros',
+  'Me cuesta decir lo que pienso o poner límites',
+  'No logro que me entiendan en el trabajo',
+  'Otro',
+];
+const EQUIPO = [
+  'Sí, soy dueño/a o socio/a de un negocio',
+  'Sí, tengo personas a cargo',
+  'No lidero un equipo',
+];
+const EncuestaTaller: React.FC<{ code: string }> = ({ code }) => {
+  const key = `taller_encuesta_${code}`;
+  const [hecha, setHecha] = useState(() => { try { return !!localStorage.getItem(key); } catch { return false; } });
+  const [dolor, setDolor] = useState('');
+  const [equipo, setEquipo] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (hecha) return null;
+  const enviar = async () => {
+    if (!dolor || !equipo) { setError('Respondé las dos preguntas para enviar.'); return; }
+    setEnviando(true); setError(null);
+    try {
+      const res = await fetch('/api/cursos?action=taller-encuesta', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, dolor, equipo }),
+      });
+      if (!res.ok) throw new Error();
+      try { localStorage.setItem(key, '1'); } catch { /* noop */ }
+      setHecha(true);
+    } catch { setError('No pudimos guardar tus respuestas. Probá de nuevo en un rato.'); }
+    finally { setEnviando(false); }
+  };
+  const opciones = (lista: string[], valor: string, set: (v: string) => void, name: string) => (
+    <div className="space-y-2">
+      {lista.map(o => (
+        <label key={o} className={`flex items-center gap-3 border-2 rounded-lg px-4 py-3 cursor-pointer text-[15px] leading-snug ${valor === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200 bg-white'}`}>
+          <input type="radio" name={name} checked={valor === o} onChange={() => set(o)} className="accent-[#c5a059] w-4 h-4 shrink-0" /> {o}
+        </label>
+      ))}
+    </div>
+  );
+  return (
+    <div className="bg-brand-gold/10 border border-brand-gold/30 rounded-xl p-5 sm:p-6 mb-6">
+      <h3 className="font-heading font-bold text-lg text-brand-dark mb-1">¡Gracias por sumarte! Dos preguntas rápidas</h3>
+      <p className="text-sm text-gray-600 mb-4">Así Cecilia prepara el taller para lo que necesitás.</p>
+      <p className="font-semibold text-brand-dark mb-2 text-sm">¿Qué es lo que más te cuesta hoy al comunicar?</p>
+      {opciones(DOLOR_FORM, dolor, setDolor, 'dolor')}
+      <p className="font-semibold text-brand-dark mt-5 mb-2 text-sm">¿Liderás un equipo de trabajo?</p>
+      {opciones(EQUIPO, equipo, setEquipo, 'equipo')}
+      {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
+      <button onClick={enviar} disabled={enviando} className="mt-5 w-full bg-brand-gold hover:bg-amber-600 text-white font-bold py-3 rounded-lg disabled:opacity-60">
+        {enviando ? 'Enviando...' : 'Enviar respuestas'}
+      </button>
+    </div>
+  );
+};
 
 // ── Calendario de encuentros (solo en el aula de un taller) ──────────
 const CalendarioTaller: React.FC<{ taller: Taller }> = ({ taller }) => (

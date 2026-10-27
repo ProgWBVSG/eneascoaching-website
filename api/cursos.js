@@ -29,7 +29,7 @@ async function mpGetPayment(paymentId) {
 // Crea la venta pendiente y la preferencia de Checkout Pro para un curso a la venta.
 async function mpCrearPago(supabase, curso, email) {
   const { data: sale, error: se } = await supabase.from('curso_ventas')
-    .insert({ curso_id: curso.id, amount: curso.price, status: 'pending' }).select('id').single();
+    .insert({ curso_id: curso.id, amount: curso.price, status: 'pending', buyer_email: email ? String(email).trim().slice(0, 160) : null }).select('id').single();
   if (se) return { error: 'No se pudo iniciar la compra' };
   const pref = {
     items: [{ title: curso.title, quantity: 1, unit_price: Number(curso.price), currency_id: 'ARS' }],
@@ -74,9 +74,32 @@ async function finalizeSale(supabase, sale, payment) {
     status: 'approved', access_code: code,
     mp_payment_id: String(payment?.id || ''),
     buyer_name: buyerName,
-    buyer_email: payment?.payer?.email || null,
+    buyer_email: sale.buyer_email || payment?.payer?.email || null,
   }).eq('id', sale.id);
+  await marcarTallerPagado(supabase, sale, code, buyerName);
   return code;
+}
+
+// Si la compra es de un taller, la inscripción (Admin → encuestas) pasa a "Pagado" y guarda el código del aula
+async function marcarTallerPagado(supabase, sale, code, buyerName) {
+  try {
+    const email = sale.buyer_email;
+    if (!email) return;
+    const { data: curso } = await supabase.from('cursos').select('title').eq('id', sale.curso_id).maybeSingle();
+    if (!curso || !String(curso.title).startsWith('Taller ')) return;
+    const { data: filas } = await supabase.from('encuesta_respuestas').select('id, answers')
+      .like('survey', 'taller-%').ilike('email', email).order('created_at', { ascending: false }).limit(1);
+    const fila = filas && filas[0];
+    if (!fila) return;
+    const answers = Array.isArray(fila.answers) ? fila.answers : [];
+    const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    const nuevas = [
+      ...answers.filter(a => a && a.key !== 'estado' && a.key !== 'acceso'),
+      { key: 'estado', q: 'Estado', a: `Pagado con Mercado Pago el ${fecha}` },
+      { key: 'acceso', q: 'Código del aula', a: code },
+    ];
+    await supabase.from('encuesta_respuestas').update({ answers: nuevas }).eq('id', fila.id);
+  } catch (e) { console.error('marcarTallerPagado:', e); }
 }
 
 // ── MailerLite (mails de los talleres). Si falta el token o falla, no frena nada ──
@@ -262,6 +285,35 @@ export default async function handler(req, res) {
       const pago = await mpCrearPago(supabase, curso);
       if (pago.error) return res.status(500).json({ error: pago.error, detalle: pago.detalle });
       return res.status(200).json(pago);
+    }
+
+    // Encuesta del taller: se responde dentro del aula, después de pagar
+    if (action === 'taller-encuesta' && req.method === 'POST') {
+      const { code, dolor, equipo } = req.body || {};
+      const cod = String(code || '').toUpperCase();
+      if (!cod || !dolor || !equipo) return res.status(400).json({ error: 'Datos inválidos' });
+      const cl = v => String(v).trim().slice(0, 200);
+      let fila = null;
+      // 1) inscripción ya vinculada al código del aula (pago por Mercado Pago o activación manual)
+      const { data: porCodigo } = await supabase.from('encuesta_respuestas').select('id, answers')
+        .like('survey', 'taller-%').contains('answers', [{ key: 'acceso', a: cod }]).limit(1);
+      fila = porCodigo && porCodigo[0];
+      // 2) si no, por el email de la venta
+      if (!fila) {
+        const { data: venta } = await supabase.from('curso_ventas').select('buyer_email').eq('access_code', cod).maybeSingle();
+        if (venta && venta.buyer_email) {
+          const { data: filas } = await supabase.from('encuesta_respuestas').select('id, answers')
+            .like('survey', 'taller-%').ilike('email', venta.buyer_email).order('created_at', { ascending: false }).limit(1);
+          fila = filas && filas[0];
+        }
+      }
+      if (!fila) return res.status(404).json({ error: 'No encontramos tu inscripción' });
+      const answers = (Array.isArray(fila.answers) ? fila.answers : []).filter(a => a && a.key !== 'dolor' && a.key !== 'equipo');
+      answers.push({ key: 'dolor', q: '¿Qué es lo que más te cuesta hoy al comunicar?', a: cl(dolor) });
+      answers.push({ key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: cl(equipo) });
+      const { error } = await supabase.from('encuesta_respuestas').update({ answers, role: cl(equipo) }).eq('id', fila.id);
+      if (error) return res.status(500).json({ error: 'No se pudo guardar' });
+      return res.status(200).json({ success: true });
     }
 
     // Pago del taller con Mercado Pago: busca o crea el curso "Taller <título>" y arma el pago

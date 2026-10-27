@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   CalendarDays, Check, Clock, MapPin, Mic, Loader2, Copy, MessageCircle, DollarSign,
-  ClipboardList, Landmark, PlayCircle, Users, GraduationCap, X, ArrowLeft, ArrowRight,
+  ClipboardList, Landmark, PlayCircle, Users, GraduationCap, X, ArrowRight,
 } from 'lucide-react';
 import { tallerPorId, inscripcionAbierta, pesos, fechasTexto, rangoHora } from '../data/talleres';
 import { trackEvent } from '../lib/metaPixel';
@@ -11,18 +11,6 @@ import { toEmbedUrl } from '../lib/videoEmbed';
 const WHATSAPP = '5493515632496';
 const btnPrimary = 'inline-flex items-center justify-center text-center bg-brand-gold hover:bg-[#a68a3c] text-white font-bold py-4 px-8 rounded transition-colors';
 
-const DOLOR_FORM = [
-  'Me enredo o me quedo en blanco',
-  'Me pongo nervioso/a al hablar frente a otros',
-  'Me cuesta decir lo que pienso o poner límites',
-  'No logro que me entiendan en el trabajo',
-  'Otro',
-];
-const EQUIPO = [
-  'Sí, soy dueño/a o socio/a de un negocio',
-  'Sí, tengo personas a cargo',
-  'No lidero un equipo',
-];
 
 const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const params = useParams<{ id: string }>();
@@ -31,14 +19,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
-  const [dolor, setDolor] = useState('');
-  const [equipo, setEquipo] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [abierto, setAbierto] = useState(false);
-  const [paso, setPaso] = useState(0);
 
   useEffect(() => {
     if (!abierto) return;
@@ -67,7 +52,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const video = toEmbedUrl(taller.videoUrl);
   const irAlFormulario = () => {
     if (listo) { document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }); return; }
-    setPaso(0); setError(null); setAbierto(true);
+    setError(null); setAbierto(true);
   };
   const primerNombre = nombre.trim().split(' ')[0];
   const linkComprobante = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
@@ -82,39 +67,55 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     catch { prompt('Copiá el alias:', taller.alias); }
   };
 
-  const validarPaso = (n: number): string | null => {
-    if (n === 0) {
-      if (nombre.trim().length < 2) return 'Escribí tu nombre y apellido.';
-      if (telefono.replace(/\D/g, '').length < 8) return 'Escribí tu WhatsApp con código de área.';
-      if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Revisá tu email.';
-    }
-    if (n === 1 && !dolor) return 'Elegí una opción para seguir.';
-    if (n === 2 && !equipo) return 'Elegí una opción para reservar.';
+  const validar = (): string | null => {
+    if (nombre.trim().length < 2) return 'Escribí tu nombre y apellido.';
+    if (telefono.replace(/\D/g, '').length < 8) return 'Escribí tu WhatsApp con código de área.';
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Revisá tu email.';
     return null;
   };
-  const seguir = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const msg = validarPaso(paso);
-    if (msg) { setError(msg); return; }
-    setError(null);
-    if (paso < 2) setPaso(paso + 1); else enviar();
+
+  // Guarda la inscripción (para poder escribirle si no termina de pagar)
+  const guardarInscripcion = async (): Promise<boolean> => {
+    const res = await fetch('/api/cursos?action=taller-inscripcion', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ survey: taller.survey, titulo: taller.titulo, role: null, answers: [], name: nombre, phone: telefono, email }),
+    });
+    if (!res.ok) return false;
+    trackEvent('Lead', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+    setListo(true);
+    return true;
   };
 
-  const enviar = async () => {
-    for (const n of [0, 1, 2]) { const msg = validarPaso(n); if (msg) { setPaso(n); setError(msg); return; } }
+  // Camino principal: datos → directo a pagar con Mercado Pago
+  const irAPagar = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const msg = validar();
+    if (msg) { setError(msg); return; }
     setEnviando(true); setError(null);
     try {
-      const answers = [
-        { key: 'dolor', q: '¿Qué es lo que más te cuesta hoy al comunicar?', a: dolor },
-        { key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: equipo },
-      ];
-      const res = await fetch('/api/cursos?action=taller-inscripcion', {
+      if (!(await guardarInscripcion())) throw new Error();
+      trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+      const res = await fetch('/api/cursos?action=taller-pay-create', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ survey: taller.survey, titulo: taller.titulo, role: equipo, answers, name: nombre, phone: telefono, email }),
+        body: JSON.stringify({ titulo: taller.titulo, email: email.trim() }),
       });
-      if (!res.ok) throw new Error();
-      trackEvent('Lead', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
-      setListo(true);
+      const data = await res.json();
+      if (res.ok && data.init_point) { window.location.href = data.init_point; return; }
+      // Si Mercado Pago no responde, queda la transferencia
+      setAbierto(false);
+      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
+    } catch {
+      setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
+    } finally { setEnviando(false); }
+  };
+
+  // Alternativa: transferencia
+  const irATransferencia = async () => {
+    const msg = validar();
+    if (msg) { setError(msg); return; }
+    setEnviando(true); setError(null);
+    try {
+      if (!(await guardarInscripcion())) throw new Error();
       setAbierto(false);
       setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
     } catch {
@@ -289,7 +290,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             {!listo ? (
               <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
                 <h2 className="text-3xl font-heading font-bold text-brand-dark mb-2">Reservá tu lugar</h2>
-                <p className="text-gray-600 mb-6">Son 3 pasos cortos. Después te mostramos cómo pagar.</p>
+                <p className="text-gray-600 mb-6">Completás tus datos y pasás directo al pago.</p>
                 <button onClick={irAlFormulario} className={`${btnPrimary} w-full sm:w-auto text-lg`}>Quiero mi lugar</button>
               </div>
             ) : (
@@ -364,7 +365,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cómo pago?</p>
-              <p className="text-gray-600">Por transferencia de {pesos(taller.precio)} al alias {taller.alias}, y nos mandás el comprobante por WhatsApp. Si estás fuera de Argentina, son USD {taller.precioUSD}: escribinos y te pasamos cómo pagar.</p>
+              <p className="text-gray-600">Con tarjeta de crédito o débito (Mercado Pago) y recibís el acceso al instante, o por transferencia de {pesos(taller.precio)} al alias {taller.alias} y nos mandás el comprobante por WhatsApp. Si estás fuera de Argentina, son USD {taller.precioUSD}: escribinos y te pasamos cómo pagar.</p>
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cuándo recibo el acceso?</p>
@@ -378,66 +379,32 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         </div>
       </section>
 
-      {/* Pop up de reserva, por bloques */}
+      {/* Pop up: datos y directo a pagar */}
       {abierto && (
         <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onMouseDown={ev => { if (ev.target === ev.currentTarget) setAbierto(false); }}>
-          <form onSubmit={seguir} noValidate role="dialog" aria-modal="true" aria-label={`Reservá tu lugar en ${taller.titulo}`}
+          <form onSubmit={irAPagar} noValidate role="dialog" aria-modal="true" aria-label={`Reservá tu lugar en ${taller.titulo}`}
             className="relative w-full sm:max-w-md max-h-[92vh] max-h-[92dvh] overflow-y-auto overscroll-contain bg-white text-brand-dark rounded-t-2xl sm:rounded-lg shadow-2xl px-5 sm:px-6 pt-8 pb-0">
             <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar" className="absolute top-2 right-2 p-3 text-gray-400 hover:text-brand-dark"><X size={22} /></button>
-            <div className="flex items-center gap-2 mb-2 pr-10" aria-hidden>
-              {[0, 1, 2].map(n => <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= paso ? 'bg-brand-gold' : 'bg-gray-200'}`} />)}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
+              <p className="text-gray-600 text-center text-sm">Completá tus datos y pasás directo al pago.</p>
+              <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
+                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" inputMode="email" autoComplete="email"
+                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+              <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp con código de área" type="tel" inputMode="tel" autoComplete="tel"
+                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
             </div>
-            <p className="text-xs text-gray-500 text-center mb-5">Paso {paso + 1} de 3</p>
-
-            {paso === 0 && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
-                <p className="text-gray-600 text-center text-sm">Dejanos tus datos y en el siguiente paso te mostramos cómo pagar.</p>
-                <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
-                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-                <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp con código de área" type="tel" inputMode="tel" autoComplete="tel"
-                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" inputMode="email" autoComplete="email"
-                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-              </div>
-            )}
-
-            {paso === 1 && (
-              <fieldset>
-                <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
-                <div className="space-y-2">
-                  {DOLOR_FORM.map(o => (
-                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3.5 cursor-pointer text-[15px] leading-snug ${dolor === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
-                      <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059] w-4 h-4 shrink-0" /> {o}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            )}
-
-            {paso === 2 && (
-              <fieldset>
-                <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Liderás un equipo de trabajo?</legend>
-                <div className="space-y-2">
-                  {EQUIPO.map(o => (
-                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3.5 cursor-pointer text-[15px] leading-snug ${equipo === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
-                      <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059] w-4 h-4 shrink-0" /> {o}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-            )}
 
             {error && <p className="text-red-600 text-sm text-center mt-4">{error}</p>}
 
-            <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100 flex items-center gap-3">
-              {paso > 0 && (
-                <button type="button" onClick={() => { setError(null); setPaso(paso - 1); }} className="inline-flex items-center gap-1 text-gray-600 hover:text-brand-dark font-semibold px-3 py-3.5 border border-gray-300 rounded">
-                  <ArrowLeft size={18} /> <span className="hidden min-[360px]:inline">Anterior</span><span className="sr-only min-[360px]:hidden">Anterior</span>
-                </button>
-              )}
-              <button type="submit" disabled={enviando} className={`${btnPrimary} flex-1 py-3.5 px-3 whitespace-nowrap disabled:opacity-60 gap-2`}>
-                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : paso < 2 ? <>Seguir <ArrowRight size={18} /></> : 'Reservar mi lugar'}
+            <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100">
+              <button type="submit" disabled={enviando} className={`${btnPrimary} w-full py-3.5 px-3 disabled:opacity-60 gap-2`}>
+                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Pagar {pesos(taller.precio)} <ArrowRight size={18} /></>}
+              </button>
+              <p className="text-xs text-gray-500 text-center mt-2">Tarjeta de crédito o débito de cualquier banco, con Mercado Pago.</p>
+              <button type="button" onClick={irATransferencia} disabled={enviando} className="block mx-auto mt-3 text-sm font-semibold text-brand-gold underline disabled:opacity-60">
+                Prefiero pagar por transferencia
               </button>
             </div>
           </form>
