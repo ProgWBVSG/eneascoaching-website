@@ -400,7 +400,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
 
             <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100">
               <button type="submit" disabled={enviando} className={`${btnPrimary} w-full py-3.5 px-3 disabled:opacity-60 gap-2`}>
-                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Pagar {pesos(taller.precio)} <ArrowRight size={18} /></>}
+                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Obtener oferta <ArrowRight size={18} /></>}
               </button>
               <p className="text-xs text-gray-500 text-center mt-2">Tarjeta de crédito o débito de cualquier banco, con Mercado Pago.</p>
               <button type="button" onClick={irATransferencia} disabled={enviando} className="block mx-auto mt-3 text-sm font-semibold text-brand-gold underline disabled:opacity-60">
