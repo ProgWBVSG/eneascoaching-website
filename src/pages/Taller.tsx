@@ -382,9 +382,9 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       {abierto && (
         <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onMouseDown={ev => { if (ev.target === ev.currentTarget) setAbierto(false); }}>
           <form onSubmit={seguir} noValidate role="dialog" aria-modal="true" aria-label={`Reservá tu lugar en ${taller.titulo}`}
-            className="relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-white text-brand-dark rounded-t-2xl sm:rounded-lg shadow-2xl px-6 pt-8 pb-6">
-            <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar" className="absolute top-3 right-3 p-2 text-gray-400 hover:text-brand-dark"><X size={22} /></button>
-            <div className="flex items-center gap-2 mb-2 pr-8" aria-hidden>
+            className="relative w-full sm:max-w-md max-h-[92vh] max-h-[92dvh] overflow-y-auto overscroll-contain bg-white text-brand-dark rounded-t-2xl sm:rounded-lg shadow-2xl px-5 sm:px-6 pt-8 pb-0">
+            <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar" className="absolute top-2 right-2 p-3 text-gray-400 hover:text-brand-dark"><X size={22} /></button>
+            <div className="flex items-center gap-2 mb-2 pr-10" aria-hidden>
               {[0, 1, 2].map(n => <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= paso ? 'bg-brand-gold' : 'bg-gray-200'}`} />)}
             </div>
             <p className="text-xs text-gray-500 text-center mb-5">Paso {paso + 1} de 3</p>
@@ -394,11 +394,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
                 <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
                 <p className="text-gray-600 text-center text-sm">Dejanos tus datos y en el siguiente paso te mostramos cómo pagar.</p>
                 <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
-                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp (con código de área)" type="tel" autoComplete="tel"
-                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" autoComplete="email"
-                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+                <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp con código de área" type="tel" inputMode="tel" autoComplete="tel"
+                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" inputMode="email" autoComplete="email"
+                  className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
               </div>
             )}
 
@@ -407,8 +407,8 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
                 <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
                 <div className="space-y-2">
                   {DOLOR_FORM.map(o => (
-                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3 cursor-pointer ${dolor === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
-                      <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059]" /> {o}
+                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3.5 cursor-pointer text-[15px] leading-snug ${dolor === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
+                      <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059] w-4 h-4 shrink-0" /> {o}
                     </label>
                   ))}
                 </div>
@@ -420,8 +420,8 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
                 <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Liderás un equipo de trabajo?</legend>
                 <div className="space-y-2">
                   {EQUIPO.map(o => (
-                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3 cursor-pointer ${equipo === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
-                      <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059]" /> {o}
+                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3.5 cursor-pointer text-[15px] leading-snug ${equipo === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
+                      <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059] w-4 h-4 shrink-0" /> {o}
                     </label>
                   ))}
                 </div>
@@ -430,13 +430,13 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
 
             {error && <p className="text-red-600 text-sm text-center mt-4">{error}</p>}
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100 flex items-center gap-3">
               {paso > 0 && (
-                <button type="button" onClick={() => { setError(null); setPaso(paso - 1); }} className="inline-flex items-center gap-1 text-gray-600 hover:text-brand-dark font-semibold px-3 py-3 border border-gray-300 rounded">
-                  <ArrowLeft size={18} /> Anterior
+                <button type="button" onClick={() => { setError(null); setPaso(paso - 1); }} className="inline-flex items-center gap-1 text-gray-600 hover:text-brand-dark font-semibold px-3 py-3.5 border border-gray-300 rounded">
+                  <ArrowLeft size={18} /> <span className="hidden min-[360px]:inline">Anterior</span><span className="sr-only min-[360px]:hidden">Anterior</span>
                 </button>
               )}
-              <button type="submit" disabled={enviando} className={`${btnPrimary} flex-1 py-3 disabled:opacity-60 gap-2`}>
+              <button type="submit" disabled={enviando} className={`${btnPrimary} flex-1 py-3.5 px-3 whitespace-nowrap disabled:opacity-60 gap-2`}>
                 {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : paso < 2 ? <>Seguir <ArrowRight size={18} /></> : 'Reservar mi lugar'}
               </button>
             </div>
@@ -446,7 +446,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
 
       {/* Botón fijo en celular */}
       {abierta && !listo && (
-        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-brand-dark/95 py-3 pl-3 pr-24">
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-brand-dark/95 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-3 pr-24">
           <button onClick={irAlFormulario} className={`${btnPrimary} w-full py-3`}>Quiero mi lugar</button>
         </div>
       )}
