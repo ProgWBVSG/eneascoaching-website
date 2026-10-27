@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   CalendarDays, Check, Clock, MapPin, Mic, Loader2, Copy, MessageCircle, DollarSign,
-  ClipboardList, Landmark, PlayCircle, Users, GraduationCap,
+  ClipboardList, Landmark, PlayCircle, Users, GraduationCap, X, ArrowLeft, ArrowRight,
 } from 'lucide-react';
 import { tallerPorId, inscripcionAbierta, pesos, fechasTexto, rangoHora } from '../data/talleres';
 import { trackEvent } from '../lib/metaPixel';
@@ -37,6 +37,17 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
   const [copiado, setCopiado] = useState(false);
+  const [abierto, setAbierto] = useState(false);
+  const [paso, setPaso] = useState(0);
+
+  useEffect(() => {
+    if (!abierto) return;
+    const onKey = (ev: KeyboardEvent) => { if (ev.key === 'Escape') setAbierto(false); };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
+  }, [abierto]);
 
   useEffect(() => {
     if (taller) trackEvent('ViewContent', { content_name: `Taller ${taller.titulo}`, content_category: 'Taller', value: taller.precio, currency: 'ARS' });
@@ -54,7 +65,10 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const abierta = inscripcionAbierta(taller);
   const fechas = fechasTexto(taller);
   const video = toEmbedUrl(taller.videoUrl);
-  const irAlFormulario = () => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' });
+  const irAlFormulario = () => {
+    if (listo) { document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }); return; }
+    setPaso(0); setError(null); setAbierto(true);
+  };
   const primerNombre = nombre.trim().split(' ')[0];
   const linkComprobante = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     `Hola Cecilia, soy ${nombre.trim()}. Me inscribí al taller "${taller.titulo}" (${fechas}) y te mando el comprobante de la transferencia de ${pesos(taller.precio)} al alias ${taller.alias}.`,
@@ -68,12 +82,26 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     catch { prompt('Copiá el alias:', taller.alias); }
   };
 
-  const enviar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nombre.trim() || !telefono.trim() || !email.trim() || !dolor || !equipo) {
-      setError('Completá tus datos y las dos preguntas para reservar tu lugar.');
-      return;
+  const validarPaso = (n: number): string | null => {
+    if (n === 0) {
+      if (nombre.trim().length < 2) return 'Escribí tu nombre y apellido.';
+      if (telefono.replace(/\D/g, '').length < 8) return 'Escribí tu WhatsApp con código de área.';
+      if (!/^\S+@\S+\.\S+$/.test(email.trim())) return 'Revisá tu email.';
     }
+    if (n === 1 && !dolor) return 'Elegí una opción para seguir.';
+    if (n === 2 && !equipo) return 'Elegí una opción para reservar.';
+    return null;
+  };
+  const seguir = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const msg = validarPaso(paso);
+    if (msg) { setError(msg); return; }
+    setError(null);
+    if (paso < 2) setPaso(paso + 1); else enviar();
+  };
+
+  const enviar = async () => {
+    for (const n of [0, 1, 2]) { const msg = validarPaso(n); if (msg) { setPaso(n); setError(msg); return; } }
     setEnviando(true); setError(null);
     try {
       const answers = [
@@ -87,7 +115,8 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       if (!res.ok) throw new Error();
       trackEvent('Lead', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
       setListo(true);
-      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 50);
+      setAbierto(false);
+      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
     } catch {
       setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
     } finally { setEnviando(false); }
@@ -258,44 +287,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         <section id="inscripcion" className="py-16 md:py-20 px-6 bg-brand-beige scroll-mt-20">
           <div className="max-w-xl mx-auto">
             {!listo ? (
-              <form onSubmit={enviar} className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 space-y-6">
-                <div className="text-center">
-                  <h2 className="text-3xl font-heading font-bold text-brand-dark mb-2">Reservá tu lugar</h2>
-                  <p className="text-gray-600">Dejanos tus datos y en el siguiente paso te mostramos cómo pagar.</p>
-                </div>
-                <div className="space-y-4">
-                  <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name"
-                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                  <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp (con código de área)" type="tel" autoComplete="tel"
-                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" autoComplete="email"
-                    className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
-                </div>
-                <fieldset>
-                  <legend className="font-semibold text-brand-dark mb-3">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
-                  <div className="space-y-2">
-                    {DOLOR_FORM.map(o => (
-                      <label key={o} className={`flex items-center gap-3 border rounded px-4 py-3 cursor-pointer ${dolor === o ? 'border-brand-gold bg-brand-gold/5' : 'border-gray-200'}`}>
-                        <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059]" /> {o}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-                <fieldset>
-                  <legend className="font-semibold text-brand-dark mb-3">¿Liderás un equipo de trabajo?</legend>
-                  <div className="space-y-2">
-                    {EQUIPO.map(o => (
-                      <label key={o} className={`flex items-center gap-3 border rounded px-4 py-3 cursor-pointer ${equipo === o ? 'border-brand-gold bg-brand-gold/5' : 'border-gray-200'}`}>
-                        <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059]" /> {o}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-                {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-                <button type="submit" disabled={enviando} className={`${btnPrimary} w-full disabled:opacity-60`}>
-                  {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Reservar mi lugar'}
-                </button>
-              </form>
+              <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
+                <h2 className="text-3xl font-heading font-bold text-brand-dark mb-2">Reservá tu lugar</h2>
+                <p className="text-gray-600 mb-6">Son 3 pasos cortos. Después te mostramos cómo pagar.</p>
+                <button onClick={irAlFormulario} className={`${btnPrimary} w-full sm:w-auto text-lg`}>Quiero mi lugar</button>
+              </div>
             ) : (
               <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
                 <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado{primerNombre ? `, ${primerNombre}` : ''}!</h2>
@@ -381,6 +377,72 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           </div>
         </div>
       </section>
+
+      {/* Pop up de reserva, por bloques */}
+      {abierto && (
+        <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onMouseDown={ev => { if (ev.target === ev.currentTarget) setAbierto(false); }}>
+          <form onSubmit={seguir} noValidate role="dialog" aria-modal="true" aria-label={`Reservá tu lugar en ${taller.titulo}`}
+            className="relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-white text-brand-dark rounded-t-2xl sm:rounded-lg shadow-2xl px-6 pt-8 pb-6">
+            <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar" className="absolute top-3 right-3 p-2 text-gray-400 hover:text-brand-dark"><X size={22} /></button>
+            <div className="flex items-center gap-2 mb-2 pr-8" aria-hidden>
+              {[0, 1, 2].map(n => <span key={n} className={`h-1.5 flex-1 rounded-full ${n <= paso ? 'bg-brand-gold' : 'bg-gray-200'}`} />)}
+            </div>
+            <p className="text-xs text-gray-500 text-center mb-5">Paso {paso + 1} de 3</p>
+
+            {paso === 0 && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
+                <p className="text-gray-600 text-center text-sm">Dejanos tus datos y en el siguiente paso te mostramos cómo pagar.</p>
+                <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
+                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp (con código de área)" type="tel" autoComplete="tel"
+                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+                <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" autoComplete="email"
+                  className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:border-brand-gold" />
+              </div>
+            )}
+
+            {paso === 1 && (
+              <fieldset>
+                <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Qué es lo que más te cuesta hoy al comunicar?</legend>
+                <div className="space-y-2">
+                  {DOLOR_FORM.map(o => (
+                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3 cursor-pointer ${dolor === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
+                      <input type="radio" name="dolor" checked={dolor === o} onChange={() => setDolor(o)} className="accent-[#c5a059]" /> {o}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
+            {paso === 2 && (
+              <fieldset>
+                <legend className="text-xl font-heading font-bold text-center w-full mb-4">¿Liderás un equipo de trabajo?</legend>
+                <div className="space-y-2">
+                  {EQUIPO.map(o => (
+                    <label key={o} className={`flex items-center gap-3 border-2 rounded px-4 py-3 cursor-pointer ${equipo === o ? 'border-brand-gold bg-brand-gold/5 font-semibold' : 'border-gray-200'}`}>
+                      <input type="radio" name="equipo" checked={equipo === o} onChange={() => setEquipo(o)} className="accent-[#c5a059]" /> {o}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+
+            {error && <p className="text-red-600 text-sm text-center mt-4">{error}</p>}
+
+            <div className="mt-6 flex items-center gap-3">
+              {paso > 0 && (
+                <button type="button" onClick={() => { setError(null); setPaso(paso - 1); }} className="inline-flex items-center gap-1 text-gray-600 hover:text-brand-dark font-semibold px-3 py-3 border border-gray-300 rounded">
+                  <ArrowLeft size={18} /> Anterior
+                </button>
+              )}
+              <button type="submit" disabled={enviando} className={`${btnPrimary} flex-1 py-3 disabled:opacity-60 gap-2`}>
+                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : paso < 2 ? <>Seguir <ArrowRight size={18} /></> : 'Reservar mi lugar'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Botón fijo en celular */}
       {abierta && !listo && (
