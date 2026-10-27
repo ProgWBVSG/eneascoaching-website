@@ -96,6 +96,25 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     } finally { setEnviando(false); }
   };
 
+  const [pagandoMP, setPagandoMP] = useState(false);
+  const [errorMP, setErrorMP] = useState<string | null>(null);
+  const pagarMP = async () => {
+    setPagandoMP(true); setErrorMP(null);
+    trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
+    try {
+      const res = await fetch('/api/cursos?action=taller-pay-create', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo: taller.titulo, email }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.init_point) throw new Error(data.error || 'No se pudo iniciar el pago');
+      window.location.href = data.init_point;
+    } catch {
+      setErrorMP('No pudimos abrir el pago. Probá de nuevo o transferí con los datos de abajo.');
+      setPagandoMP(false);
+    }
+  };
+
   const pagar = (moneda: 'ARS' | 'USD') => () => {
     trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: moneda === 'ARS' ? taller.precio : taller.precioUSD, currency: moneda });
   };
@@ -291,7 +310,15 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             ) : (
               <div className="bg-white rounded-sm shadow-sm border border-brand-gold/20 p-6 md:p-10 text-center">
                 <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¡Tu lugar está reservado{primerNombre ? `, ${primerNombre}` : ''}!</h2>
-                <p className="text-gray-600 mb-8">Para confirmarlo, transferí {pesos(taller.precio)} y mandanos el comprobante por WhatsApp.</p>
+                <p className="text-gray-600 mb-8">Para confirmarlo, pagá {pesos(taller.precio)} con tarjeta o Mercado Pago, o por transferencia.</p>
+
+                <button onClick={pagarMP} disabled={pagandoMP} className={`${btnPrimary} w-full gap-2 mb-2 disabled:opacity-60`}>
+                  {pagandoMP ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Landmark size={20} /> Pagar {pesos(taller.precio)} con tarjeta o Mercado Pago</>}
+                </button>
+                {errorMP && <p className="text-red-600 text-sm mb-2">{errorMP}</p>}
+                <p className="text-sm text-gray-500 mb-8">Tarjeta de crédito o débito de cualquier banco. Acceso inmediato a tu aula.</p>
+
+                <p className="text-sm font-semibold text-brand-dark mb-3">¿Preferís transferir? Mandanos el comprobante por WhatsApp:</p>
 
                 <div className="bg-brand-beige rounded p-6 mb-6">
                   <p className="text-sm text-gray-500 mb-1">Alias</p>

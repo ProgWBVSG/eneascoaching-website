@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { trackEvent } from '../lib/metaPixel';
 import { CheckCircle, Loader2, ArrowRight, MessageCircle, Copy, Check } from 'lucide-react';
 
 const WHATSAPP = '5493515632496';
@@ -23,7 +24,18 @@ const CompraExito: React.FC = () => {
         const res = await fetch(url);
         const data = await res.json();
         if (!mounted) return;
-        if (data.status === 'approved' && data.code) { setCode(data.code); setStatus('approved'); return; }
+        if (data.status === 'approved' && data.code) {
+          setCode(data.code); setStatus('approved');
+          // Evento Compra para Meta, una sola vez por venta
+          try {
+            const k = `compra_${ref}`;
+            if (!localStorage.getItem(k)) {
+              trackEvent('Purchase', { value: Number(data.amount) || 0, currency: 'ARS', content_ids: [data.curso_id], content_type: 'product' });
+              localStorage.setItem(k, '1');
+            }
+          } catch { /* sin localStorage */ }
+          return;
+        }
         tries.current += 1;
         if (tries.current >= 12) { setStatus('pending'); return; } // ~30s
         setTimeout(poll, 2500);

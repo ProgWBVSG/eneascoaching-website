@@ -25,6 +25,38 @@ async function mpGetPayment(paymentId) {
   } catch { return null; }
 }
 
+
+// Crea la venta pendiente y la preferencia de Checkout Pro para un curso a la venta.
+async function mpCrearPago(supabase, curso, email) {
+  const { data: sale, error: se } = await supabase.from('curso_ventas')
+    .insert({ curso_id: curso.id, amount: curso.price, status: 'pending' }).select('id').single();
+  if (se) return { error: 'No se pudo iniciar la compra' };
+  const pref = {
+    items: [{ title: curso.title, quantity: 1, unit_price: Number(curso.price), currency_id: 'ARS' }],
+    external_reference: sale.id,
+    back_urls: {
+      success: `${SITE()}/compra-exito/${sale.id}`,
+      pending: `${SITE()}/compra-exito/${sale.id}`,
+      failure: `${SITE()}/comprar/${curso.id}`,
+    },
+    auto_return: 'approved',
+    notification_url: `${SITE()}/api/cursos?action=pay-webhook`,
+  };
+  if (email) pref.payer = { email };
+  const r = await fetch('https://api.mercadopago.com/checkout/preferences', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${MP_TOKEN()}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(pref),
+  });
+  const data = await r.json();
+  if (!r.ok) { console.error('MP pref error:', data); return { error: 'No se pudo crear el pago' }; }
+  await supabase.from('curso_ventas').update({ mp_preference_id: data.id }).eq('id', sale.id);
+  return { init_point: data.init_point };
+}
+
+// Precios de los talleres (el servidor no confía en el precio que manda el navegador)
+const TALLER_PRECIOS = { 'Hacerte entender': 45000 };
+
 // Confirma una venta: genera el código de acceso al curso y actualiza la venta.
 async function finalizeSale(supabase, sale, payment) {
   if (sale.status === 'approved' && sale.access_code) return sale.access_code;
@@ -227,30 +259,32 @@ export default async function handler(req, res) {
       if (!curso || !curso.for_sale || !curso.price) return res.status(400).json({ error: 'Curso no disponible para la venta' });
       if (!MP_TOKEN()) return res.status(500).json({ error: 'Los pagos no están configurados todavía' });
 
-      const { data: sale, error: se } = await supabase.from('curso_ventas')
-        .insert({ curso_id: curso.id, amount: curso.price, status: 'pending' }).select('id').single();
-      if (se) return res.status(500).json({ error: 'No se pudo iniciar la compra' });
+      const pago = await mpCrearPago(supabase, curso);
+      if (pago.error) return res.status(500).json({ error: pago.error });
+      return res.status(200).json(pago);
+    }
 
-      const pref = {
-        items: [{ title: curso.title, quantity: 1, unit_price: Number(curso.price), currency_id: 'ARS' }],
-        external_reference: sale.id,
-        back_urls: {
-          success: `${SITE()}/#/compra-exito/${sale.id}`,
-          pending: `${SITE()}/#/compra-exito/${sale.id}`,
-          failure: `${SITE()}/#/comprar/${curso.id}`,
-        },
-        auto_return: 'approved',
-        notification_url: `${SITE()}/api/cursos?action=pay-webhook`,
-      };
-      const r = await fetch('https://api.mercadopago.com/checkout/preferences', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${MP_TOKEN()}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(pref),
-      });
-      const data = await r.json();
-      if (!r.ok) { console.error('MP pref error:', data); return res.status(500).json({ error: 'No se pudo crear el pago' }); }
-      await supabase.from('curso_ventas').update({ mp_preference_id: data.id }).eq('id', sale.id);
-      return res.status(200).json({ init_point: data.init_point });
+    // Pago del taller con Mercado Pago: busca o crea el curso "Taller <título>" y arma el pago
+    if (action === 'taller-pay-create' && req.method === 'POST') {
+      const { titulo, email } = req.body || {};
+      const precio = TALLER_PRECIOS[titulo];
+      if (!precio) return res.status(400).json({ error: 'Taller no disponible' });
+      if (!MP_TOKEN()) return res.status(500).json({ error: 'Los pagos no están configurados todavía' });
+      const nombreCurso = `Taller ${titulo}`;
+      let { data: curso } = await supabase.from('cursos').select('id, title, price, for_sale').eq('title', nombreCurso).maybeSingle();
+      if (!curso) {
+        const { data: nuevo, error: ce } = await supabase.from('cursos')
+          .insert({ title: nombreCurso, description: null, published: true, position: 99, price: precio, for_sale: true })
+          .select('id, title, price, for_sale').single();
+        if (ce) return res.status(500).json({ error: ce.message });
+        curso = nuevo;
+      } else if (Number(curso.price) !== precio || !curso.for_sale) {
+        await supabase.from('cursos').update({ price: precio, for_sale: true }).eq('id', curso.id);
+        curso = { ...curso, price: precio, for_sale: true };
+      }
+      const pago = await mpCrearPago(supabase, curso, email);
+      if (pago.error) return res.status(500).json({ error: pago.error });
+      return res.status(200).json(pago);
     }
 
     // Webhook de MercadoPago (avisa cuando se paga)
@@ -277,10 +311,10 @@ export default async function handler(req, res) {
         const payment = await mpGetPayment(paymentId);
         if (payment && payment.status === 'approved' && payment.external_reference === sale.id) {
           const code = await finalizeSale(supabase, sale, payment);
-          return res.status(200).json({ status: 'approved', code, curso_id: sale.curso_id });
+          return res.status(200).json({ status: 'approved', code, curso_id: sale.curso_id, amount: sale.amount });
         }
       }
-      if (sale.status === 'approved') return res.status(200).json({ status: 'approved', code: sale.access_code, curso_id: sale.curso_id });
+      if (sale.status === 'approved') return res.status(200).json({ status: 'approved', code: sale.access_code, curso_id: sale.curso_id, amount: sale.amount });
       return res.status(200).json({ status: 'pending' });
     }
 
