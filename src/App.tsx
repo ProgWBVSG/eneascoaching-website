@@ -67,7 +67,9 @@ const useLegacyHashRedirect = () => {
 const IrAAcademia = () => { window.location.replace('https://academia.cecimentorcoach.com'); return null; };
 
 const App: React.FC = () => {
-  const [isLoading, setIsLoading] = React.useState(true);
+  // La pantalla de carga con el símbolo del eneagrama se salta en las páginas de los talleres (venta directa)
+  const sinPantallaDeCarga = /^\/(taller|talleres|hacerte-entender)(\/|$)/.test(window.location.pathname);
+  const [isLoading, setIsLoading] = React.useState(!sinPantallaDeCarga);
   useLegacyHashRedirect();
 
   React.useEffect(() => {
