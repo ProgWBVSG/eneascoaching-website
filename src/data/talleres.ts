@@ -67,8 +67,8 @@ export const TALLERES: Taller[] = [
       'Te callás para no generar conflicto, y después te quedás pensando lo que deberías haber dicho.',
     ],
     encuentros: [
-      { fecha: '2026-10-31', dia: 'Sábado 31 de octubre', hora: '09:30', duracion: 120 },
       { fecha: '2026-11-07', dia: 'Sábado 7 de noviembre', hora: '09:30', duracion: 120 },
+      { fecha: '2026-11-14', dia: 'Sábado 14 de noviembre', hora: '16:00', duracion: 120 },
     ],
     modalidad: '',
     linkEncuentro: '',
