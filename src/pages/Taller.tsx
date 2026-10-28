@@ -86,7 +86,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     return true;
   };
 
-  // Camino principal: datos → directo a pagar con Mercado Pago
+  // Datos → se guarda la inscripción y se muestran las formas de pago (no se redirige solo)
   const irAPagar = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const msg = validar();
@@ -94,35 +94,19 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     setEnviando(true); setError(null);
     try {
       if (!(await guardarInscripcion())) throw new Error();
-      trackEvent('InitiateCheckout', { content_name: `Taller ${taller.titulo}`, value: taller.precio, currency: 'ARS' });
-      const res = await fetch('/api/cursos?action=taller-pay-create', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo: taller.titulo, email: email.trim() }),
-      });
-      const data = await res.json();
-      if (res.ok && data.init_point) { window.location.href = data.init_point; return; }
-      // Si Mercado Pago no responde, queda la transferencia
-      setAbierto(false);
-      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
+      setElegirPago(true);
     } catch {
       setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
     } finally { setEnviando(false); }
   };
 
-  // Alternativa: transferencia
-  const irATransferencia = async () => {
-    const msg = validar();
-    if (msg) { setError(msg); return; }
-    setEnviando(true); setError(null);
-    try {
-      if (!(await guardarInscripcion())) throw new Error();
-      setAbierto(false);
-      setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
-    } catch {
-      setError('No pudimos guardar tu inscripción. Probá de nuevo o escribinos por WhatsApp.');
-    } finally { setEnviando(false); }
+  // Transferencia: se cierra el pop up y se muestran los datos bancarios en la página
+  const irATransferencia = () => {
+    setAbierto(false);
+    setTimeout(() => document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }), 150);
   };
 
+  const [elegirPago, setElegirPago] = useState(false);
   const [pagandoMP, setPagandoMP] = useState(false);
   const [errorMP, setErrorMP] = useState<string | null>(null);
   const pagarMP = async () => {
@@ -379,34 +363,58 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
         </div>
       </section>
 
-      {/* Pop up: datos y directo a pagar */}
+      {/* Pop up: datos → elegir cómo pagar */}
       {abierto && (
         <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onMouseDown={ev => { if (ev.target === ev.currentTarget) setAbierto(false); }}>
           <form onSubmit={irAPagar} noValidate role="dialog" aria-modal="true" aria-label={`Reservá tu lugar en ${taller.titulo}`}
             className="relative w-full sm:max-w-md max-h-[92vh] max-h-[92dvh] overflow-y-auto overscroll-contain bg-white text-brand-dark rounded-t-2xl sm:rounded-lg shadow-2xl px-5 sm:px-6 pt-8 pb-0">
             <button type="button" onClick={() => setAbierto(false)} aria-label="Cerrar" className="absolute top-2 right-2 p-3 text-gray-400 hover:text-brand-dark"><X size={22} /></button>
-            <div className="space-y-4">
-              <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
-              <p className="text-gray-600 text-center text-sm">Completá tus datos y pasás directo al pago.</p>
-              <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
-                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-              <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" inputMode="email" autoComplete="email"
-                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-              <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp con código de área" type="tel" inputMode="tel" autoComplete="tel"
-                className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
-            </div>
 
-            {error && <p className="text-red-600 text-sm text-center mt-4">{error}</p>}
+            {!elegirPago ? (
+              <>
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-heading font-bold text-center">Reservá tu lugar</h2>
+                  <p className="text-gray-600 text-center text-sm">Completá tus datos y elegís cómo pagar.</p>
+                  <input value={nombre} onChange={e => setNombre(e.target.value)} placeholder="Nombre y apellido" autoComplete="name" autoFocus
+                    className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+                  <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email (ahí te llega tu acceso)" type="email" inputMode="email" autoComplete="email"
+                    className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+                  <input value={telefono} onChange={e => setTelefono(e.target.value)} placeholder="WhatsApp con código de área" type="tel" inputMode="tel" autoComplete="tel"
+                    className="w-full border border-gray-300 rounded px-4 py-3 text-base focus:outline-none focus:border-brand-gold" />
+                </div>
+                {error && <p className="text-red-600 text-sm text-center mt-4">{error}</p>}
+                <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100">
+                  <button type="submit" disabled={enviando} className={`${btnPrimary} w-full py-3.5 px-3 disabled:opacity-60 gap-2`}>
+                    {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Obtener oferta <ArrowRight size={18} /></>}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                <h2 className="text-2xl font-heading font-bold text-center">{primerNombre ? `¡Listo, ${primerNombre}!` : '¡Listo!'}</h2>
+                <p className="text-gray-600 text-center text-sm mb-5">Elegí cómo querés pagar para confirmar tu lugar.</p>
 
-            <div className="sticky bottom-0 -mx-5 sm:-mx-6 px-5 sm:px-6 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] mt-4 bg-white border-t border-gray-100">
-              <button type="submit" disabled={enviando} className={`${btnPrimary} w-full py-3.5 px-3 disabled:opacity-60 gap-2`}>
-                {enviando ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Obtener oferta <ArrowRight size={18} /></>}
-              </button>
-              <p className="text-xs text-gray-500 text-center mt-2">Tarjeta de crédito o débito de cualquier banco, con Mercado Pago.</p>
-              <button type="button" onClick={irATransferencia} disabled={enviando} className="block mx-auto mt-3 text-sm font-semibold text-brand-gold underline disabled:opacity-60">
-                Prefiero pagar por transferencia
-              </button>
-            </div>
+                <div className="bg-brand-beige rounded-lg py-5 px-4 text-center mb-5">
+                  <p className="text-sm text-gray-500 mb-1">{taller.titulo}</p>
+                  {taller.precioAntes && <p className="text-xl text-gray-400 line-through leading-none">{pesos(taller.precioAntes)}</p>}
+                  <p className="text-5xl font-heading font-bold text-brand-gold leading-tight">{pesos(taller.precio)}</p>
+                  <p className="text-xs text-gray-500 mt-1">o USD {taller.precioUSD} si pagás desde afuera de Argentina</p>
+                </div>
+
+                <button type="button" onClick={pagarMP} disabled={pagandoMP} className={`${btnPrimary} w-full gap-2 py-3.5 px-3 disabled:opacity-60`}>
+                  {pagandoMP ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Landmark size={20} /> Pagar con Mercado Pago o tarjeta</>}
+                </button>
+                <p className="text-xs text-gray-500 text-center mt-2">Crédito o débito de cualquier banco. Acceso inmediato a tu aula.</p>
+                {errorMP && <p className="text-red-600 text-sm text-center mt-2">{errorMP}</p>}
+
+                <div className="flex items-center gap-3 my-4 text-xs text-gray-400"><span className="flex-1 h-px bg-gray-200" />o<span className="flex-1 h-px bg-gray-200" /></div>
+
+                <button type="button" onClick={irATransferencia} className="inline-flex items-center justify-center gap-2 w-full border-2 border-brand-gold text-brand-dark hover:bg-brand-gold hover:text-white font-bold py-3 px-3 rounded transition-colors">
+                  <Copy size={18} /> Pagar con transferencia
+                </button>
+                <p className="text-xs text-gray-500 text-center mt-2">Te mostramos el alias y mandás el comprobante por WhatsApp.</p>
+              </div>
+            )}
           </form>
         </div>
       )}
