@@ -1,10 +1,19 @@
 import React from 'react';
-import { Phone } from 'lucide-react'; // Using Phone as simple icon, or could use SVG for WhatsApp
+import { useLocation } from 'react-router-dom';
+import { TALLERES } from '../data/talleres';
+
+const WA = 'https://wa.me/5493515632496';
 
 const FloatingWhatsApp: React.FC = () => {
+  // En la página de un taller, el mensaje ya pide información de ese taller
+  const { pathname } = useLocation();
+  const taller = TALLERES.find(t => pathname === `/taller/${t.id}` || pathname === `/${t.id}`);
+  const href = taller
+    ? `${WA}?text=${encodeURIComponent(`Hola Cecilia, quiero más información sobre el taller "${taller.titulo}", por favor.`)}`
+    : WA;
   return (
     <a
-      href="https://wa.me/5493515632496"
+      href={href}
       target="_blank"
       rel="noreferrer"
       className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20bd5a] text-white p-4 rounded-full shadow-xl transition-transform hover:scale-110 flex items-center justify-center"

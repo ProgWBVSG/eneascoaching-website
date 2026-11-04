@@ -50,6 +50,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   const abierta = inscripcionAbierta(taller);
   const fechas = fechasTexto(taller);
   const video = toEmbedUrl(taller.videoUrl);
+  const esMp4 = /\.mp4($|\?)/.test(taller.videoUrl);
   const irAlFormulario = () => {
     if (listo) { document.getElementById('inscripcion')?.scrollIntoView({ behavior: 'smooth' }); return; }
     setError(null); setAbierto(true);
@@ -141,7 +142,14 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <p className="text-2xl md:text-3xl font-heading leading-snug mb-8">{taller.frase}</p>
 
           {/* Video de venta: solo aparece cuando se carga videoUrl en talleres.ts */}
-          {video && (
+          {video && esMp4 && (
+            <div className="relative w-full max-w-2xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video mb-8">
+              <video src={taller.videoUrl} poster={taller.videoUrl.replace(/\.mp4$/, '-poster.jpg')} controls playsInline preload="metadata"
+                title={`Taller ${taller.titulo}`} className="w-full h-full object-contain bg-black"
+                onPlay={() => trackEvent('ViewContent', { content_name: `VSL Taller ${taller.titulo}`, content_category: 'Video' })} />
+            </div>
+          )}
+          {video && !esMp4 && (
             <div className="relative w-full max-w-2xl mx-auto rounded-sm shadow-[0_0_40px_rgba(197,160,89,0.3)] border-2 border-brand-gold/30 overflow-hidden bg-black aspect-video mb-8">
               <iframe src={video} title={`Taller ${taller.titulo}`} loading="lazy" className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />

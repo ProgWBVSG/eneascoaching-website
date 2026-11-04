@@ -32,7 +32,7 @@ export interface Taller {
   cita: string;               // frase destacada (reencuadre)
   formato: string;            // "Taller práctico de comunicación y oratoria · 2 sábados"
   resumen: string;            // una línea para la tarjeta en /talleres
-  videoUrl: string;           // video de venta (YouTube). Vacío = no se muestra
+  videoUrl: string;           // video de venta: link de YouTube/Vimeo o un .mp4 propio (con su -poster.jpg al lado). Vacío = no se muestra
   imagen: string;             // foto de la tarjeta en /talleres
   dolores: string[];          // "¿Te pasa esto?" en segunda persona
   encuentros: Encuentro[];
@@ -58,7 +58,7 @@ export const TALLERES: Taller[] = [
     cita: 'Porque comunicar no es solamente decir lo que pensás. Es lograr que el otro pueda comprender lo que querés transmitir.',
     formato: 'Taller práctico de comunicación y oratoria · 2 sábados',
     resumen: 'Taller práctico de comunicación y oratoria para expresar tus ideas con claridad y seguridad.',
-    videoUrl: '',
+    videoUrl: '/videos/taller-vsl.mp4',
     imagen: '/fotosCecilia/IMG_20250809_171402_158.jpg',
     dolores: [
       'Sabés lo que querés decir, pero cuando te toca hablar te quedás en blanco.',

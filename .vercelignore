@@ -6,3 +6,4 @@ tools
 *.xlsx
 *.mp4
 *.mov
+!public/videos/*.mp4
