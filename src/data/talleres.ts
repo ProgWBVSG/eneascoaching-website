@@ -56,7 +56,7 @@ export const TALLERES: Taller[] = [
     subtitulo: 'El arte de comunicar con claridad, seguridad e impacto.',
     frase: 'No alcanza con tener algo para decir. Hay que aprender a transmitirlo.',
     cita: 'Porque comunicar no es solamente decir lo que pensás. Es lograr que el otro pueda comprender lo que querés transmitir.',
-    formato: 'Taller práctico de comunicación y oratoria · 2 sábados',
+    formato: 'Taller práctico de comunicación y oratoria · 2 sábados · 100% online y en vivo',
     resumen: 'Taller práctico de comunicación y oratoria para expresar tus ideas con claridad y seguridad.',
     videoUrl: '/videos/taller-vsl.mp4',
     imagen: '/fotosCecilia/IMG_20250809_171402_158.jpg',
@@ -70,7 +70,7 @@ export const TALLERES: Taller[] = [
       { fecha: '2026-11-07', dia: 'Sábado 7 de noviembre', hora: '09:30', duracion: 120 },
       { fecha: '2026-11-14', dia: 'Sábado 14 de noviembre', hora: '16:00', duracion: 120 },
     ],
-    modalidad: '',
+    modalidad: '100% online y en vivo',
     linkEncuentro: '',
     aprenderas: [
       'A expresar tus ideas sin enredarte ni quedarte en blanco.',
