@@ -167,7 +167,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <div className="flex flex-wrap gap-3 justify-center mb-8">
             {taller.encuentros.map(e => (
               <span key={e.fecha} className="inline-flex items-center gap-2 border border-brand-gold/50 text-white text-sm font-medium px-4 py-2 rounded-full">
-                <CalendarDays size={16} className="text-brand-gold" /> {e.dia}{e.hora ? ` · ${rangoHora(e)} h` : ''}
+                <CalendarDays size={16} className="text-brand-gold" /> {e.dia}{e.hora ? ` · ${rangoHora(e)} h${taller.husos ? ' (Argentina)' : ''}` : ''}
               </span>
             ))}
           </div>
@@ -234,6 +234,19 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
               </div>
             ))}
           </div>
+          {taller.husos && (
+            <div className="mb-12">
+              <p className="font-heading font-bold text-brand-dark text-lg mb-4">¿A qué hora es en tu país?</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                {taller.husos.map(h => (
+                  <div key={h.hora} className="bg-brand-beige rounded-sm px-4 py-4 w-[46%] sm:w-[30%] lg:w-40">
+                    <p className="font-heading font-bold text-brand-gold text-lg">{h.hora}</p>
+                    <p className="text-sm text-gray-600 leading-snug mt-1">{h.paises}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <ul className="space-y-3 text-brand-dark inline-block text-left">
             {taller.encuentros.map(e => (
               <li key={e.fecha} className="flex items-center gap-3">

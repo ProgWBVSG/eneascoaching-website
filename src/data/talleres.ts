@@ -48,6 +48,7 @@ export interface Taller {
   cuenta: { cbu: string; numero: string; tipo: string; titular: string }; // datos completos, se muestran chicos
   survey: string;             // se guarda en encuesta_respuestas.survey (Admin)
   // ---- Opcionales: si no están, la página usa los textos de "Hacerte entender" ----
+  husos?: { hora: string; paises: string }[]; // el mismo encuentro en la hora de otros países
   refuerzo?: string;          // línea dorada debajo de la cita
   fondo?: string;             // imagen tenue de fondo del hero (sin esto, el micrófono)
   foto?: string;              // foto de Cecilia en "quién te acompaña"
@@ -129,6 +130,13 @@ export const TALLERES: Taller[] = [
       { fecha: '2026-12-12', dia: 'Sábado 12 de diciembre', hora: '10:00', duracion: 180 },
     ],
     modalidad: '100% online y en vivo. Queda grabado',
+    husos: [
+      { hora: '10 a 13 h', paises: 'Argentina, Chile, Uruguay y Paraguay' },
+      { hora: '9 a 12 h', paises: 'Bolivia, Venezuela y Rep. Dominicana' },
+      { hora: '8 a 11 h', paises: 'Colombia, Perú, Ecuador y Miami' },
+      { hora: '7 a 10 h', paises: 'México, Costa Rica y Guatemala' },
+      { hora: '14 a 17 h', paises: 'España' },
+    ],
     linkEncuentro: '',
     tituloAprenderas: '¿Qué vas a trabajar?',
     aprenderas: [
