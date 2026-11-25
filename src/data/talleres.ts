@@ -47,6 +47,17 @@ export interface Taller {
   alias: string;              // alias para transferir en pesos
   cuenta: { cbu: string; numero: string; tipo: string; titular: string }; // datos completos, se muestran chicos
   survey: string;             // se guarda en encuesta_respuestas.survey (Admin)
+  // ---- Opcionales: si no están, la página usa los textos de "Hacerte entender" ----
+  refuerzo?: string;          // línea dorada debajo de la cita
+  fondo?: string;             // imagen tenue de fondo del hero (sin esto, el micrófono)
+  foto?: string;              // foto de Cecilia en "quién te acompaña"
+  bio?: string[];             // párrafos de "quién te acompaña"
+  tituloAprenderas?: string;  // sin esto, "¿Qué aprenderás?"
+  materialAula?: string;      // "las clases grabadas y el e-book"
+  paraQuien?: string;         // respuesta a "¿Necesito experiencia previa?"
+  incluyeCorto?: string[];    // lista corta de la página de pago (sin las fechas)
+  programas?: 'lideres' | 'eneagrama'; // qué se ofrece al final
+  encuesta?: { dolor: string; dolores: string[]; equipo: string; equipos: string[] }; // dos preguntas en el aula
 }
 
 export const TALLERES: Taller[] = [
@@ -94,6 +105,70 @@ export const TALLERES: Taller[] = [
     alias: 'ABOGAR204',
     cuenta: { cbu: '4530000800016927273511', numero: '1692727351', tipo: 'Caja de ahorro en pesos', titular: 'Guillermo Franco Vidal Sanchez' },
     survey: 'taller-hacerte-entender',
+  },
+  {
+    id: 'hilos-del-destino',
+    titulo: 'Hilos del destino',
+    subtitulo: 'Cerrá el 2026 y dibujá tu mapa completo del 2027.',
+    frase: 'Una parte de tu historia la recibiste. La que sigue la tejés vos.',
+    cita: 'Si hoy pudieras tomar los hilos de tu vida y volver a tejerlos, ¿qué conservarías, qué soltarías y qué te animarías a crear?',
+    refuerzo: 'Primero te observás vos. Después dibujás el mapa.',
+    formato: 'Taller práctico de autoconocimiento y visualización · Un día · 100% online y en vivo',
+    resumen: 'Taller práctico de un día para soltar lo que se repite y armar tu mapa de visualización 2027.',
+    videoUrl: '',
+    imagen: '/fotosCecilia/foto_cecilia_cara.jpg',
+    fondo: '/fotosCecilia/hilos-relieve.webp',
+    foto: '/fotosCecilia/foto_cecilia_cara.jpg',
+    dolores: [
+      'Cada enero escribís tus metas y en marzo ya no te acordás de ninguna.',
+      'Armaste un mapa con fotos hermosas, quedó pegado en la heladera y todo siguió igual.',
+      'Te repetís frases de abundancia y por dentro algo te contesta que no.',
+      'Cambian los trabajos y las personas. Sin embargo, la historia se repite.',
+    ],
+    encuentros: [
+      { fecha: '2026-12-12', dia: 'Sábado 12 de diciembre', hora: '10:00', duracion: 180 },
+    ],
+    modalidad: '100% online y en vivo. Queda grabado',
+    linkEncuentro: '',
+    tituloAprenderas: '¿Qué vas a trabajar?',
+    aprenderas: [
+      'El hilo que recibí: qué historia familiar o mandato sigue condicionándote.',
+      'El hilo que necesito soltar: qué miedo o patrón ya no querés repetir.',
+      'El hilo que quiero tejer: qué querés crear en los próximos doce meses.',
+      'El frente de tu mapa: las imágenes y las frases que vas a mirar todos los días.',
+      'El reverso de tu mapa: qué vas a hacer el día que aparezca tu freno.',
+      'Tu forma de frenarte: cómo reconocerla con el eneagrama, sin ponerte una etiqueta.',
+    ],
+    incluye: [
+      'Un encuentro de 3 horas en vivo con Cecilia',
+      'La grabación completa, para verla cuando quieras',
+      'Clases grabadas para profundizar',
+      'Actividades prácticas para hacer durante el taller',
+      'Tu mapa 2027 online, que queda de fondo en tu celular',
+      'Doce cartas, una por mes durante 2027, para volver a tu mapa',
+      'Tu propia aula online con todo el material',
+    ],
+    incluyeCorto: ['Grabación completa', 'Clases grabadas', 'Actividades prácticas', 'Mapa 2027 online y doce cartas'],
+    materialAula: 'la grabación, las clases y las actividades',
+    bio: [
+      'Coach ontológica, abogada y especialista en eneagrama. Creó el método Eneascoaching y acompaña a personas que quieren conocerse mejor para vincularse, trabajar y decidir de otra manera.',
+      'En este taller trabajás con tu propia historia y te vas con tu mapa armado.',
+    ],
+    paraQuien: 'No. Es un taller práctico, para cualquier persona que quiera cerrar el año con claridad. No hace falta saber de eneagrama ni haber hecho antes un mapa de visualización.',
+    programas: 'eneagrama',
+    encuesta: {
+      dolor: '¿Qué te gustaría trabajar primero en tu mapa 2027?',
+      dolores: ['Dinero', 'Trabajo', 'Vínculos', 'Cuerpo y calma', 'Quién soy'],
+      equipo: '¿Ya hiciste alguna vez un mapa de visualización?',
+      equipos: ['Sí, y me sirvió', 'Sí, y quedó olvidado', 'No, es la primera vez'],
+    },
+    precio: 33000,
+    precioUSD: 20,
+    precioAntes: null,
+    cupos: null,
+    alias: 'ABOGAR204',
+    cuenta: { cbu: '4530000800016927273511', numero: '1692727351', tipo: 'Caja de ahorro en pesos', titular: 'Guillermo Franco Vidal Sanchez' },
+    survey: 'taller-hilos-del-destino',
   },
 ];
 

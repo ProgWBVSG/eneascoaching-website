@@ -197,12 +197,12 @@ const Curso: React.FC = () => {
         {/* Contenido */}
         <main className="flex-1 min-w-0">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-            {taller && !showFeedback && <EncuestaTaller code={code} />}
+            {taller && !showFeedback && <EncuestaTaller code={code} taller={taller} />}
             {taller && !showFeedback && <CalendarioTaller taller={taller} />}
             {showFeedback ? (
               <FeedbackPanel code={code} clientName={clientName} cursoTitle={curso.title} onBack={() => setShowFeedback(false)} />
             ) : !currentLesson ? (
-              <div className="text-center py-20 text-gray-400">{taller ? 'Las clases grabadas y el e-book van a aparecer acá.' : 'Este curso todavía no tiene lecciones.'}</div>
+              <div className="text-center py-20 text-gray-400">{taller ? `Acá vas a encontrar ${taller.materialAula || 'las clases grabadas y el e-book'}.` : 'Este curso todavía no tiene lecciones.'}</div>
             ) : (
               <>
                 <div className="rounded-2xl overflow-hidden bg-brand-dark shadow-sm mb-5 aspect-video">
@@ -368,7 +368,9 @@ const EQUIPO = [
   'Sí, tengo personas a cargo',
   'No lidero un equipo',
 ];
-const EncuestaTaller: React.FC<{ code: string }> = ({ code }) => {
+const EncuestaTaller: React.FC<{ code: string; taller: Taller }> = ({ code, taller }) => {
+  const pDolor = taller.encuesta?.dolor || '¿Qué es lo que más te cuesta hoy al comunicar?';
+  const pEquipo = taller.encuesta?.equipo || '¿Liderás un equipo de trabajo?';
   const key = `taller_encuesta_${code}`;
   const [hecha, setHecha] = useState(() => { try { return !!localStorage.getItem(key); } catch { return false; } });
   const [dolor, setDolor] = useState('');
@@ -382,7 +384,7 @@ const EncuestaTaller: React.FC<{ code: string }> = ({ code }) => {
     try {
       const res = await fetch('/api/cursos?action=taller-encuesta', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, dolor, equipo }),
+        body: JSON.stringify({ code, dolor, equipo, pDolor, pEquipo }),
       });
       if (!res.ok) throw new Error();
       try { localStorage.setItem(key, '1'); } catch { /* noop */ }
@@ -403,10 +405,10 @@ const EncuestaTaller: React.FC<{ code: string }> = ({ code }) => {
     <div className="bg-brand-gold/10 border border-brand-gold/30 rounded-xl p-5 sm:p-6 mb-6">
       <h3 className="font-heading font-bold text-lg text-brand-dark mb-1">¡Gracias por sumarte! Dos preguntas rápidas</h3>
       <p className="text-sm text-gray-600 mb-4">Así Cecilia prepara el taller para lo que necesitás.</p>
-      <p className="font-semibold text-brand-dark mb-2 text-sm">¿Qué es lo que más te cuesta hoy al comunicar?</p>
-      {opciones(DOLOR_FORM, dolor, setDolor, 'dolor')}
-      <p className="font-semibold text-brand-dark mt-5 mb-2 text-sm">¿Liderás un equipo de trabajo?</p>
-      {opciones(EQUIPO, equipo, setEquipo, 'equipo')}
+      <p className="font-semibold text-brand-dark mb-2 text-sm">{pDolor}</p>
+      {opciones(taller.encuesta?.dolores || DOLOR_FORM, dolor, setDolor, 'dolor')}
+      <p className="font-semibold text-brand-dark mt-5 mb-2 text-sm">{pEquipo}</p>
+      {opciones(taller.encuesta?.equipos || EQUIPO, equipo, setEquipo, 'equipo')}
       {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
       <button onClick={enviar} disabled={enviando} className="mt-5 w-full bg-brand-gold hover:bg-amber-600 text-white font-bold py-3 rounded-lg disabled:opacity-60">
         {enviando ? 'Enviando...' : 'Enviar respuestas'}

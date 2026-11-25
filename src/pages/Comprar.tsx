@@ -76,10 +76,14 @@ const Comprar: React.FC = () => {
   const taller = tallerPorCurso(curso.title);
   const fechaCorta = (f: string) => `${f.slice(8, 10)}/${f.slice(5, 7)}`;
   const incluyeTaller = taller ? [
-    { icon: CalendarDays, text: `${taller.encuentros.length} clases en vivo: ${taller.encuentros.map(e => fechaCorta(e.fecha)).join(' y ')}`, show: true },
-    { icon: Video, text: '4 clases grabadas', show: true },
-    { icon: FileText, text: 'E-book', show: true },
-    { icon: Check, text: 'Ejercicios', show: true },
+    { icon: CalendarDays, text: `${taller.encuentros.length} ${taller.encuentros.length === 1 ? 'encuentro' : 'clases'} en vivo: ${taller.encuentros.map(e => fechaCorta(e.fecha)).join(' y ')}`, show: true },
+    ...(taller.incluyeCorto
+      ? taller.incluyeCorto.map(text => ({ icon: Check, text, show: true }))
+      : [
+        { icon: Video, text: '4 clases grabadas', show: true },
+        { icon: FileText, text: 'E-book', show: true },
+        { icon: Check, text: 'Ejercicios', show: true },
+      ]),
   ] : null;
 
   const incluye = incluyeTaller || [

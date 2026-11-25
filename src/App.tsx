@@ -36,6 +36,7 @@ import TestComunicacion from './pages/TestComunicacion';
 import Encuesta from './pages/Encuesta';
 import Taller from './pages/Taller';
 import Talleres from './pages/Talleres';
+import EbookPagina from './pages/EbookPagina';
 import { ENCUESTA_REUNIONES, ENCUESTA_ENEAGRAMA } from './data/encuestas';
 
 const MainLayout: React.FC = () => (
@@ -68,7 +69,7 @@ const IrAAcademia = () => { window.location.replace('https://academia.cecimentor
 
 const App: React.FC = () => {
   // La pantalla de carga con el símbolo del eneagrama se salta en las páginas de los talleres (venta directa)
-  const sinPantallaDeCarga = /^\/(taller|talleres|hacerte-entender)(\/|$)/.test(window.location.pathname);
+  const sinPantallaDeCarga = /^\/(taller|talleres|hacerte-entender|hilos-del-destino|ebook|mapa)(\/|$)/.test(window.location.pathname);
   const [isLoading, setIsLoading] = React.useState(!sinPantallaDeCarga);
   useLegacyHashRedirect();
 
@@ -126,6 +127,9 @@ const App: React.FC = () => {
           <Route path="/talleres" element={<Talleres />} />
           <Route path="/taller/:id" element={<Taller />} />
           <Route path="/hacerte-entender" element={<Taller id="hacerte-entender" />} />
+          <Route path="/hilos-del-destino" element={<Taller id="hilos-del-destino" />} />
+          <Route path="/ebook/:id" element={<EbookPagina />} />
+          <Route path="/mapa" element={<EbookPagina id="mapa" />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -55,7 +55,7 @@ async function mpCrearPago(supabase, curso, email) {
 }
 
 // Precios de los talleres (el servidor no confía en el precio que manda el navegador)
-const TALLER_PRECIOS = { 'Hacerte entender': 45000 };
+const TALLER_PRECIOS = { 'Hacerte entender': 45000, 'Hilos del destino': 33000 };
 
 // Confirma una venta: genera el código de acceso al curso y actualiza la venta.
 async function finalizeSale(supabase, sale, payment) {
@@ -289,7 +289,7 @@ export default async function handler(req, res) {
 
     // Encuesta del taller: se responde dentro del aula, después de pagar
     if (action === 'taller-encuesta' && req.method === 'POST') {
-      const { code, dolor, equipo } = req.body || {};
+      const { code, dolor, equipo, pDolor, pEquipo } = req.body || {};
       const cod = String(code || '').toUpperCase();
       if (!cod || !dolor || !equipo) return res.status(400).json({ error: 'Datos inválidos' });
       const cl = v => String(v).trim().slice(0, 200);
@@ -309,8 +309,8 @@ export default async function handler(req, res) {
       }
       if (!fila) return res.status(404).json({ error: 'No encontramos tu inscripción' });
       const answers = (Array.isArray(fila.answers) ? fila.answers : []).filter(a => a && a.key !== 'dolor' && a.key !== 'equipo');
-      answers.push({ key: 'dolor', q: '¿Qué es lo que más te cuesta hoy al comunicar?', a: cl(dolor) });
-      answers.push({ key: 'equipo', q: '¿Liderás un equipo de trabajo?', a: cl(equipo) });
+      answers.push({ key: 'dolor', q: pDolor ? cl(pDolor) : '¿Qué es lo que más te cuesta hoy al comunicar?', a: cl(dolor) });
+      answers.push({ key: 'equipo', q: pEquipo ? cl(pEquipo) : '¿Liderás un equipo de trabajo?', a: cl(equipo) });
       const { error } = await supabase.from('encuesta_respuestas').update({ answers, role: cl(equipo) }).eq('id', fila.id);
       if (error) return res.status(500).json({ error: 'No se pudo guardar' });
       return res.status(200).json({ success: true });

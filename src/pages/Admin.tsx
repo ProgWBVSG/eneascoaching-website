@@ -1519,7 +1519,7 @@ const EbooksTab: React.FC<{ token: string }> = ({ token }) => {
     try { await navigator.clipboard.writeText(mails); setMsg(`Copiados ${items.length} emails`); setTimeout(() => setMsg(''), 2500); }
     catch { prompt('Copiá los emails:', mails); }
   };
-  const nombreEbook = (s: string) => ({ 'ebook-ikigai': 'Ikigai', 'ebook-cuatro-acuerdos': 'Los cuatro acuerdos' } as Record<string, string>)[s] || s.replace('ebook-', '');
+  const nombreEbook = (s: string) => ({ 'ebook-mapa': 'La otra mitad del mapa', 'ebook-ikigai': 'Ikigai', 'ebook-cuatro-acuerdos': 'Los cuatro acuerdos' } as Record<string, string>)[s] || s.replace('ebook-', '');
   const link = `${typeof window !== 'undefined' ? window.location.origin : ''}/#ebook`;
 
   return (
@@ -1860,7 +1860,7 @@ const EncuestasTab: React.FC<{ token: string }> = ({ token }) => {
   const msgAcceso = (nombre: string, linkAula: string) => taller ? encodeURIComponent(
     `Hola ${nombre.split(' ')[0]}! Soy Cecilia. Ya recibí tu pago: te doy la bienvenida al taller "${taller.titulo}".
 
-Este es tu acceso al aula, donde vas a encontrar el calendario de los encuentros (${fechasTexto(taller)}), las clases grabadas y el e-book:
+Este es tu acceso al aula, donde vas a encontrar el calendario (${fechasTexto(taller)}) y ${taller.materialAula || 'las clases grabadas y el e-book'}:
 ${linkAula}
 
 Guardalo, es personal. ¡Nos vemos el sábado!`,

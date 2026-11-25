@@ -48,6 +48,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
   }
 
   const abierta = inscripcionAbierta(taller);
+  const material = taller.materialAula || 'las clases grabadas y el e-book';
+  const bio = taller.bio || [
+    'Abogada, coach ejecutiva internacional y especialista en eneagrama. Hace años acompaña a personas y equipos a comunicarse con claridad: más de mil personas acompañadas.',
+    'En este taller no vas a escuchar teoría: vas a practicar con tus propias situaciones.',
+  ];
   const fechas = fechasTexto(taller);
   const video = toEmbedUrl(taller.videoUrl);
   const esMp4 = /\.mp4($|\?)/.test(taller.videoUrl);
@@ -135,11 +140,13 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
     <div className="pt-20 pb-24 md:pb-0">
       {/* 1 · Hero con video */}
       <section className="bg-brand-dark text-white py-14 md:py-20 px-6 relative overflow-hidden">
-        <Mic className="absolute right-[-40px] top-10 w-72 h-72 md:w-96 md:h-96 text-brand-gold opacity-[0.06] pointer-events-none" strokeWidth={1} />
+        {taller.fondo
+          ? <img src={taller.fondo} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none [mask-image:radial-gradient(ellipse_at_center,#0005_35%,#000_85%)]" />
+          : <Mic className="absolute right-[-40px] top-10 w-72 h-72 md:w-96 md:h-96 text-brand-gold opacity-[0.06] pointer-events-none" strokeWidth={1} />}
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <h1 className="text-4xl md:text-6xl font-heading font-bold uppercase tracking-wide mb-4">{taller.titulo}</h1>
           <p className="text-xl md:text-2xl text-brand-gold font-light mb-6">{taller.subtitulo}</p>
-          <p className="text-2xl md:text-3xl font-heading leading-snug mb-8">{taller.frase}</p>
+          <p className="text-2xl md:text-3xl font-heading leading-snug mb-8 [text-wrap:balance]">{taller.frase}</p>
 
           {/* Video de venta: solo aparece cuando se carga videoUrl en talleres.ts */}
           {video && esMp4 && (
@@ -190,14 +197,14 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       <section className="py-16 md:py-20 px-6 bg-brand-dark text-white">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-2xl md:text-3xl font-heading italic leading-relaxed mb-6">“{taller.cita}”</p>
-          <p className="text-brand-gold text-lg">No es falta de capacidad. Es una habilidad, y se entrena.</p>
+          <p className="text-brand-gold text-lg">{taller.refuerzo || 'No es falta de capacidad. Es una habilidad, y se entrena.'}</p>
         </div>
       </section>
 
       {/* 4 · Qué aprenderás */}
       <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">¿Qué aprenderás?</h2>
+          <h2 className="text-3xl md:text-4xl font-heading font-bold text-brand-dark mb-10">{taller.tituloAprenderas || '¿Qué aprenderás?'}</h2>
           <div className="flex md:grid md:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 pb-3 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {taller.aprenderas.map(a => (
               <div key={a} className="bg-white rounded-sm p-6 shadow-sm border border-brand-gold/20 flex flex-col items-center gap-3 shrink-0 w-[82%] md:w-auto snap-center">
@@ -216,8 +223,8 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <div className="flex md:grid md:grid-cols-3 gap-6 mb-12 overflow-x-auto snap-x snap-mandatory -mx-6 px-6 md:mx-0 md:px-0 pb-3 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {[
               { icon: ClipboardList, t: 'Reservás tu lugar', d: 'Completás el formulario en esta página.' },
-              { icon: Landmark, t: 'Transferís y mandás el comprobante', d: `Al alias ${taller.alias}, y nos mandás el comprobante por WhatsApp.` },
-              { icon: GraduationCap, t: 'Entrás a tu aula', d: 'Te llega tu acceso con el calendario de los encuentros, las clases grabadas y el e-book.' },
+              { icon: Landmark, t: 'Pagás como prefieras', d: 'Con tarjeta o Mercado Pago, o por transferencia y nos mandás el comprobante por WhatsApp.' },
+              { icon: GraduationCap, t: 'Entrás a tu aula', d: `Te llega tu acceso con el calendario y ${material}.` },
             ].map(({ icon: Icon, t, d }, i) => (
               <div key={t} className="flex flex-col items-center gap-3 shrink-0 w-[78%] md:w-auto snap-center">
                 <div className="w-14 h-14 rounded-full bg-brand-gold/10 flex items-center justify-center"><Icon className="w-7 h-7 text-brand-gold" /></div>
@@ -234,7 +241,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
               </li>
             ))}
             {taller.modalidad && <li className="flex items-center gap-3"><MapPin size={18} className="text-brand-gold shrink-0" /> {taller.modalidad}</li>}
-            <li className="flex items-center gap-3"><PlayCircle size={18} className="text-brand-gold shrink-0" /> Clases grabadas y e-book en tu aula</li>
+            <li className="flex items-center gap-3"><PlayCircle size={18} className="text-brand-gold shrink-0" /> {material.charAt(0).toUpperCase() + material.slice(1)}, en tu aula</li>
             {!taller.encuentros[0].hora && <li className="flex items-center gap-3"><Clock size={18} className="text-brand-gold shrink-0" /> Horario a confirmar</li>}
           </ul>
         </div>
@@ -243,14 +250,11 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
       {/* 6 · Quién te acompaña */}
       <section className="py-16 md:py-20 px-6 bg-brand-beige">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <img src="/fotosCecilia/foto_cecilia_home.jpg" alt="Cecilia B. Sánchez"
+          <img src={taller.foto || '/fotosCecilia/foto_cecilia_home.jpg'} alt="Cecilia B. Sánchez"
             className="w-full max-w-sm mx-auto rounded-sm shadow-lg object-cover aspect-[4/5]" loading="lazy" />
           <div className="text-center">
             <h2 className="text-3xl font-heading font-bold text-brand-dark mb-4">Cecilia B. Sánchez</h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Abogada, coach ejecutiva internacional y especialista en eneagrama. Hace años acompaña a personas y equipos a comunicarse con claridad: más de mil personas acompañadas.
-            </p>
-            <p className="text-gray-600 leading-relaxed">En este taller no vas a escuchar teoría: vas a practicar con tus propias situaciones.</p>
+            {bio.map(p => <p key={p} className="text-gray-600 leading-relaxed mb-4">{p}</p>)}
           </div>
         </div>
       </section>
@@ -332,11 +336,19 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <h2 className="text-3xl font-heading font-bold text-brand-dark mb-3">¿Buscás un proceso más profundo?</h2>
           <p className="text-gray-600 mb-10">El taller es un primer paso. Si querés ir más allá, estos son los programas de Cecilia.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <a href="/mentorias/lideres" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
-              <Users className="w-8 h-8 text-brand-gold mx-auto mb-3" />
-              <p className="font-heading font-bold text-xl text-brand-dark mb-2">Mentoría para Líderes de Equipo</p>
-              <p className="text-gray-600 text-sm">Acompañamiento 1 a 1 para liderar reuniones que terminan en decisiones.</p>
-            </a>
+            {taller.programas === 'eneagrama' ? (
+              <a href="https://academia.cecimentorcoach.com" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
+                <Users className="w-8 h-8 text-brand-gold mx-auto mb-3" />
+                <p className="font-heading font-bold text-xl text-brand-dark mb-2">Comunidad Eneascoaching</p>
+                <p className="text-gray-600 text-sm">Encuentros en vivo, cursos y una red para seguir aprendiendo eneagrama todo el año.</p>
+              </a>
+            ) : (
+              <a href="/mentorias/lideres" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
+                <Users className="w-8 h-8 text-brand-gold mx-auto mb-3" />
+                <p className="font-heading font-bold text-xl text-brand-dark mb-2">Mentoría para Líderes de Equipo</p>
+                <p className="text-gray-600 text-sm">Acompañamiento 1 a 1 para liderar reuniones que terminan en decisiones.</p>
+              </a>
+            )}
             <a href="/diplomatura" className="block bg-brand-beige rounded-sm p-8 border border-brand-gold/20 hover:border-brand-gold transition-colors">
               <GraduationCap className="w-8 h-8 text-brand-gold mx-auto mb-3" />
               <p className="font-heading font-bold text-xl text-brand-dark mb-2">Diplomatura en Eneagrama</p>
@@ -353,7 +365,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
           <div className="space-y-8">
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Necesito experiencia previa?</p>
-              <p className="text-gray-600">No. El taller es práctico y está pensado para cualquier persona que quiera comunicarse mejor, en su trabajo y en su vida cotidiana.</p>
+              <p className="text-gray-600">{taller.paraQuien || 'No. El taller es práctico y está pensado para cualquier persona que quiera comunicarse mejor, en su trabajo y en su vida cotidiana.'}</p>
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cómo pago?</p>
@@ -361,7 +373,7 @@ const Taller: React.FC<{ id?: string }> = ({ id: idProp }) => {
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Cuándo recibo el acceso?</p>
-              <p className="text-gray-600">Apenas confirmamos tu pago te llega el link de tu aula, con el calendario de los encuentros, las clases grabadas y el e-book.</p>
+              <p className="text-gray-600">Apenas confirmamos tu pago te llega el link de tu aula, con el calendario y {material}.</p>
             </div>
             <div>
               <p className="font-semibold text-brand-dark mb-2">¿Tengo otra duda?</p>

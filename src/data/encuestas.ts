@@ -121,8 +121,17 @@ export const INSCRIPTOS_TALLER: EncuestaConfig = {
   whatsapp: '5493515632496',
 };
 
+export const INSCRIPTOS_HILOS: EncuestaConfig = {
+  ...INSCRIPTOS_TALLER,
+  key: 'taller-hilos-del-destino',
+  marca: 'TALLER HILOS DEL DESTINO',
+  etiqueta: 'Taller Hilos del destino',
+  link: '/hilos-del-destino',
+};
+
 export const ENCUESTAS: Record<string, EncuestaConfig> = {
   reuniones: ENCUESTA_REUNIONES,
   eneagrama: ENCUESTA_ENEAGRAMA,
   [INSCRIPTOS_TALLER.key]: INSCRIPTOS_TALLER,
+  [INSCRIPTOS_HILOS.key]: INSCRIPTOS_HILOS,
 };
